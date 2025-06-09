@@ -1,7 +1,7 @@
 'use client';
 import Chat from "../_components/Chat"
 import SideChat from "../_components/SideChat"
-// import { Suspense } from "react";
+import { Suspense } from "react";
 async function verfiyUser(){
   // try{
   //   const jwt = (await cookies()).get('jwt');
