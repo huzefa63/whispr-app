@@ -85,7 +85,7 @@ function AuthForm() {
   async function signUp(){
     try {
       const res = await axios.post(
-        `http://localhost:5000/user/createUser`,
+        `${process.env.NEXT_AUTH_BACKEND_URL}/user/createUser`,
         data
       );
       
@@ -99,7 +99,7 @@ function AuthForm() {
   async function signIn(data){
     try {
       const res = await axios.post(
-        `http://localhost:5000/auth/signIn`,
+        `${process.env.NEXT_AUTH_BACKEND_URL}/auth/signIn`,
         data,
       );
       
