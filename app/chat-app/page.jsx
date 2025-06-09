@@ -22,7 +22,9 @@ function Page({searchParams}) {
      return (
        <div className="w-full h-screen overflow-hidden">
          <div className="flex h-full">
-           <SideChat />
+           <Suspense>
+             <SideChat />
+           </Suspense>
            <div className="h-full w-full">
              <Suspense fallback={<div>loading chat...</div>}>
                <Chat />
