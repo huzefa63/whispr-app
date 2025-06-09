@@ -1,9 +1,9 @@
 'use client';
-import { cookies } from "next/headers";
+
 import Chat from "../_components/Chat"
-import ChatController from "../_components/ChatController"
+
 import SideChat from "../_components/SideChat"
-import { redirect } from "next/navigation";
+
 import { Suspense } from "react";
 async function verfiyUser(){
   // try{
