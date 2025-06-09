@@ -1,3 +1,4 @@
+'use client';
 import Chat from "../_components/Chat"
 import SideChat from "../_components/SideChat"
 // import { Suspense } from "react";
@@ -14,7 +15,7 @@ async function verfiyUser(){
   // }
 }
 
-async function Page({searchParams}) {
+function Page({searchParams}) {
     // const paramObj = await searchParams;
     // const userId = await verfiyUser();
     
@@ -23,9 +24,9 @@ async function Page({searchParams}) {
          <div className="flex h-full">
            <SideChat />
            <div className="h-full w-full">
-             {/* <Suspense fallback={<div>loading chat...</div>}> */}
+             <Suspense fallback={<div>loading chat...</div>}>
                <Chat />
-             {/* </Suspense> */}
+             </Suspense>
            </div>
          </div>
        </div>
