@@ -1,9 +1,10 @@
+'use client';
 import { cookies } from "next/headers";
 import Chat from "../_components/Chat"
 import ChatController from "../_components/ChatController"
 import SideChat from "../_components/SideChat"
 import { redirect } from "next/navigation";
-
+import { Suspense } from "react";
 async function verfiyUser(){
   // try{
   //   const jwt = (await cookies()).get('jwt');
@@ -22,15 +23,17 @@ async function Page({searchParams}) {
     // const userId = await verfiyUser();
     
      return (
-        <div className="w-full h-screen overflow-hidden">
-            <div className="flex h-full">
-                <SideChat />
-                <div className="h-full w-full">
-                    <Chat  />
-                </div>
-            </div>
-        </div>
-    )
+       <div className="w-full h-screen overflow-hidden">
+         <div className="flex h-full">
+           <SideChat />
+           <div className="h-full w-full">
+             <Suspense fallback={<div>loading chat...</div>}>
+               <Chat />
+             </Suspense>
+           </div>
+         </div>
+       </div>
+     );
 }
 
 export default Page
