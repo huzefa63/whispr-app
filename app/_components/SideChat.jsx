@@ -6,7 +6,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import AddFriend from "./AddFriend";
-
+import { Poppins } from "next/font/google";
+const p = Poppins({
+  subsets: ["latin"],
+  variable: "p",
+  weight: "400",
+});
 function SideChat() {
   const pathanme = usePathname();
   const router = useRouter();
@@ -35,11 +40,23 @@ function SideChat() {
     }
   }
   return (
-    <div className="h-full w-[30%] bg-[var(--background)] shadow-sm flex flex-col border-r-1 border-[var(--border)]">
+    <div className="h-full w-[30%] relative bg-[var(--background)] shadow-sm flex flex-col border-r-1 border-[var(--border)]">
       <h1 className="text-center mt-3 text-3xl text-[var(--text)]">WHISPR</h1>
       <AddFriend />
+      {chats?.chats && chats?.chats?.length < 1 && (
+        <div className={`${p.className} absolute left-1/2 text-center  text-[var(--text)] flex flex-col gap-3 top-1/2 -translate-1/2 w-full`}>
+          <p className={` w-full `}>you don't have any friends added</p>
+          <p>add friends to start chatting</p>
+        </div>
+      )}
       <div className="border- border-[var(--border)] w-full flex-1 overflow-auto mt-3 py-3">
-        {chats?.chats?.map((el,i) => <SideChatProfile key={i} chat={el} currentUserId={chats?.currentUserId}/> )}
+        {chats?.chats?.map((el, i) => (
+          <SideChatProfile
+            key={i}
+            chat={el}
+            currentUserId={chats?.currentUserId}
+          />
+        ))}
       </div>
     </div>
   );

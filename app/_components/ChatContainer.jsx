@@ -15,7 +15,7 @@ function ChatContainer() {
       const [messages,setMessages] = useState([]);
       const containerRef = useRef(null);
       const [scroll,setScroll] = useState(true);
-      const {data,isPending} = useQuery({
+      const {data,isLoading} = useQuery({
         queryKey:['messages',params],
         queryFn: () => getMessages(params),
         refetchOnWindowFocus:false,
@@ -93,10 +93,10 @@ function ChatContainer() {
     return (
       <div
         ref={containerRef}
-        className="bg-[var(--surface)] relative overflow-auto flex-1 text-[var(--text)] p-5 flex flex-col gap-3"
+        className="bg-[var(--surface)] relative scroll-smooth overflow-auto flex-1 text-[var(--text)] p-5 flex flex-col gap-3"
       >
-        {isPending && <Spinner />}
-        {messages?.map((el,i) => <Message key={i} message={el} setScroll={setScroll}/>)}
+        {isLoading && <Spinner />}
+        {!isLoading && messages?.map((el,i) => <Message key={i} message={el} setScroll={setScroll}/>)}
         {/* {[
           {
             time: "2025-06-07 09:40:59.216",
