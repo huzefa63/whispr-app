@@ -26,6 +26,8 @@ function AddFriend() {
         } catch (err) {
           console.log(err);
           return false;
+        }finally{
+          setNumber('');
         }
         
     }
