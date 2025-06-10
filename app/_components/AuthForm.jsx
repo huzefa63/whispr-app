@@ -82,7 +82,7 @@ function AuthForm() {
   useEffect(() => {
     document.documentElement.classList.add("dark");
   }, []);
-  async function signUp(){
+  async function signUp(data){
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/createUser`,
