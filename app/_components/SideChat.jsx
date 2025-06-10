@@ -27,7 +27,7 @@ function SideChat() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/getChats`,{headers:{Authorization:`jwt=${jwt}`}}
       );
       console.log('chats',chatRes.data)
-      return chatRes.data?.chats;
+      return chatRes.data;
       
     } catch (err) {
       console.log(err);
@@ -39,7 +39,7 @@ function SideChat() {
       <h1 className="text-center mt-3 text-3xl text-[var(--text)]">WHISPR</h1>
       <AddFriend />
       <div className="border- border-[var(--border)] w-full flex-1 overflow-auto mt-3 py-3">
-        {chats?.map((el,i) => <SideChatProfile key={i} chat={el}/>)}
+        {chats?.chats?.map((el,i) => <SideChatProfile key={i} chat={el} currentUserId={chats?.currentUserId}/> )}
       </div>
     </div>
   );
