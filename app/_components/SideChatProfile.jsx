@@ -2,6 +2,7 @@
 import { jwtDecode } from "jwt-decode";
 import { usePathname, useSearchParams,useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
+import { BiCheckDouble } from "react-icons/bi";
 import { RiAccountCircleFill } from "react-icons/ri";
 function SideChatProfile({chat,currentUserId}) {
   const pathname = usePathname();
@@ -37,9 +38,7 @@ function SideChatProfile({chat,currentUserId}) {
       <button
         onClick={handleClick}
         className={`w-full border-b-1 h-[15%] gap-7 relative hover:bg-[var(--surface)] ${
-            hightlightUser()
-            ? "bg-[var(--muted)]"
-            : ""
+          hightlightUser() ? "bg-[var(--muted)]" : ""
         } hover:cursor-pointer transition-all duration-300 ease-in-out border-[var(--muted)] flex items-center px-2`}
       >
         {chat?.friend?.profileImage ? (
@@ -58,7 +57,12 @@ function SideChatProfile({chat,currentUserId}) {
               : chat?.user?.name}
           </p>
           {chat?.recentMessage && (
-            <p className="brightness-80 font-thin text-left">
+            <p className="brightness-80 font-thin text-left flex gap-1 items-center">
+              {chat?.recentMessageSenderId === currentUserId && <BiCheckDouble
+                className={`text-lg  ${
+                  chat?.isRecentMessageRead && "text-blue-400"
+                }`}
+              />}
               {chat?.recentMessage}
             </p>
           )}
