@@ -12,7 +12,7 @@ function ChatProfile() {
     refetchOnWindowFocus:false
   });
   async function getFriend(){
-    if(!searchParams.get('friendId')) return;
+    if(!searchParams.get('friendId')) return [];
     try{
       const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getFriend/${searchParams.get('friendId')}`)
       return res.data.friend;

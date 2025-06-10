@@ -22,9 +22,11 @@ function SideChat() {
   async function getChats(){
     try {
       const jwt = localStorage.getItem('jwt');
+      if(!jwt) return [];
       const chatRes = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/getChats`,{headers:{Authorization:`jwt=${jwt}`}}
       );
+      console.log('chats',chatRes.data)
       return chatRes.data?.chats;
       
     } catch (err) {
