@@ -19,7 +19,7 @@ function SideChatProfile({chat}) {
         />: <RiAccountCircleFill className="text-5xl text-[var(--text)]"/>}
         <div className="text-[var(--textDark)] space-y-2 tracking-wider">
           <p>{chat?.friend?.name}</p>
-          {chat?.lastMessage && <p className="brightness-80 font-thin text-left">{chat?.lastMessage}</p>}
+          {chat?.recentMessage && <p className="brightness-80 font-thin text-left">{chat?.recentMessage}</p>}
         </div>
         {/* <p className="absolute h-6 w-6 rounded-full text-stone-700 flex items-center justify-center bg-green-400 dark:bg-green-600 right-3 top-1/2 -translate-y-1/2">4</p> */}
       </button>
