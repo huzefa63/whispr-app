@@ -29,49 +29,63 @@ function SideChat() {
     if (!socket) return;
 
     socket.on("connect", () => console.log("connected"));
-    socket.on("revalidate-chats", (chat) => {
-      // queryClient.invalidateQueries('chats');
-      console.log(chat);
-      queryClient.setQueryData(['chats'],(oldChats) => {
-        if(!oldChats) return [];
-        console.log('old',oldChats)
-        console.log('recent',chat);
-        const index = oldChats?.chats.findIndex(
-          (el) =>
-            (el?.userId == chat?.senderId && el?.user2Id == chat?.recieverId) ||
-            (el?.userId == chat?.recieverId && el?.user2Id == chat?.senderId)
-        );
-        // console.log(chat);
-        // console.log('from query client index: ',index);
-        if(index){
-          let newChat = oldChats?.chats?.slice(index,index + 1);
-          const otherChats = oldChats?.chats?.slice();
-          console.log('other',otherChats)
-          const r = otherChats.splice(index,1);
-          console.log('removed',r);
-          console.log('new',newChat)
-          console.log('newly updated',{...newChat,recentMessage:chat?.message})
-          console.log('final chats',{
-            chats: [
-               ...newChat ,
-              ...otherChats,
-            ],
-            currentUserId: oldChats?.currentUserId,
-            status: oldChats?.status,
-          });
-          newChat[0].recentMessage = chat?.message;
-          return {chats:[...newChat,...otherChats],currentUserId:oldChats?.currentUserId,status:oldChats?.status};
-        }
-      })
-    });
+    // socket.on("revalidate-chats", (chat) => {
+    //   // queryClient.invalidateQueries('chats');
+    //   console.log(chat);
+    //   queryClient.setQueryData(['chats'],(oldChats) => {
+    //     if(!oldChats) return [];
+    //     console.log('old',oldChats)
+    //     console.log('recent',chat);
+    //     const index = oldChats?.chats.findIndex(
+    //       (el) =>
+    //         (el?.userId == chat?.senderId && el?.user2Id == chat?.recieverId) ||
+    //         (el?.userId == chat?.recieverId && el?.user2Id == chat?.senderId)
+    //     );
+    //     // console.log(chat);
+    //     // console.log('from query client index: ',index);
+    //     if(index){
+    //       let newChat = oldChats?.chats?.slice(index,index + 1);
+    //       const otherChats = oldChats?.chats?.slice();
+    //       console.log('other',otherChats)
+    //       const r = otherChats.splice(index,1);
+    //       // console.log('removed',r);
+    //       // console.log('new',newChat)
+    //       // console.log('newly updated',{...newChat,recentMessage:chat?.message})
+    //       console.log('final chats',{
+    //         chats: [
+    //            ...newChat ,
+    //           ...otherChats,
+    //         ],
+    //         currentUserId: oldChats?.currentUserId,
+    //         status: oldChats?.status,
+    //       });
+    //       newChat[0].recentMessage = chat?.message;
+    //       return {chats:[...newChat,...otherChats],currentUserId:oldChats?.currentUserId,status:oldChats?.status};
+    //     }
+    //   })
+    // });
 
-    socket?.on('messageRecieved',() =>{
-      queryClient.invalidateQueries(['chats']);
-    })
+    // socket?.on('messageRecieved',(data) =>{
+      // queryClient.setQueryData(['chats'],(previousChats) => {
+      //   console.log('from top',previousChats.chats[0]);
+      //   console.log('after top',data.chat[0]);
+      //   if(!previousChats) return [...data?.chat];
+      //   const latestChatIndex = previousChats?.chats.findIndex(el => data?.chat[0]?.id === el?.id)
+      //   console.log('id founded',latestChatIndex); 
+      //   const previousChatsCopy = {...previousChats};
+      //   console.log('data to add: ',data?.chat)
+      //   previousChatsCopy?.chats.splice(latestChatIndex,1,data?.chat[0]);
+      //   previousChatsCopy?.chats?.sort((a,b) => b?.recentMessageCreatedAt.localeCompare(a?.recentMessageCreatedAt));
+      //   console.log('from sidechat: ',previousChatsCopy);
+        
+      //   return previousChatsCopy;
+      // })
+    // })
     
     return () => {
       socket?.off?.("connect");
       socket?.off?.("revalidate-chats");
+      socket?.off('messageRecieved');
     };
   }, [socket]);
 

@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { UseSocketContext } from './SocketProvider';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import Spinner from './Spinner';
@@ -16,6 +16,7 @@ function ChatContainer() {
       const containerRef = useRef(null);
       const [scroll,setScroll] = useState(true);
       const [friendId,setFriendId] = useState(null);
+      const queryClient = useQueryClient();
       const {data,isLoading} = useQuery({
         queryKey:['messages',params],
         queryFn: () => getMessages(params),
@@ -77,6 +78,19 @@ function ChatContainer() {
           socket.on("messageRecieved", (data) => {
             console.log('message recieved',data);
             console.log('message recieved, friendId: ',friendId)
+            queryClient.setQueryData(["chats"], (previousChats) => {
+              console.log("from top", previousChats.chats[0]);
+              console.log("after top", data.chat[0]);
+              if (!previousChats) return [...data?.chat];
+              const latestChatIndex = previousChats?.chats.findIndex(
+                (el) => data?.chat[0]?.id === el?.id
+              );
+              const newChats = [...previousChats.chats];
+              newChats[latestChatIndex] = data?.chat[0];
+
+              newChats.sort((a,b) => b?.recentMessageCreatedAt.localeCompare(a?.recentMessageCreatedAt))
+              return {...previousChats,chats:newChats};
+            });
              setScroll(false);
              const token = localStorage.getItem("jwt");
              const currentUserId = jwtDecode(token)?.id;
