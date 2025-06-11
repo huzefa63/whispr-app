@@ -64,6 +64,10 @@ function SideChat() {
         }
       })
     });
+
+    socket?.on('messageRecieved',() =>{
+      queryClient.invalidateQueries(['chats']);
+    })
     
     return () => {
       socket?.off?.("connect");

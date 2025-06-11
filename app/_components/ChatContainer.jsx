@@ -16,7 +16,6 @@ function ChatContainer() {
       const containerRef = useRef(null);
       const [scroll,setScroll] = useState(true);
       const [friendId,setFriendId] = useState(null);
-      const paramFriendId = searchParams.get('friendId');
       const {data,isLoading} = useQuery({
         queryKey:['messages',params],
         queryFn: () => getMessages(params),
@@ -47,6 +46,7 @@ function ChatContainer() {
       }
       useEffect(()=>{
         setFriendId(Number(params));
+        console.log('from effect of id: ',params)
         const jwt = localStorage.getItem('jwt');
        async function markRead(){
         const res2 = await axios.get(
@@ -78,10 +78,12 @@ function ChatContainer() {
             console.log('message recieved',data);
             console.log('message recieved, friendId: ',friendId)
              setScroll(false);
-            if(data?.senderId != friendId) return;
-            
-            setMessages(el=>[...el,data]);
-            if(data.Type !== 'image') setScroll(true);
+             const token = localStorage.getItem("jwt");
+             const currentUserId = jwtDecode(token)?.id;
+            if(data?.senderId == friendId || data?.senderId === currentUserId){
+                setMessages(el=>[...el,data]);
+                if(data.Type !== 'image') setScroll(true);
+            }
           });
           socket.on('message-read',() => {
             setMessages(el => {
@@ -93,8 +95,9 @@ function ChatContainer() {
         return () => {
           socket?.off?.('connect');
           socket?.off?.('messageRecieved');
+          socket?.off?.('message-read');
         };
-      }, [socket]);
+      }, [socket,friendId]);
     return (
       <div
         ref={containerRef}

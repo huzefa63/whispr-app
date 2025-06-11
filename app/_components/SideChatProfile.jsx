@@ -62,13 +62,13 @@ function SideChatProfile({chat,currentUserId}) {
             <div className="w-full pr-3 flex-1">
               <p className="brightness-80  truncate font-thin text-left flex gap-1 items-center">
                 {chat?.recentMessageSenderId === currentUserId && (
-                  <div>
+                  <span>
                     <BiCheckDouble
                       className={`text-lg  ${
                         chat?.isRecentMessageRead && "text-blue-400"
                       }`}
                     />
-                  </div>
+                  </span>
                 )}
                 {chat?.recentMessage}
               </p>
