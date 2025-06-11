@@ -111,7 +111,7 @@ function ChatController() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="h-[8%] bg-[var(--muted)] flex items-center px-3"
+      className="h-full bg-[var(--muted)] overflow-auto flex items-center px-3"
     >
       {/* <div className=""> */}
       <label
@@ -170,14 +170,15 @@ function ChatController() {
         value={message}
         ref={inputRef}
         type="text"
-        className={`${poppins.className} disabled:cursor-not-allowed flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
-        autoFocus
+        className={`${poppins.className} border disabled:cursor-not-allowed flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
       />
       <button
         disabled={mediaUrl}
         className="hover:cursor-pointer disabled:cursor-not-allowed p-2 hover:bg-stone-700"
       >
-        <IoIosSend className="text-[var(--text)] disabled:cursor-not-allowed text-3xl" />
+        <div>
+          <IoIosSend className="text-[var(--text)] disabled:cursor-not-allowed lg:text-3xl text-2xl" />
+        </div>
       </button>
     </form>
   );
