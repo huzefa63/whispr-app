@@ -38,7 +38,7 @@ function SocketProvider({children}) {
         return () => {
             if(socket){
                 socket?.disconnect?.();
-                socket = null;
+               setSocket(null);
                 console.log('socket disconnected');
             }
         }

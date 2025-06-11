@@ -33,11 +33,11 @@ function SideChatProfile({chat,currentUserId}) {
       return chat?.userId === Number(friendId);
     }
   }
-    const hightlight = currentUserId === chat?.userId;
+    const recentMessage = chat?.recentMessage?.length < 23 ? chat?.recentMessage : chat?.recentMessage.slice(0,23) + '...'
     return (
       <button
         onClick={handleClick}
-        className={`w-full border-b-1 h-[15%] gap-7 relative hover:bg-[var(--surface)] ${
+        className={`w-full overflow-hidden border-b-1 grid grid-cols-5 h-[15%] relative hover:bg-[var(--surface)] ${
           hightlightUser() ? "bg-[var(--muted)]" : ""
         } hover:cursor-pointer transition-all duration-300 ease-in-out border-[var(--muted)] flex items-center px-2`}
       >
@@ -48,23 +48,31 @@ function SideChatProfile({chat,currentUserId}) {
             className="border-white w-[20%] h-3/4 rounded-full"
           />
         ) : (
-          <RiAccountCircleFill className="text-5xl text-[var(--text)]" />
+          <div>
+            <RiAccountCircleFill className="text-5xl text-[var(--text)]" />
+          </div>
         )}
-        <div className="text-[var(--textDark)] space-y-2 tracking-wider">
-          <p>
+        <div className="text-[var(--textDark)] w-full col-span-4 space-y-2 tracking-wider  flex-1">
+          <p className="text-left">
             {chat?.user?.id === currentUserId
               ? chat?.user2?.name
               : chat?.user?.name}
           </p>
           {chat?.recentMessage && (
-            <p className="brightness-80 font-thin text-left flex gap-1 items-center">
-              {chat?.recentMessageSenderId === currentUserId && <BiCheckDouble
-                className={`text-lg  ${
-                  chat?.isRecentMessageRead && "text-blue-400"
-                }`}
-              />}
-              {chat?.recentMessage}
-            </p>
+            <div className="w-full pr-3 flex-1">
+              <p className="brightness-80  truncate font-thin text-left flex gap-1 items-center">
+                {chat?.recentMessageSenderId === currentUserId && (
+                  <div>
+                    <BiCheckDouble
+                      className={`text-lg  ${
+                        chat?.isRecentMessageRead && "text-blue-400"
+                      }`}
+                    />
+                  </div>
+                )}
+                {chat?.recentMessage}
+              </p>
+            </div>
           )}
         </div>
         {/* <p className="absolute h-6 w-6 rounded-full text-stone-700 flex items-center justify-center bg-green-400 dark:bg-green-600 right-3 top-1/2 -translate-y-1/2">4</p> */}

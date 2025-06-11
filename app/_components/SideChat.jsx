@@ -3,10 +3,11 @@ import { MdPersonAddAlt1 } from "react-icons/md";
 import SideChatProfile from "./SideChatProfile";
 import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import AddFriend from "./AddFriend";
 import { Poppins } from "next/font/google";
+import { UseSocketContext } from "./SocketProvider";
 const p = Poppins({
   subsets: ["latin"],
   variable: "p",
@@ -16,13 +17,59 @@ function SideChat() {
   const pathanme = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const {socket} = UseSocketContext();
+  const queryClient = useQueryClient();
   const {data:chats,isPending} = useQuery({
     queryKey:['chats'],
     queryFn:getChats,
     refetchOnWindowFocus:false
   });
 
-  
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("connect", () => console.log("connected"));
+    socket.on("revalidate-chats", (chat) => {
+      // queryClient.invalidateQueries('chats');
+      console.log(chat);
+      queryClient.setQueryData(['chats'],(oldChats) => {
+        if(!oldChats) return [];
+        console.log('old',oldChats)
+        console.log('recent',chat);
+        const index = oldChats?.chats.findIndex(
+          (el) =>
+            (el?.userId == chat?.senderId && el?.user2Id == chat?.recieverId) ||
+            (el?.userId == chat?.recieverId && el?.user2Id == chat?.senderId)
+        );
+        // console.log(chat);
+        // console.log('from query client index: ',index);
+        if(index){
+          let newChat = oldChats?.chats?.slice(index,index + 1);
+          const otherChats = oldChats?.chats?.slice();
+          console.log('other',otherChats)
+          const r = otherChats.splice(index,1);
+          console.log('removed',r);
+          console.log('new',newChat)
+          console.log('newly updated',{...newChat,recentMessage:chat?.message})
+          console.log('final chats',{
+            chats: [
+               ...newChat ,
+              ...otherChats,
+            ],
+            currentUserId: oldChats?.currentUserId,
+            status: oldChats?.status,
+          });
+          newChat[0].recentMessage = chat?.message;
+          return {chats:[...newChat,...otherChats],currentUserId:oldChats?.currentUserId,status:oldChats?.status};
+        }
+      })
+    });
+    
+    return () => {
+      socket?.off?.("connect");
+      socket?.off?.("revalidate-chats");
+    };
+  }, [socket]);
 
   async function getChats(){
     try {
@@ -40,7 +87,7 @@ function SideChat() {
     }
   }
   return (
-    <div className="h-full w-[30%] relative bg-[var(--background)] shadow-sm flex flex-col border-r-1 border-[var(--border)]">
+    <div className="h-full max-w-[25%] min-w-[25%] relative bg-[var(--background)] shadow-sm flex flex-col border-r-1 border-[var(--border)]">
       <h1 className="text-center mt-3 text-3xl text-[var(--text)]">WHISPR</h1>
       <AddFriend />
       {chats?.chats && chats?.chats?.length < 1 && (

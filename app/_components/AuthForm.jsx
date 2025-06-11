@@ -79,9 +79,6 @@ function AuthForm() {
     ],
     [pathname]
   ); // Prevent excessive recalculations
-  useEffect(() => {
-    document.documentElement.classList.add("dark");
-  }, []);
   async function signUp(data){
     try {
       const res = await axios.post(

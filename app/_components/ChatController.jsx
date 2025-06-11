@@ -19,6 +19,15 @@ const poppins = Poppins({
 
 function ChatController() {
     const inputRef = useRef(null);
+    const [message,setMessage] = useState('');
+    const searchParams = useSearchParams();
+    const [mediaUrl,setMediaUrl] = useState('');
+    const [media,setMedia] = useState(null);
+    const [caption,setCaption] = useState("");
+    const fileRef = useRef(null);
+    const [loading,setLoading] = useState(false);
+  const friendId = searchParams.get('friendId');
+
     useEffect(() => {
         // console.log(
         //   Object.keys(document.activeElement).length < 1,
@@ -31,15 +40,9 @@ function ChatController() {
         // }
         // document.addEventListener('keydown',handleKeyDown);
         // return () => document.removeEventListener('keydown',handleKeyDown);
-        document.documentElement.classList.add('dark');
-    }, []);
-    const [message,setMessage] = useState('');
-    const searchParams = useSearchParams();
-    const [mediaUrl,setMediaUrl] = useState('');
-    const [media,setMedia] = useState(null);
-    const [caption,setCaption] = useState("");
-    const fileRef = useRef(null);
-    const [loading,setLoading] = useState(false);
+        // document.documentElement.classList.add('dark');
+        inputRef.current.focus();
+    }, [friendId]);
     async function handleMediaSubmit(media, caption, jwt, recieverId) {
       const formData = new FormData();
       formData.append("media", media);

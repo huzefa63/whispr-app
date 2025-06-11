@@ -123,7 +123,7 @@ function Message({message,setScroll}){
     if(message.Type !== 'image')return (
       <div className="w-full">
         <p
-          className={`relative rounded-sm pl-3 pr-20 p-2 w-fit max-w-[45%] ${
+          className={`relative rounded-sm pl-3 pr-20 p-2 w-fit max-w-[45%]  break-words ${
             currentUserId === Number(message?.senderId)
               ? "ml-auto bg-green-900"
               : "bg-[var(--muted)]"

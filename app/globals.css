@@ -4,7 +4,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
-  :root {
+  .dark {
     --background: #F8FAFC;
     --surface: #FFFFFF;
     --primary: #3B82F6;
@@ -19,7 +19,7 @@
     --border: #9091934e;
   }
 
-  .dark {
+  :root {
     --background: #121212;
     --surface: #1A1A1A;
     --primary: #60A5FA;
