@@ -46,6 +46,7 @@ function ChatContainer() {
         }
       }
       useEffect(()=>{
+        setFriendId(Number(params));
         const jwt = localStorage.getItem('jwt');
        async function markRead(){
         const res2 = await axios.get(
@@ -68,10 +69,6 @@ function ChatContainer() {
         }
       },[messages,scroll])
       
-      useEffect(()=>{
-        if(!paramFriendId) return;
-        setFriendId(Number(paramFriendId));
-      },[paramFriendId])
       useEffect(() => {
         
         if(!socket) return;
