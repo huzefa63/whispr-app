@@ -28,7 +28,7 @@ function ChatController() {
     const [loading,setLoading] = useState(false);
   const friendId = searchParams.get('friendId');
 
-    useEffect(() => {
+    // useEffect(() => {
         // console.log(
         //   Object.keys(document.activeElement).length < 1,
         //   document.activeElement
@@ -41,8 +41,8 @@ function ChatController() {
         // document.addEventListener('keydown',handleKeyDown);
         // return () => document.removeEventListener('keydown',handleKeyDown);
         // document.documentElement.classList.add('dark');
-        inputRef.current.focus();
-    }, [friendId]);
+        // inputRef.current.focus();
+    // }, [friendId]);
     async function handleMediaSubmit(media, caption, jwt, recieverId) {
       const formData = new FormData();
       formData.append("media", media);
