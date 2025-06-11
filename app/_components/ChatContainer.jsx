@@ -65,11 +65,13 @@ function ChatContainer() {
         if (containerRef.current && scroll) {
          
           containerRef.current.scrollTop = containerRef.current.scrollHeight;
-              
+          
             
         }
       },[messages,scroll])
-      
+      useEffect(()=>{
+        document.documentElement.scrollTop = document.documentElement.scrollHeight;
+      },[])
       useEffect(() => {
         
         if(!socket) return;
