@@ -111,7 +111,7 @@ function ChatController() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="h-full max-w-full bg-[var(--muted)] grid grid-cols-7  lg:flex items-center px-2 lg:px-3"
+      className="h-full max-w-full bg-[var(--muted)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
     >
       {/* <div className=""> */}
       <label
@@ -170,7 +170,7 @@ function ChatController() {
         value={message}
         ref={inputRef}
         type="text"
-        className={`${poppins.className} border col-span-5 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
+        className={`${poppins.className} col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
       />
       <button
         disabled={mediaUrl}
