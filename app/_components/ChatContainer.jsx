@@ -74,7 +74,7 @@ function ChatContainer() {
           socket.on("messageRecieved", (data) => {
             console.log('message recieved');
              setScroll(false);
-         
+            if(data?.senderId != searchParams.get('friendId')) return;
             setMessages(el=>[...el,data]);
             if(data.Type !== 'image') setScroll(true);
           });
