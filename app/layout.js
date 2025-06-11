@@ -19,7 +19,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${inter.className} overflow-hidden antialiased`}>
         <QueryProvider>
           <SocketProvider>{children}</SocketProvider>
         </QueryProvider>
