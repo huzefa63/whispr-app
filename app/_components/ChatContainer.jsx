@@ -15,6 +15,8 @@ function ChatContainer() {
       const [messages,setMessages] = useState([]);
       const containerRef = useRef(null);
       const [scroll,setScroll] = useState(true);
+      const [friendId,setFriendId] = useState(null);
+      const paramFriendId = searchParams.get('friendId');
       const {data,isLoading} = useQuery({
         queryKey:['messages',params],
         queryFn: () => getMessages(params),
@@ -66,6 +68,10 @@ function ChatContainer() {
         }
       },[messages,scroll])
       
+      useEffect(()=>{
+        if(!paramFriendId) return;
+        setFriendId(Number(paramFriendId));
+      },[paramFriendId])
       useEffect(() => {
         
         if(!socket) return;
@@ -75,7 +81,8 @@ function ChatContainer() {
             console.log('message recieved',data);
             console.log('message recieved, friendId: ',searchParams.get('friendId'))
              setScroll(false);
-            if(data?.senderId != searchParams.get('friendId')) return;
+            if(data?.senderId != friendId) return;
+            
             setMessages(el=>[...el,data]);
             if(data.Type !== 'image') setScroll(true);
           });
