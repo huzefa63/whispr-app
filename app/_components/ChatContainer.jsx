@@ -79,7 +79,7 @@ function ChatContainer() {
          socket.on('connect',()=>console.log('connected'));
           socket.on("messageRecieved", (data) => {
             console.log('message recieved',data);
-            console.log('message recieved, friendId: ',searchParams.get('friendId'))
+            console.log('message recieved, friendId: ',friendId)
              setScroll(false);
             if(data?.senderId != friendId) return;
             
