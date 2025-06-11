@@ -111,7 +111,7 @@ function ChatController() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="h-full bg-[var(--muted)] overflow-auto flex items-center px-3"
+      className="h-full max-w-full  justify-between bg-[var(--muted)]  flex items-center px-2 lg:px-3"
     >
       {/* <div className=""> */}
       <label
@@ -155,7 +155,7 @@ function ChatController() {
           </button>
         </div>
       )}
-      {/* </div> */}
+      
       <input
         ref={fileRef}
         hidden
