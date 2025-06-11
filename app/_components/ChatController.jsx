@@ -114,44 +114,47 @@ function ChatController() {
       className="h-[8%] bg-[var(--muted)] flex items-center px-3"
     >
       {/* <div className=""> */}
-        <label
-          htmlFor="media"
-          className="hover:cursor-pointer z-50 p-2 hover:bg-stone-700"
-        >
-          <MdOutlineAttachFile className="text-[var(--text)] text-3xl" />
-        </label>
-        {mediaUrl && (
-          <div className="bg-[var(--background)] p-10  max-h-fit border-[var(--border)] border-1 top-1/2 left-1/2 -translate-1/2 absolute">
-            <img
-              src={mediaUrl}
-              className="w-1/2 mx-auto h-1/2 bg-green-800"
-            ></img>
-            <div className="flex gap-2 mt-3">
-              <textarea
-                value={caption}
-                onChange={(e)=>setCaption(e.target.value)}
-                type="text"
-                placeholder=" write caption here..."
-                className="border-gray-400 resize-none border-1 bg-[var(--surface)] py-1 px-5 w-full  text-[var(--text)]"
+      <label
+        htmlFor="media"
+        className="hover:cursor-pointer z-50 p-2 hover:bg-stone-700"
+      >
+        <MdOutlineAttachFile className="text-[var(--text)] text-3xl" />
+      </label>
+      {mediaUrl && (
+        <div className="bg-[var(--background)] flex flex-col p-10 w-[80%] lg:w-fit h-1/2 lg:h-3/4 lg:max-h-fit border-[var(--border)] border-1 top-1/2 left-1/2 -translate-1/2 absolute">
+          <div className="w-full h-full">
+            <img src={mediaUrl} className="w-1/2 mx-auto bg-green-800"></img>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <textarea
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              type="text"
+              placeholder=" write caption here..."
+              className="border-gray-400 resize-none border-1 bg-[var(--surface)] lg:py-1 px-5 w-full  text-[var(--text)]"
+            />
+            <button className="hover:cursor-pointer bg-[var(--muted)] p-2 hover:bg-stone-700 relative">
+              <IoIosSend
+                className={`text-[var(--text)] lg:text-3xl text-2xl ${
+                  loading && "opacity-0"
+                }`}
               />
-              <button className="hover:cursor-pointer bg-[var(--muted)] p-2 hover:bg-stone-700 relative">
-                <IoIosSend className={`text-[var(--text)] text-3xl ${loading && 'opacity-0'}`} />
-               { loading && <Spinner /> }
-              </button>
-            </div>
-            <button
-              onClick={() => {
-                setMediaUrl(null);
-                setMedia(null);
-                fileRef.current.value = "";
-              }}
-              type="button"
-              className="absolute hover:cursor-pointer bg-[var(--muted)] text-[var(--text)] border-1 border-[var(--border)] top-1 right-1 text-2xl px-3 py-1 rounded-full"
-            >
-              x
+              {loading && <Spinner />}
             </button>
           </div>
-        )}
+          <button
+            onClick={() => {
+              setMediaUrl(null);
+              setMedia(null);
+              fileRef.current.value = "";
+            }}
+            type="button"
+            className="absolute hover:cursor-pointer bg-[var(--muted)] text-[var(--text)] border-1 border-[var(--border)] top-2 right-2 text-2xl lg:px-3 lg:py-1 px-2 rounded-full"
+          >
+            x
+          </button>
+        </div>
+      )}
       {/* </div> */}
       <input
         ref={fileRef}
@@ -162,7 +165,7 @@ function ChatController() {
         id="media"
       />
       <input
-       disabled={mediaUrl}
+        disabled={mediaUrl}
         onChange={(e) => setMessage(e.target.value)}
         value={message}
         ref={inputRef}
@@ -170,7 +173,10 @@ function ChatController() {
         className={`${poppins.className} disabled:cursor-not-allowed flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
         autoFocus
       />
-      <button disabled={mediaUrl} className="hover:cursor-pointer p-2 hover:bg-stone-700">
+      <button
+        disabled={mediaUrl}
+        className="hover:cursor-pointer disabled:cursor-not-allowed p-2 hover:bg-stone-700"
+      >
         <IoIosSend className="text-[var(--text)] disabled:cursor-not-allowed text-3xl" />
       </button>
     </form>

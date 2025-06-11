@@ -21,7 +21,7 @@ function Page({searchParams}) {
     
      return (
        <div className="w-full h-screen overflow-hidden">
-         <div className="flex h-full">
+         <div className="flex h-full  w-full">
            <Suspense>
              <SideChat />
            </Suspense>

@@ -104,8 +104,8 @@ function SideChat() {
       return [];
     }
   }
-  return (
-    <div className="h-full max-w-[25%] min-w-[25%] relative bg-[var(--background)] shadow-sm flex flex-col border-r-1 border-[var(--border)]">
+   return (
+    <div className={`h-full ${searchParams.get('friendId') && 'hidden lg:flex'} min-w-full lg:max-w-[25%] lg:min-w-[25%] relative bg-[var(--background)] shadow-sm flex flex-col border-r-1 border-[var(--border)]`}>
       <h1 className="text-center mt-3 text-3xl text-[var(--text)]">WHISPR</h1>
       <AddFriend />
       {chats?.chats && chats?.chats?.length < 1 && (

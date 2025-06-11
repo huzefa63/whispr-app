@@ -115,7 +115,7 @@ function ChatContainer() {
     return (
       <div
         ref={containerRef}
-        className="bg-[var(--surface)] relative scroll-smooth overflow-auto flex-1 text-[var(--text)] p-5 flex flex-col gap-3"
+        className="bg-[var(--surface)] relative  overflow-auto flex-1 text-[var(--text)] p-5 flex flex-col gap-3"
       >
         {isLoading && <Spinner />}
         {!isLoading && messages?.map((el,i) => <Message key={i} message={el} setScroll={setScroll}/>)}
@@ -145,7 +145,7 @@ function Message({message,setScroll}){
     if(message.Type !== 'image')return (
       <div className="w-full">
         <p
-          className={`relative rounded-sm pl-3 pr-20 p-2 w-fit max-w-[45%]  break-words ${
+          className={`relative rounded-sm pl-3 pr-20 p-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
             currentUserId === Number(message?.senderId)
               ? "ml-auto bg-green-900"
               : "bg-[var(--muted)]"
@@ -160,7 +160,7 @@ function Message({message,setScroll}){
     if(message.Type === 'image') return (
       <div className="w-full gap-2 ">
         <div
-          className={`flex flex-col relative  gap-3 bg-[var(--muted)] p-2 rounded-sm  w-fit min-w-[30%] max-w-[30%] ${
+          className={`flex flex-col relative  gap-3 bg-[var(--muted)] p-2 rounded-sm min-w-[60%] max-w-[60%]  lg:w-fit lg:min-w-[30%] lg:max-w-[30%] ${
             currentUserId === Number(message?.senderId)
               ? "ml-auto bg-green-900"
               : "bg-[var(--muted)]"

@@ -1,12 +1,12 @@
-import { Inter } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "./_components/QueryProvider";
 import SocketProvider from "./_components/SocketProvider";
 
-const inter = Inter({
+const inter = Poppins({
   variable: "inter",
   subsets: ["latin"],
-  weight:'600'
+  weight:'400'
 });
 
 export const metadata = {
