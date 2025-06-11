@@ -170,7 +170,7 @@ function ChatController() {
         value={message}
         ref={inputRef}
         type="text"
-        className={`${poppins.className} border disabled:cursor-not-allowed flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
+        className={`${poppins.className} border disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
       />
       <button
         disabled={mediaUrl}
