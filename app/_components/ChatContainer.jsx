@@ -115,7 +115,7 @@ function ChatContainer() {
     return (
       <div
         ref={containerRef}
-        className="bg-[var(--surface)] relative  text-[var(--text)] p-5 flex flex-col gap-3"
+        className="bg-[var(--surface)] relative h-full overflow-auto text-[var(--text)] p-5 flex flex-col gap-3"
       >
         {isLoading && <Spinner />}
         {!isLoading && messages?.map((el,i) => <Message key={i} message={el} setScroll={setScroll}/>)}

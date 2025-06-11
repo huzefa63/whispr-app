@@ -29,7 +29,7 @@ function Chat({messages}) {
         <div className="lg:h-[10%] w-full h-[9%] lg:relative lg:top-0 lg:left-0 fixed top-0 left-0 z-50">
           <ChatProfile />
         </div>
-        <div className="lg:h-[80%] h-[92%] pt-[10%] lg:pt-0 overflow-auto">
+        <div className="lg:h-[80%] h-[92%] pt-[10%] lg:pt-0">
           <ChatContainer />
         </div>
         <div className="lg:h-[10%] h-[8%]">
