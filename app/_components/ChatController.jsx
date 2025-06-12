@@ -121,12 +121,12 @@ function ChatController({setMessages,setScroll}) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="h-full max-w-full gap-1 z-[1000]  lg:bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
+      className="h-full max-w-full gap-1 z-[1000]  bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
     >
       {/* <div className=""> */}
       <label
         htmlFor="media"
-        className="hover:cursor-pointer flex justify-center bg-[var(--muted)] rounded-full w-3/4 z-50 p-2 hover:bg-stone-700"
+        className="hover:cursor-pointer flex justify-center bg-[var(--muted)] rounded-full w-3/4 lg:w-auto  z-50 p-2.5 lg:p-3 hover:bg-stone-700"
       >
         <MdOutlineAttachFile className="text-[var(--text)] lg:text-3xl text-2xl" />
       </label>
