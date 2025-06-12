@@ -23,10 +23,11 @@ function Chat() {
       if(!socket) return;
       let timeout;
       socket.on('typing',(userId) => {
-        setIsTyping(userId);
+        console.log(userId);
+        setUserTypingId(userId);
         clearTimeout(timeout);
         timeout = setInterval(() => {
-          setIsTyping(null);
+          setUserTypingId(null);
         }, 2000);
       })
       return () => socket.off('typing');
