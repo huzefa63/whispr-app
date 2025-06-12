@@ -102,9 +102,9 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
         );
         return { ...previousChats, chats: newChats };
       });
-      if(data?.Type === 'image' || data?.senderId !== currentUserId) setScroll(false);
       const token = localStorage.getItem("jwt");
       const currentUserId = jwtDecode(token)?.id;
+      if(data?.Type === 'image' || data?.senderId !== currentUserId) setScroll(false);
       if (data?.senderId == friendId || data?.senderId === currentUserId) {
         // setMessages(el=>[...el,data]);
         setMessages((el) => {
