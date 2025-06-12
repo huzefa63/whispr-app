@@ -4,7 +4,8 @@ import ChatContainer from "./ChatContainer"
 import ChatController from "./ChatController"
 import ChatProfile from "./ChatProfile"
 import { Poppins } from "next/font/google";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { UseSocketContext } from "./SocketProvider";
 const p = Poppins({
     subsets:['latin'],
     variable:'p',
@@ -14,7 +15,21 @@ function Chat() {
     const params = useSearchParams();
     const [messages,setMessages] = useState([]);
     const [scroll, setScroll] = useState(false);
-    
+    const [userTypingId,setUserTypingId] = useState(null);
+    const {socket} = UseSocketContext();
+    useEffect(()=>{
+      if(!socket) return;
+      let timeout;
+      socket.on('typing',(userId) => {
+        setIsTyping(userId);
+        clearTimeout(timeout);
+        timeout = setInterval(() => {
+          setIsTyping(null);
+        }, 2000);
+      })
+      return () => socket.off('typing');
+    },[socket])
+
     if(!params.get('friendId')) return (
       <div className={`${p.className} hidden lg:flex bg-[var(--surface)] flex-col gap-25 text-[var(--text)] tracking-wider text-3xl items-center justify-center w-full h-full`}>
         <div className="flex flex-col gap-3 opacity-70">
@@ -42,7 +57,7 @@ function Chat() {
           />
         </div>
         <div className="lg:h-[10%] w-full h-[8%] lg:relative lg:top-0 lg:left-0 fixed bottom-0 left-0 z-50">
-          <ChatController setMessages={setMessages} setScroll={setScroll} />
+          <ChatController userTypingId={userTypingId} setMessages={setMessages} setScroll={setScroll} />
         </div>
       </div>
     );

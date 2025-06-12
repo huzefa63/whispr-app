@@ -114,8 +114,9 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
             return [...el, data];
           };
           const newState = [...el];
-          newState.pop();
-          return [...newState, data];
+          const index = newState.findIndex(el => el?.uniqueId === data?.uniqueId)
+          newState[index] = data;
+          return [...newState];
         });
         // if (data.Type !== "image") setScroll(true);
       }

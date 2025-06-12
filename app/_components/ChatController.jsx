@@ -9,6 +9,10 @@ import axios from "axios";
 import Spinner from "./Spinner";
 import { jwtDecode } from "jwt-decode";
 import ModelWindow from "./ModelWindow";
+import { IoMdMic,IoMdMicOff } from "react-icons/io";
+import { UseSocketContext } from "./SocketProvider";
+import { BsChatDots } from "react-icons/bs";
+
 // import connectSocket from "@/lib/socket";
 // import { UseSocketContext } from "./SocketProvider";
 const poppins = Poppins({
@@ -19,7 +23,7 @@ const poppins = Poppins({
     
 
 
-function ChatController({setMessages,setScroll}) {
+function ChatController({setMessages,setScroll,userTypingId}) {
     const inputRef = useRef(null);
     const [message,setMessage] = useState('');
     const searchParams = useSearchParams();
@@ -28,6 +32,8 @@ function ChatController({setMessages,setScroll}) {
     const [caption,setCaption] = useState("");
     const fileRef = useRef(null);
     const [loading,setLoading] = useState(false);
+    const [isRecording,setIsRecording] = useState(false);
+    const {socket} = UseSocketContext();
   const friendId = searchParams.get('friendId');
 
     // useEffect(() => {
@@ -80,12 +86,14 @@ function ChatController({setMessages,setScroll}) {
       const recieverId = searchParams.get("friendId");
       if(jwt && media) await handleMediaSubmit(media,caption,jwt,recieverId);
       if(jwt && !media && message) {
+        const uniqueId = `${Date.now()}-${Math.round(Math.random() * 10000000)}`
         const data = {
           message,
           recieverId,
+          uniqueId,
         };
         setMessage("");
-        setMessages(el => [...el,{placeholder:true,message,recieverId:Number(recieverId),senderId:payload.id,Type:'text',time:new Date().toISOString()}])
+        setMessages(el => [...el,{uniqueId,placeholder:true,message,recieverId:Number(recieverId),senderId:payload.id,Type:'text',time:new Date().toISOString()}])
        inputRef?.current?.focus();
         console.log('scroll to true from controller');
         try {
@@ -118,18 +126,34 @@ function ChatController({setMessages,setScroll}) {
       }
       reader.readAsDataURL(e.target.files[0])
     }
+
+    useEffect(()=>{
+      if(!socket) return;
+      const jwt = localStorage.getItem('jwt');
+      const userId = jwtDecode(jwt)?.id;
+      console.log(searchParams.get('friendId'));
+      socket.to(Number(searchParams.get('friendId'))).emit('typing',userId);
+    },[message])
   return (
     <form
       onSubmit={handleSubmit}
       className="h-full max-w-full gap-1 z-[1000]  bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
     >
       {/* <div className=""> */}
-      <label
-        htmlFor="media"
-        className="hover:cursor-pointer flex justify-center items-center bg-[var(--muted)] rounded-full w-12 h-12 lg:w-14 lg:h-14 z-50 hover:bg-stone-700"
-      >
-        <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
-      </label>
+      <div className="relative">
+        <label
+          htmlFor="media"
+          className="hover:cursor-pointer flex justify-center items-center bg-[var(--muted)] rounded-full w-12 h-12 lg:w-14 lg:h-14 z-50 hover:bg-stone-700"
+        >
+          <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
+        </label>
+        {userTypingId == searchParams.get('friendId') && <div className="absolute bg-stone-700 w-fit lg:px-6 lg:py-2 px-4 py-2 rounded-3xl -top-16 flex items-center gap-3">
+          
+            <BsChatDots className="lg:text-2xl text-xl text-green-500" />
+            <p className="text-green-500">typing...</p>
+         
+        </div>}
+      </div>
 
       {mediaUrl && (
         <ModelWindow close={closeModelWindow}>
@@ -188,9 +212,45 @@ function ChatController({setMessages,setScroll}) {
         placeholder="Type a message"
         className={`${poppins.className} bg-[var(--muted)] rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
       />
-      <button disabled={mediaUrl} className="disabled:cursor-not-allowed">
-        <div className="bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12">
-          <IoIosSend className="text-[var(--text)] text-2xl" />
+      <button
+        onClick={() => {
+          if (message.length > 0) return;
+          if (message.length < 1 && !isRecording) {
+            setIsRecording(true);
+            inputRef.current.placeholder = "listening...";
+            const recognition = new (window.speechRecognition ||
+              window.webkitSpeechRecognition)();
+            recognition.lang = window.navigator.language;
+            recognition.interimResults = true;
+            recognition.continuous = true;
+            recognition.start();
+            recognition.onresult = (event) => {
+              console.log(event.results[0][0]);
+            };
+          }
+          if (message.length < 1 && isRecording) {
+            setIsRecording(false);
+            inputRef.current.placeholder = "Type a message";
+          }
+        }}
+        disabled={mediaUrl}
+        type={message.length > 0 ? "submit" : "button"}
+        className="disabled:cursor-not-allowed"
+      >
+        <div
+          className={`${
+            isRecording && "bg-red-500 hover:bg-red-600"
+          } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12`}
+        >
+          {!message.length < 1 && (
+            <IoIosSend className="text-[var(--text)] text-2xl" />
+          )}
+          {message.length < 1 && !isRecording && (
+            <IoMdMic className="text-[var(--text)] text-2xl" />
+          )}
+          {message.length < 1 && isRecording && (
+            <IoMdMicOff className="text-[var(--text)] text-2xl" />
+          )}
         </div>
       </button>
     </form>
