@@ -161,6 +161,9 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
     //   containerRef.current.addEventListener("scroll", scrollBottom);
     //   return () => containerRef.current.removeEventListener('scroll',scrollBottom);
     // }, []);
+    useEffect(()=>{
+
+    },[])
   return (
     <form
       onSubmit={handleSubmit}
@@ -175,7 +178,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
           <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
         </label>
         {userTypingId == searchParams.get("friendId") && (
-          <div className="absolute  w-fit   rounded-3xl lg:-top-6 -top-8 left-3 flex items-center gap-3">
+          <div className="absolute  w-fit   rounded-3xl lg:-top-7 lg:-left-2 -top-8 left-3 flex items-center gap-3">
             <BsChatDots className=" text-xl text-green-500" />
             {/* <p className="text-green-500">typing...</p> */}
           </div>
@@ -243,11 +246,11 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       <button
         onClick={() => {
           if (message.length > 0) return;
+          const recognition = new (window.speechRecognition ||
+            window.webkitSpeechRecognition)();
           if (message.length < 1 && !isRecording) {
             setIsRecording(true);
             inputRef.current.placeholder = "listening...";
-            const recognition = new (window.speechRecognition ||
-              window.webkitSpeechRecognition)();
             recognition.lang = window.navigator.language;
             recognition.interimResults = true;
             recognition.continuous = true;
@@ -255,9 +258,14 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
             recognition.onresult = (event) => {
               console.log(event.results[0][0]);
             };
+            recognition.onend = () => {
+              inputRef.current.placeholder = 'Type a message...';
+              setIsRecording(false);
+            }
           }
           if (message.length < 1 && isRecording) {
             setIsRecording(false);
+            recognition.stop();
             inputRef.current.placeholder = "Type a message";
           }
         }}
