@@ -110,7 +110,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
         // setMessages(el=>[...el,data]);
         setMessages((el) => {
           if(data?.Type === 'image' || data?.senderId !== currentUserId) {
-            if(data?.senderId !== currentUserId) setScroll(true);
+            if(data?.senderId !== currentUserId && data?.Type !== 'image') setScroll(true);
             return [...el, data];
           };
           const newState = [...el];
