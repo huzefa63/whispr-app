@@ -48,6 +48,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
   }
   useEffect(() => {
     setFriendId(Number(params));
+    containerRef.current.scrollTop = containerRef.current.scrollHeight;
     console.log("from effect of id: ", params);
     const jwt = localStorage.getItem("jwt");
     async function markRead() {
