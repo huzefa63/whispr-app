@@ -126,48 +126,47 @@ function ChatController({setMessages,setScroll}) {
       {/* <div className=""> */}
       <label
         htmlFor="media"
-        className="hover:cursor-pointer flex justify-center bg-[var(--muted)] rounded-full w-3/4 lg:w-auto  z-50 p-2.5 lg:p-3 hover:bg-stone-700"
+        className="hover:cursor-pointer flex justify-center items-center bg-[var(--muted)] rounded-full w-12 h-12 lg:w-14 lg:h-14 z-50 hover:bg-stone-700"
       >
-        <MdOutlineAttachFile className="text-[var(--text)]  text-3xl" />
+        <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
       </label>
+
       {mediaUrl && (
         <ModelWindow close={closeModelWindow}>
           <form className="bg-[var(--background)] relative flex flex-col p-10 w-full lg:w-fit h-fit lg:h-3/4 lg:max-h-fit border-[var(--border)] border-1  ">
-          
-              <div className="w-full">
-                <img
-                  src={mediaUrl}
-                  className="lg:w-1/2 w-full mx-auto bg-green-800"
-                ></img>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <textarea
-                  value={caption}
-                  onChange={(e) => setCaption(e.target.value)}
-                  type="text"
-                  placeholder=" write caption here..."
-                  className="border-gray-400 resize-none border-1 bg-[var(--surface)] lg:py-1 px-5 w-full  text-[var(--text)]"
-                />
-                <button
-                  type="submit"
-                  className="hover:cursor-pointer bg-[var(--muted)] p-2 hover:bg-stone-700 relative"
-                >
-                  <IoIosSend
-                    className={`text-[var(--text)] lg:text-3xl text-2xl ${
-                      loading && "opacity-0"
-                    }`}
-                  />
-                  {loading && <Spinner />}
-                </button>
-              </div>
+            <div className="w-full">
+              <img
+                src={mediaUrl}
+                className="lg:w-1/2 w-full mx-auto bg-green-800"
+              ></img>
+            </div>
+            <div className="flex gap-2 mt-3">
+              <textarea
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                type="text"
+                placeholder=" write caption here..."
+                className="border-gray-400 resize-none border-1 bg-[var(--surface)] lg:py-1 px-5 w-full  text-[var(--text)]"
+              />
               <button
-                onClick={closeModelWindow}
-                type="button"
-                className="absolute hover:cursor-pointer bg-[var(--muted)] text-[var(--text)] border-1 border-[var(--border)] top-2 right-2 text-2xl lg:px-3 lg:py-1 px-2 rounded-full"
+                type="submit"
+                className="hover:cursor-pointer bg-[var(--muted)] p-2 hover:bg-stone-700 relative"
               >
-                x
+                <IoIosSend
+                  className={`text-[var(--text)] lg:text-3xl text-2xl ${
+                    loading && "opacity-0"
+                  }`}
+                />
+                {loading && <Spinner />}
               </button>
-            
+            </div>
+            <button
+              onClick={closeModelWindow}
+              type="button"
+              className="absolute hover:cursor-pointer bg-[var(--muted)] text-[var(--text)] border-1 border-[var(--border)] top-2 right-2 text-2xl lg:px-3 lg:py-1 px-2 rounded-full"
+            >
+              x
+            </button>
           </form>
         </ModelWindow>
       )}
@@ -189,12 +188,9 @@ function ChatController({setMessages,setScroll}) {
         placeholder="Type a message"
         className={`${poppins.className} bg-[var(--muted)] rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
       />
-      <button
-        disabled={mediaUrl}
-        className="hover:cursor-pointer disabled:cursor-not-allowed py-2.5 px-3 lg:p-2 "
-      >
-        <div className="bg-green-500 p-2 rounded-full hover:bg-green-600 flex justify-center">
-          <IoIosSend className="text-[var(--text)] disabled:cursor-not-allowed text-3xl " />
+      <button disabled={mediaUrl} className="disabled:cursor-not-allowed">
+        <div className="bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12">
+          <IoIosSend className="text-[var(--text)] text-2xl" />
         </div>
       </button>
     </form>
