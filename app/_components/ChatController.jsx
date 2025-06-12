@@ -12,6 +12,7 @@ import ModelWindow from "./ModelWindow";
 import { IoMdMic,IoMdMicOff } from "react-icons/io";
 import { UseSocketContext } from "./SocketProvider";
 import { BsChatDots } from "react-icons/bs";
+import { IoChevronDownSharp } from "react-icons/io5";
 
 // import connectSocket from "@/lib/socket";
 // import { UseSocketContext } from "./SocketProvider";
@@ -23,7 +24,7 @@ const poppins = Poppins({
     
 
 
-function ChatController({setMessages,setScroll,userTypingId}) {
+function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
     const inputRef = useRef(null);
     const [message,setMessage] = useState('');
     const searchParams = useSearchParams();
@@ -34,6 +35,8 @@ function ChatController({setMessages,setScroll,userTypingId}) {
     const [loading,setLoading] = useState(false);
     const [isRecording,setIsRecording] = useState(false);
     const {socket} = UseSocketContext();
+  const [isDown, setIsDown] = useState(false);
+
   const friendId = searchParams.get('friendId');
 
     // useEffect(() => {
@@ -132,8 +135,14 @@ function ChatController({setMessages,setScroll,userTypingId}) {
       const jwt = localStorage.getItem('jwt');
       const userId = jwtDecode(jwt)?.id;
       console.log(searchParams.get('friendId'));
-      socket.to(Number(searchParams.get('friendId'))).emit('typing',userId);
+      socket.emit("typing", { typerId: userId, toTypingId: Number(searchParams.get("friendId"))});
     },[message])
+
+    useEffect(() => {
+      if (!containerRef.current) return;
+      let timeout;
+      containerRef.current.addEventListener("scroll", () => {});
+    }, []);
   return (
     <form
       onSubmit={handleSubmit}
@@ -147,12 +156,12 @@ function ChatController({setMessages,setScroll,userTypingId}) {
         >
           <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
         </label>
-        {userTypingId == searchParams.get('friendId') && <div className="absolute bg-stone-700 w-fit lg:px-6 lg:py-2 px-4 py-2 rounded-3xl -top-16 flex items-center gap-3">
-          
+        {userTypingId == searchParams.get("friendId") && (
+          <div className="absolute bg-stone-700 w-fit lg:px-6 lg:py-2 px-4 py-2 rounded-3xl -top-16 flex items-center gap-3">
             <BsChatDots className="lg:text-2xl text-xl text-green-500" />
             <p className="text-green-500">typing...</p>
-         
-        </div>}
+          </div>
+        )}
       </div>
 
       {mediaUrl && (
@@ -242,6 +251,9 @@ function ChatController({setMessages,setScroll,userTypingId}) {
             isRecording && "bg-red-500 hover:bg-red-600"
           } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12`}
         >
+          <div className="fixed bottom-5 right-5 z-[500]">
+            <IoChevronDownSharp className="text-red-500" />
+          </div>
           {!message.length < 1 && (
             <IoIosSend className="text-[var(--text)] text-2xl" />
           )}

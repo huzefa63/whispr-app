@@ -8,12 +8,11 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import Spinner from "./Spinner";
 import { BiCheckDouble,BiCheck } from "react-icons/bi";
-
-function ChatContainer({ messages, setMessages,scroll,setScroll }) {
+import { IoChevronDownSharp } from "react-icons/io5";
+function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef }) {
   const searchParams = useSearchParams();
   const params = searchParams.get("friendId");
   const { socket } = UseSocketContext();
-  const containerRef = useRef(null);
   // const [scroll, setScroll] = useState(true);
   const [friendId, setFriendId] = useState(null);
   const queryClient = useQueryClient();
@@ -46,6 +45,9 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
       return [];
     }
   }
+
+  
+
   useEffect(() => {
     setFriendId(Number(params));
     containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -139,6 +141,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
       ref={containerRef}
       className="bg-[var(--surface)] pt-[20%] pb-[20%]  lg:pb-5 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
     >
+      
       {isLoading && <Spinner />}
       {!isLoading &&
         messages?.map((el, i) => (

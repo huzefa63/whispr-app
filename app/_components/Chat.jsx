@@ -4,7 +4,7 @@ import ChatContainer from "./ChatContainer"
 import ChatController from "./ChatController"
 import ChatProfile from "./ChatProfile"
 import { Poppins } from "next/font/google";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UseSocketContext } from "./SocketProvider";
 const p = Poppins({
     subsets:['latin'],
@@ -17,6 +17,8 @@ function Chat() {
     const [scroll, setScroll] = useState(false);
     const [userTypingId,setUserTypingId] = useState(null);
     const {socket} = UseSocketContext();
+  const containerRef = useRef(null);
+
     useEffect(()=>{
       if(!socket) return;
       let timeout;
@@ -50,6 +52,7 @@ function Chat() {
         </div>
         <div className="lg:h-[80%] h-screen  border-white ">
           <ChatContainer
+          containerRef={containerRef}
             messages={messages}
             setMessages={setMessages}
             scroll={scroll}
@@ -57,7 +60,7 @@ function Chat() {
           />
         </div>
         <div className="lg:h-[10%] w-full h-[8%] lg:relative lg:top-0 lg:left-0 fixed bottom-0 left-0 z-50">
-          <ChatController userTypingId={userTypingId} setMessages={setMessages} setScroll={setScroll} />
+          <ChatController userTypingId={userTypingId} setMessages={setMessages} setScroll={setScroll} containerRef={containerRef}/>
         </div>
       </div>
     );
