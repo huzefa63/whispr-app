@@ -132,12 +132,12 @@ function ChatController({setMessages,setScroll}) {
       </label>
       {mediaUrl && (
         <ModelWindow close={closeModelWindow}>
-          <form className="bg-[var(--background)] relative flex flex-col p-10 w-[80%] lg:w-fit h-1/2 lg:h-3/4 lg:max-h-fit border-[var(--border)] border-1  ">
+          <form className="bg-[var(--background)] relative flex flex-col p-10 w-full lg:w-fit h-1/2 lg:h-3/4 lg:max-h-fit border-[var(--border)] border-1  ">
           
-              <div className="w-full h-full">
+              <div className="w-full">
                 <img
                   src={mediaUrl}
-                  className="w-1/2 mx-auto bg-green-800"
+                  className="lg:w-1/2 w-full mx-auto bg-green-800"
                 ></img>
               </div>
               <div className="flex gap-2 mt-3">
