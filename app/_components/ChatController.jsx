@@ -138,11 +138,29 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       socket.emit("typing", { typerId: userId, toTypingId: Number(searchParams.get("friendId"))});
     },[message])
 
-    useEffect(() => {
-      if (!containerRef.current) return;
-      let timeout;
-      containerRef.current.addEventListener("scroll", () => {});
-    }, []);
+    // useEffect(() => {
+    //   if (!containerRef.current) return;
+    //   console.log(containerRef.current);
+    //   let timeout;
+    //   function scrollBottom(){
+    //     if (containerRef.current.scrollTop < containerRef.current.scrollHeight){
+    //       setIsDown(false);
+    //       return;
+    //     }
+    //       if (
+    //         containerRef.current.scrollTop < containerRef.current.scrollHeight
+    //       ) {
+    //         setIsDown(true);
+    //         clearTimeout(timeout);
+    //         timeout = setTimeout(() => {
+    //           setIsDown(false);
+    //         }, 4000);
+    //       }
+         
+    //   }
+    //   containerRef.current.addEventListener("scroll", scrollBottom);
+    //   return () => containerRef.current.removeEventListener('scroll',scrollBottom);
+    // }, []);
   return (
     <form
       onSubmit={handleSubmit}
@@ -221,6 +239,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
         placeholder="Type a message"
         className={`${poppins.className} bg-[var(--muted)] rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
       />
+      <div className="relative">
       <button
         onClick={() => {
           if (message.length > 0) return;
@@ -248,12 +267,9 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       >
         <div
           className={`${
-            isRecording && "bg-red-500 hover:bg-red-600"
+            isRecording && "bg-red-500  transition-all hover:bg-red-600"
           } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12`}
         >
-          <div className="fixed bottom-5 right-5 z-[500]">
-            <IoChevronDownSharp className="text-red-500" />
-          </div>
           {!message.length < 1 && (
             <IoIosSend className="text-[var(--text)] text-2xl" />
           )}
@@ -265,6 +281,12 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
           )}
         </div>
       </button>
+      </div>
+      {/* {isDown && (
+        <div className={`absolute h-12 w-12 p-2 bg-[var(--background)] rounded-full flex items-center justify-center bottom-20 right-10 border-[var(--border)] border-1 z-[500] duration-[5000] transition-opacity ease-in-out opacity-0 ${isDown && 'opacity-100'} `}>
+          <IoChevronDownSharp className="text-white" />
+        </div>
+      )} */}
     </form>
   );
 }
