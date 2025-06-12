@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import Spinner from "./Spinner";
+import { jwtDecode } from "jwt-decode";
 // import connectSocket from "@/lib/socket";
 // import { UseSocketContext } from "./SocketProvider";
 const poppins = Poppins({
@@ -17,7 +18,7 @@ const poppins = Poppins({
     
 
 
-function ChatController() {
+function ChatController({setMessages,setScroll}) {
     const inputRef = useRef(null);
     const [message,setMessage] = useState('');
     const searchParams = useSearchParams();
@@ -74,6 +75,7 @@ function ChatController() {
     async function handleSubmit(e){
       e.preventDefault();
       const jwt = localStorage.getItem("jwt");
+      const payload = jwtDecode(jwt);
       const recieverId = searchParams.get("friendId");
       if(jwt && media) await handleMediaSubmit(media,caption,jwt,recieverId);
       if(jwt && !media && message) {
@@ -81,6 +83,10 @@ function ChatController() {
           message,
           recieverId,
         };
+        setMessage("");
+        setMessages(el => [...el,{placeholder:true,message,recieverId:Number(recieverId),senderId:payload.id,Type:'text',time:new Date().toISOString()}])
+       
+        console.log('scroll to true from controller');
         try {
           const res = await axios.post(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/sendMessage`,
@@ -92,7 +98,6 @@ function ChatController() {
             }
           );
           console.log(res);
-          setMessage("");
         } catch (err) {
           console.log(err);
         }
