@@ -174,10 +174,10 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
         >
           <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
         </label>
-        {userTypingId == searchParams.get("friendId") && (
-          <div className="absolute bg-stone-700 w-fit lg:px-6 lg:py-2 px-4 py-2 rounded-3xl -top-16 flex items-center gap-3">
-            <BsChatDots className="lg:text-2xl text-xl text-green-500" />
-            <p className="text-green-500">typing...</p>
+        {2 == searchParams.get("friendId") && (
+          <div className="absolute  w-fit   rounded-3xl lg:-top-6 -top-8 left-0 flex items-center gap-3">
+            <BsChatDots className=" text-xl text-green-500" />
+            {/* <p className="text-green-500">typing...</p> */}
           </div>
         )}
       </div>
