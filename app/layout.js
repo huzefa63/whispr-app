@@ -21,6 +21,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${inter.className} overflow-auto antialiased`}>
         <QueryProvider>
+          <div id="root"></div>
           <SocketProvider>{children}</SocketProvider>
         </QueryProvider>
       </body>

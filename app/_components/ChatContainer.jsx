@@ -106,7 +106,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
       if (data?.senderId == friendId || data?.senderId === currentUserId) {
         // setMessages(el=>[...el,data]);
         setMessages((el) => {
-          if(data?.Type === 'image') return [...el,data];
+          if(data?.Type === 'image' || data?.senderId !== currentUserId) return [...el,data];
           const newState = [...el];
           newState.pop();
           return [...newState, data];

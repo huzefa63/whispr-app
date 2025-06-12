@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import Spinner from "./Spinner";
 import { jwtDecode } from "jwt-decode";
+import ModelWindow from "./ModelWindow";
 // import connectSocket from "@/lib/socket";
 // import { UseSocketContext } from "./SocketProvider";
 const poppins = Poppins({
@@ -104,7 +105,11 @@ function ChatController({setMessages,setScroll}) {
       }
     }
 
-
+    function closeModelWindow(){
+        setMediaUrl(null);
+        setMedia(null);
+        fileRef.current.value = "";
+    }
     function handleSelectMedia(e){
       setMedia(e.target.files[0]);
       const reader = new FileReader();
@@ -126,41 +131,44 @@ function ChatController({setMessages,setScroll}) {
         <MdOutlineAttachFile className="text-[var(--text)] text-3xl" />
       </label>
       {mediaUrl && (
-        <div className="bg-[var(--background)] flex flex-col p-10 w-[80%] lg:w-fit h-1/2 lg:h-3/4 lg:max-h-fit border-[var(--border)] border-1 top-1/2 left-1/2 -translate-1/2 absolute">
-          <div className="w-full h-full">
-            <img src={mediaUrl} className="w-1/2 mx-auto bg-green-800"></img>
-          </div>
-          <div className="flex gap-2 mt-3">
-            <textarea
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              type="text"
-              placeholder=" write caption here..."
-              className="border-gray-400 resize-none border-1 bg-[var(--surface)] lg:py-1 px-5 w-full  text-[var(--text)]"
-            />
-            <button className="hover:cursor-pointer bg-[var(--muted)] p-2 hover:bg-stone-700 relative">
-              <IoIosSend
-                className={`text-[var(--text)] lg:text-3xl text-2xl ${
-                  loading && "opacity-0"
-                }`}
-              />
-              {loading && <Spinner />}
-            </button>
-          </div>
-          <button
-            onClick={() => {
-              setMediaUrl(null);
-              setMedia(null);
-              fileRef.current.value = "";
-            }}
-            type="button"
-            className="absolute hover:cursor-pointer bg-[var(--muted)] text-[var(--text)] border-1 border-[var(--border)] top-2 right-2 text-2xl lg:px-3 lg:py-1 px-2 rounded-full"
-          >
-            x
-          </button>
-        </div>
+        <ModelWindow close={closeModelWindow}>
+          
+            <div className="bg-[var(--background)] relative flex flex-col p-10 w-[80%] lg:w-fit h-1/2 lg:h-3/4 lg:max-h-fit border-[var(--border)] border-1  ">
+              <div className="w-full h-full">
+                <img
+                  src={mediaUrl}
+                  className="w-1/2 mx-auto bg-green-800"
+                ></img>
+              </div>
+              <div className="flex gap-2 mt-3">
+                <textarea
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  type="text"
+                  placeholder=" write caption here..."
+                  className="border-gray-400 resize-none border-1 bg-[var(--surface)] lg:py-1 px-5 w-full  text-[var(--text)]"
+                />
+                <button type="submit" className="hover:cursor-pointer bg-[var(--muted)] p-2 hover:bg-stone-700 relative">
+                  <IoIosSend
+                    className={`text-[var(--text)] lg:text-3xl text-2xl ${
+                      loading && "opacity-0"
+                    }`}
+                  />
+                  {loading && <Spinner />}
+                </button>
+              </div>
+              <button
+                onClick={closeModelWindow}
+                type="button"
+                className="absolute hover:cursor-pointer bg-[var(--muted)] text-[var(--text)] border-1 border-[var(--border)] top-2 right-2 text-2xl lg:px-3 lg:py-1 px-2 rounded-full"
+              >
+                x
+              </button>
+            </div>
+          
+        </ModelWindow>
       )}
-      
+
       <input
         ref={fileRef}
         hidden
