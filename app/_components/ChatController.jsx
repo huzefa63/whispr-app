@@ -128,7 +128,7 @@ function ChatController({setMessages,setScroll}) {
         htmlFor="media"
         className="hover:cursor-pointer flex justify-center bg-[var(--muted)] rounded-full w-3/4 lg:w-auto  z-50 p-2.5 lg:p-3 hover:bg-stone-700"
       >
-        <MdOutlineAttachFile className="text-[var(--text)] lg:text-3xl text-2xl" />
+        <MdOutlineAttachFile className="text-[var(--text)]  text-3xl" />
       </label>
       {mediaUrl && (
         <ModelWindow close={closeModelWindow}>
@@ -193,8 +193,8 @@ function ChatController({setMessages,setScroll}) {
         disabled={mediaUrl}
         className="hover:cursor-pointer disabled:cursor-not-allowed p-2 "
       >
-        <div className="bg-green-500 p-2 rounded-full hover:bg-green-600">
-          <IoIosSend className="text-[var(--text)] disabled:cursor-not-allowed lg:text-3xl text-2xl" />
+        <div className="bg-green-500 p-2 rounded-full hover:bg-green-600 flex justify-center">
+          <IoIosSend className="text-[var(--text)] disabled:cursor-not-allowed text-3xl " />
         </div>
       </button>
     </form>
