@@ -191,7 +191,7 @@ function ChatController({setMessages,setScroll}) {
       />
       <button
         disabled={mediaUrl}
-        className="hover:cursor-pointer disabled:cursor-not-allowed p-2 "
+        className="hover:cursor-pointer disabled:cursor-not-allowed py-2.5 px-3 lg:p-2 "
       >
         <div className="bg-green-500 p-2 rounded-full hover:bg-green-600 flex justify-center">
           <IoIosSend className="text-[var(--text)] disabled:cursor-not-allowed text-3xl " />
