@@ -63,12 +63,14 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
     markRead();
   }, [params]);
   useEffect(() => {
-   
+    const jwt = localStorage.getItem('jwt');
+    const currentUserId = jwtDecode(jwt)?.id;
       if (
         ((containerRef.current &&
           scroll &&
           messages[messages.length - 1]?.Type === "image") )||
-        messages[messages.length - 1]?.placeholder
+        messages[messages.length - 1]?.placeholder || 
+        messages[messages.length - 1]?.senderId !== currentUserId
       ) {
         containerRef.current.scrollTop = containerRef.current.scrollHeight;
       // setScroll(false);
@@ -100,13 +102,16 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
         );
         return { ...previousChats, chats: newChats };
       });
-      if(data?.Type === 'image') setScroll(false);
+      if(data?.Type === 'image' || data?.senderId !== currentUserId) setScroll(false);
       const token = localStorage.getItem("jwt");
       const currentUserId = jwtDecode(token)?.id;
       if (data?.senderId == friendId || data?.senderId === currentUserId) {
         // setMessages(el=>[...el,data]);
         setMessages((el) => {
-          if(data?.Type === 'image' || data?.senderId !== currentUserId) return [...el,data];
+          if(data?.Type === 'image' || data?.senderId !== currentUserId) {
+            if(data?.senderId !== currentUserId) setScroll(true);
+            return [...el, data];
+          };
           const newState = [...el];
           newState.pop();
           return [...newState, data];
