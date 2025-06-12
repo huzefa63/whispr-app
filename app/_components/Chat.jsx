@@ -28,7 +28,7 @@ function Chat() {
         clearTimeout(timeout);
         timeout = setInterval(() => {
           setUserTypingId(null);
-        }, 2000);
+        }, 1000);
       })
       return () => socket.off('typing');
     },[socket])
