@@ -132,7 +132,7 @@ function ChatController({setMessages,setScroll}) {
       </label>
       {mediaUrl && (
         <ModelWindow close={closeModelWindow}>
-          
+          <form >
             <div className="bg-[var(--background)] relative flex flex-col p-10 w-[80%] lg:w-fit h-1/2 lg:h-3/4 lg:max-h-fit border-[var(--border)] border-1  ">
               <div className="w-full h-full">
                 <img
@@ -148,7 +148,10 @@ function ChatController({setMessages,setScroll}) {
                   placeholder=" write caption here..."
                   className="border-gray-400 resize-none border-1 bg-[var(--surface)] lg:py-1 px-5 w-full  text-[var(--text)]"
                 />
-                <button type="submit" className="hover:cursor-pointer bg-[var(--muted)] p-2 hover:bg-stone-700 relative">
+                <button
+                  type="submit"
+                  className="hover:cursor-pointer bg-[var(--muted)] p-2 hover:bg-stone-700 relative"
+                >
                   <IoIosSend
                     className={`text-[var(--text)] lg:text-3xl text-2xl ${
                       loading && "opacity-0"
@@ -165,7 +168,7 @@ function ChatController({setMessages,setScroll}) {
                 x
               </button>
             </div>
-          
+          </form>
         </ModelWindow>
       )}
 
