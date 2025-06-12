@@ -136,7 +136,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll }) {
   return (
     <div
       ref={containerRef}
-      className="bg-[var(--surface)] relative h-full overflow-auto text-[var(--text)] p-5 flex flex-col gap-3"
+      className="bg-[var(--surface)] pt-[15%] pb-[13%]  lg:pb-5 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
     >
       {isLoading && <Spinner />}
       {!isLoading &&

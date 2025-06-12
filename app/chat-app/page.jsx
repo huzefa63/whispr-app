@@ -25,7 +25,7 @@ function Page({searchParams}) {
            <Suspense>
              <SideChat />
            </Suspense>
-           <div className="h-full w-full">
+           <div className="h-screen w-full">
              <Suspense fallback={<div>loading chat...</div>}>
                <Chat />
              </Suspense>

@@ -26,18 +26,23 @@ function Chat() {
     );
     return (
       <div
-        className={`w-full ${
+        className={`w-full  ${
           !params.get("friendId") && "hidden lg:flex"
         } h-full flex flex-col`}
       >
         <div className="lg:h-[10%] w-full h-[9%] lg:relative lg:top-0 lg:left-0 fixed top-0 left-0 z-50">
           <ChatProfile />
         </div>
-        <div className="lg:h-[80%] h-full pt-[15%] pb-[13%] lg:pb-0 lg:pt-0 border-white ">
-          <ChatContainer messages={messages} setMessages={setMessages} scroll={scroll} setScroll={setScroll}/>
+        <div className="lg:h-[80%] h-screen  border-white ">
+          <ChatContainer
+            messages={messages}
+            setMessages={setMessages}
+            scroll={scroll}
+            setScroll={setScroll}
+          />
         </div>
-        <div className="lg:h-[10%] h-[8%] lg:relative lg:top-0 lg:left-0 fixed bottom-0 left-0 z-50">
-          <ChatController setMessages={setMessages} setScroll={setScroll}/>
+        <div className="lg:h-[10%] w-full h-[8%] lg:relative lg:top-0 lg:left-0 fixed bottom-0 left-0 z-50">
+          <ChatController setMessages={setMessages} setScroll={setScroll} />
         </div>
       </div>
     );

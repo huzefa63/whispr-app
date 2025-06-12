@@ -121,14 +121,14 @@ function ChatController({setMessages,setScroll}) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="h-full max-w-full bg-[var(--muted)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
+      className="h-full max-w-full gap-1 z-[1000]  lg:bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
     >
       {/* <div className=""> */}
       <label
         htmlFor="media"
-        className="hover:cursor-pointer w- z-50 p-2 hover:bg-stone-700"
+        className="hover:cursor-pointer flex justify-center bg-[var(--muted)] rounded-full w-3/4 z-50 p-2 hover:bg-stone-700"
       >
-        <MdOutlineAttachFile className="text-[var(--text)] text-3xl" />
+        <MdOutlineAttachFile className="text-[var(--text)] lg:text-3xl text-2xl" />
       </label>
       {mediaUrl && (
         <ModelWindow close={closeModelWindow}>
@@ -186,13 +186,14 @@ function ChatController({setMessages,setScroll}) {
         value={message}
         ref={inputRef}
         type="text"
-        className={`${poppins.className} col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
+        placeholder="Type a message"
+        className={`${poppins.className} bg-[var(--muted)] rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
       />
       <button
         disabled={mediaUrl}
-        className="hover:cursor-pointer disabled:cursor-not-allowed p-2 hover:bg-stone-700"
+        className="hover:cursor-pointer disabled:cursor-not-allowed p-2 "
       >
-        <div>
+        <div className="bg-green-500 p-2 rounded-full hover:bg-green-600">
           <IoIosSend className="text-[var(--text)] disabled:cursor-not-allowed lg:text-3xl text-2xl" />
         </div>
       </button>
