@@ -136,7 +136,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       const userId = jwtDecode(jwt)?.id;
       console.log(searchParams.get('friendId'));
       socket.emit("typing", { typerId: userId, toTypingId: Number(searchParams.get("friendId"))});
-    },[message])
+    },[message,socket])
 
     // useEffect(() => {
     //   if (!containerRef.current) return;
