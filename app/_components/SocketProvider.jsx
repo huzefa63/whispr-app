@@ -45,7 +45,7 @@ function SocketProvider({children}) {
                 console.log('socket disconnected');
             }
         }
-    },[token]);
+    },[token,socket]);
     return (
         <Context.Provider value={{socket}}>
             {children}
