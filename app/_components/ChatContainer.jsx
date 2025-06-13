@@ -9,14 +9,12 @@ import { jwtDecode } from "jwt-decode";
 import Spinner from "./Spinner";
 import { BiCheckDouble,BiCheck } from "react-icons/bi";
 import { IoChevronDownSharp } from "react-icons/io5";
-function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef }) {
+function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,params,friendId,setFriendId }) {
   const searchParams = useSearchParams();
-  const params = searchParams.get("friendId");
   const { socket } = UseSocketContext();
   // const [scroll, setScroll] = useState(true);
-  const [friendId, setFriendId] = useState(null);
   const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading,isFetching } = useQuery({
     queryKey: ["messages", params],
     queryFn: () => getMessages(params),
     refetchOnWindowFocus: false,
@@ -38,6 +36,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef }) 
       );
 
       console.log(res);
+      console.log(res.data.messages)
       setMessages(res.data.messages);
       return res.data.messages;
     } catch (err) {
@@ -99,84 +98,15 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef }) 
 
       }
   }, [scroll,messages?.length]);
-  useEffect(() => {
-    document.documentElement.scrollTop = document.documentElement.scrollHeight;
-  }, []); // removed scroll
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("connect", () => console.log("connected"));
-    socket.on("messageRecieved", (data) => {
-      console.log("message recieved", data);
-      console.log("message recieved, friendId: ", friendId);
-      queryClient.setQueryData(["chats"], (previousChats) => {
-        console.log("from top", previousChats.chats[0]);
-        console.log("after top", data.chat[0]);
-        if (!previousChats) return [...data?.chat];
-        const latestChatIndex = previousChats?.chats.findIndex(
-          (el) => data?.chat[0]?.id === el?.id
-        );
-        const newChats = [...previousChats.chats];
-        newChats[latestChatIndex] = data?.chat[0];
-
-        newChats.sort((a, b) =>
-          b?.recentMessageCreatedAt.localeCompare(a?.recentMessageCreatedAt)
-        );
-        return { ...previousChats, chats: newChats };
-      });
-      const token = localStorage.getItem("jwt");
-      const currentUserId = jwtDecode(token)?.id;
-      if(data?.Type === 'image' || data?.senderId !== currentUserId) setScroll(false);
-      if (data?.senderId == friendId || data?.senderId === currentUserId) {
-        // setMessages(el=>[...el,data]);
-        setMessages((el) => {
-          if(data?.Type === 'image' || data?.senderId !== currentUserId) {
-            if(data?.senderId !== currentUserId && data?.Type !== 'image') setScroll(true);
-            return [...el, data];
-          };
-          const newState = [...el];
-          const index = newState.findIndex(el => el?.uniqueId === data?.uniqueId)
-          newState[index] = data;
-          return [...newState];
-        });
-        // if (data.Type !== "image") setScroll(true);
-      }
-    });
-    socket.on("message-read", ({userId,friendId}) => {
-      setMessages((el) => {
-        return el.map((msg) => {
-          return { ...msg, isRead: true };
-        });
-      });
-      queryClient.setQueryData(['chats'],(oldData) => {
-        if(!oldData) return [];
-        const index = oldData?.chats?.findIndex(
-          (el) =>
-            (el.userId === userId && el.user2Id === friendId) ||
-            (el.userId === friendId && el.user2Id === userId)
-        );
-        console.log('from messageREad: ',index);
-        if(!index) return oldData;
-        const chatsCopy = [...oldData?.chats];
-        chatsCopy[index].isRecentMessageRead = true;
-        console.log(chatsCopy);
-        return {...oldData,chats:chatsCopy}
-      })
-    });
-    return () => {
-      socket?.off?.("connect");
-      socket?.off?.("messageRecieved");
-      socket?.off?.("message-read");
-    };
-  }, [socket, friendId]);
+ 
   return (
     <div
       ref={containerRef}
       className="bg-[var(--surface)] pt-[20%] pb-[23%]  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
     >
       
-      {isLoading && <Spinner />}
-      {!isLoading &&
+      {isFetching && <Spinner />}
+      {!isFetching &&
         messages?.map((el, i) => (
           <Message key={i} message={el} setScroll={setScroll} />
         ))}

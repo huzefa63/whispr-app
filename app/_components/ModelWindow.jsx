@@ -16,7 +16,7 @@ function ModelWindow({children,close}) {
     },[])
     return createPortal(
       <div ref={ref} className="fixed top-0 left-0 w-full h-screen backdrop-blur-[1px] z-[1000] flex justify-center items-center">
-        {cloneElement(children, { close })}
+        {cloneElement(children)}
       </div>,
       document.getElementById("root")
     );

@@ -11,15 +11,13 @@ const p = Poppins({
     variable:'p',
     weight:'400'
 })
-function Chat({userTypingId,setUserTypingId}) {
-    const params = useSearchParams();
-    const [messages,setMessages] = useState([]);
-    const [scroll, setScroll] = useState(false);
+function Chat({userTypingId,setUserTypingId,messages,setMessages,setFriendId,params,scroll,setScroll}) {
+    // const params = useSearchParams();
     const containerRef = useRef(null);
     
     
 
-    if(!params.get('friendId')) return (
+    if(!params) return (
       <div className={`${p.className} hidden lg:flex bg-[var(--surface)] flex-col gap-25 text-[var(--text)] tracking-wider text-3xl items-center justify-center w-full h-full`}>
         <div className="flex flex-col gap-3 opacity-70">
           <h1 className="text-center">Whispr</h1>
@@ -31,7 +29,7 @@ function Chat({userTypingId,setUserTypingId}) {
     return (
       <div
         className={`w-full  ${
-          !params.get("friendId") && "hidden lg:flex"
+          !params && "hidden lg:flex"
         } h-full flex flex-col`}
       >
         <div className="lg:h-[10%] w-full h-[9%] lg:relative lg:top-0 lg:left-0 fixed top-0 left-0 z-50">
@@ -39,6 +37,8 @@ function Chat({userTypingId,setUserTypingId}) {
         </div>
         <div className="lg:h-[80%] h-screen  border-white ">
           <ChatContainer
+          params={params}
+          setFriendId={setFriendId}
           containerRef={containerRef}
             messages={messages}
             setMessages={setMessages}
