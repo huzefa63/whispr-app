@@ -83,6 +83,7 @@ function ChatWrapper() {
 
         });
         queryClient.setQueryData(["chats"], (oldData) => {
+          console.log('from message read top',oldData);
           if (!oldData) return [];
           const index = oldData?.chats?.findIndex(
             (el) =>
@@ -93,7 +94,7 @@ function ChatWrapper() {
           if (!index) return oldData;
           const chatsCopy = [...oldData?.chats];
           chatsCopy[index].isRecentMessageRead = true;
-          console.log(chatsCopy);
+          console.log('message read copy: ',chatsCopy);
           return { ...oldData, chats: chatsCopy };
         });
       });
