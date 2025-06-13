@@ -18,7 +18,10 @@ function SocketProvider({children}) {
     });
     useEffect(()=>{
         function handleStorage(event){
-            if(event.key === 'jwt') setToken(event.newValue);
+            if(event.key === 'jwt'){
+                setToken(event.newValue);
+                setSocket(null);
+            };
         }
        window.addEventListener('storage',handleStorage);
        return ()=> window.removeEventListener('storage',handleStorage);
@@ -28,7 +31,7 @@ function SocketProvider({children}) {
         console.log(token);
         if(!socket && token){
         console.log('from inside of io')
-
+            console.log('setting token')
             setSocket(io(`${process.env.NEXT_PUBLIC_BACKEND_URL}/`,{auth:{jwt:token}}));
         }
         if(socket && !token){
