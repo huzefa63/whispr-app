@@ -87,7 +87,7 @@ function AuthForm() {
       );
       
       localStorage.setItem("jwt", res.data?.jwt);
-      router.replace("/chat-app");
+      location.href = '/chat-app';
     } catch (err) {
       console.trace();
       console.error("Error creating user:", err);
@@ -101,7 +101,7 @@ function AuthForm() {
       );
       
       localStorage.setItem("jwt", res.data?.jwt);
-      router.replace("/chat-app");
+      location.href = "/chat-app";
     } catch (err) {
       console.trace();
       console.error("Error creating user:", err);
