@@ -35,7 +35,8 @@ function Chat({userTypingId,setUserTypingId,messages,setMessages,setFriendId,fri
         <div className="lg:h-[10%] w-full h-[9%] lg:relative lg:top-0 lg:left-0 fixed top-0 left-0 z-50">
           <ChatProfile />
         </div>
-        <div className="lg:h-[80%] h-screen  border-white ">
+        {/* <div className="lg:h-[80%] h-screen  border-white "> */}
+        <div className="lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0  border-white ">
           <ChatContainer
           friendId={friendId}
           params={params}

@@ -23,7 +23,7 @@ function Page({searchParams}) {
     // const userId = await verfiyUser();
     
      return (
-       <div className="w-full h-screen overflow-hidden">
+       <div className="w-full h-screen  overflow-hidden">
          <Suspense fallback={<div className="fixed top-0 left-0 h-screen w-full bg-[var(--background)]">
           <Spinner />
          </div>}>
