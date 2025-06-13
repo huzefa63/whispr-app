@@ -44,13 +44,15 @@ function ChatWrapper() {
         queryClient.setQueryData(["chats"], (previousChats) => {
           if (!previousChats?.chats?.length < 1) return [...data?.chat];
           const newChats = [...previousChats.chats];
-          if(!previousChats.chats.some(el => el?.id === data?.chat?.id)){
+          if(!previousChats.chats.some(el => el?.id === data?.chat[0]?.id)){
              newChats?.unshift(...data?.chat);
              return {...previousChats,chats:newChats};
           }
+          console.log('all if got skipped in msgrec');
           const latestChatIndex = previousChats?.chats.findIndex(
             (el) => data?.chat[0]?.id === el?.id
           );
+          console.log('latestchatindex: ',latestChatIndex)
           newChats[latestChatIndex] = data?.chat[0];
           console.log('before newchats: ',newChats)
           newChats.sort((a, b) => {
@@ -63,6 +65,7 @@ function ChatWrapper() {
 
             return bTime.localeCompare(aTime); // newest first
           });
+          console.log("finalchats: ", { ...previousChats, chats: newChats });
           return { ...previousChats, chats: newChats };
         });
         const token = localStorage.getItem("jwt");
