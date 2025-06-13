@@ -91,11 +91,14 @@ function ChatWrapper() {
               (el.userId === friendId && el.user2Id === userId)
           );
           console.log("from messageREad: ", index);
-          if (!index) return oldData;
-          const chatsCopy = [...oldData?.chats];
-          chatsCopy[index].isRecentMessageRead = true;
-          console.log('message read copy: ',chatsCopy);
-          return { ...oldData, chats: chatsCopy };
+          if (index || index === 0) {
+            const chatsCopy = [...oldData?.chats];
+            chatsCopy[index].isRecentMessageRead = true;
+            console.log('message read copy: ',chatsCopy);
+            return { ...oldData, chats: chatsCopy };
+          }
+          
+          return oldData;
         });
       });
       return () => {
