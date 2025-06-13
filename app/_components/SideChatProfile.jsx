@@ -45,7 +45,7 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
     return friendId;
   }
   const typingId = showTyping();
-  console.log('userTypingId: ',userTypingId, " ",' chatId: ',chat?.id);
+  // console.log('userTypingId: ',userTypingId, " ",' chatId: ',chat?.id);
     return (
       <button
         onClick={handleClick}
@@ -76,7 +76,7 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
           <div className="w-full pr-3 flex-1 text-left">
             <p
               className={`brightness-80 ${
-                chat?.recentMessageSenderId != currentUserId && !chat?.recentMessageIsRead && "text-green-500"
+                chat?.recentMessageSenderId != currentUserId && !chat?.isRecentMessageRead && "text-green-500"
               } truncate font-thin text-left flex gap-1 items-center`}
             >
               {chat?.recentMessageSenderId === currentUserId && !typingId && (

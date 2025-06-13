@@ -21,7 +21,6 @@ function ChatWrapper() {
       if (!socket) return;
       let timeout;
       socket.on("typing", (userId) => {
-        console.log(userId);
         setUserTypingId(userId);
         clearTimeout(timeout);
         timeout = setTimeout(() => {
