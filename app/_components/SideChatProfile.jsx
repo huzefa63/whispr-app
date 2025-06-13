@@ -33,6 +33,18 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
       return chat?.userId === Number(friendId);
     }
   }
+  function showTyping(){
+    if(chat?.user?.id != userTypingId && chat?.user2?.id != userTypingId) return false;
+    let friendId;
+    if(chat?.user?.id == currentUserId){
+      friendId = chat?.user2?.id;
+    }
+    else{
+      friendId = chat?.user?.id;
+    }
+    return friendId;
+  }
+  const typingId = showTyping();
   console.log('userTypingId: ',userTypingId, " ",' chatId: ',chat?.id);
     return (
       <button
@@ -58,23 +70,23 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
               ? chat?.user2?.name
               : chat?.user?.name}
           </p>
-          {chat?.recentMessage || userTypingId == chat?.id && (
-            <div className="w-full pr-3 flex-1 text-left">
-              <p className="brightness-80  truncate font-thin text-left flex gap-1 items-center">
-                {chat?.recentMessageSenderId === currentUserId && (
-                  <span>
-                    <BiCheckDouble
-                      className={`text-lg  ${
-                        chat?.isRecentMessageRead && "text-blue-400"
-                      }`}
-                    />
-                  </span>
-                )}
-                {userTypingId != chat?.id && chat?.recentMessage}
-                {userTypingId == chat?.id && <span className="text-green-500 ">typing...</span>}
-              </p>
-            </div>
-          )}
+          
+              <div className="w-full pr-3 flex-1 text-left">
+                <p className="brightness-80  truncate font-thin text-left flex gap-1 items-center">
+                  {chat?.recentMessageSenderId === currentUserId && !typingId  &&(
+                    <span>
+                      <BiCheckDouble
+                        className={`text-lg  ${
+                          chat?.isRecentMessageRead && "text-blue-400"
+                        }`}
+                      />
+                    </span>
+                  )}
+                  {!typingId && chat?.recentMessage}
+                  {typingId == userTypingId && <span className="text-green-500 tracking-wider">typing...</span>}
+                </p>
+              </div>
+         
         </div>
         {/* <p className="absolute h-6 w-6 rounded-full text-stone-700 flex items-center justify-center bg-green-400 dark:bg-green-600 right-3 top-1/2 -translate-y-1/2">4</p> */}
       </button>
