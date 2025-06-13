@@ -1,4 +1,5 @@
 'use client';
+import AuthRedirect from "../_components/AuthRedirect";
 import Chat from "../_components/Chat"
 import ChatWrapper from "../_components/ChatWrapper";
 import SideChat from "../_components/SideChat"
