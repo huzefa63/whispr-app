@@ -179,7 +179,7 @@ function Message({ message, setScroll }) {
         >
           <img src={message?.mediaUrl} alt="" onLoad={() => setScroll(true)} />
           {message?.caption && (
-            <p className="tracking-wide">{message.caption}</p>
+            <p className="tracking-wide ">{message.caption}</p>
           )}
           <span
             className={`text-xs ${

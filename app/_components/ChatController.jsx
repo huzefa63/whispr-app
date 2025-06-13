@@ -193,11 +193,11 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
 
       {mediaUrl && (
         <ModelWindow close={closeModelWindow}>
-          <form className="bg-[var(--background)] relative flex flex-col p-10 w-full lg:w-fit h-fit lg:h-3/4 lg:max-h-fit border-[var(--border)] border-1  ">
+          <form className="bg-[var(--background)] relative flex flex-col p-10 w-[95%] rounded-2xl lg:w-fit h-fit lg:min-h-3/4 lg:max-h-[90%] border-[var(--border)] border-1  overflow-auto">
             <div className="w-full">
               <img
                 src={mediaUrl}
-                className="lg:w-1/2 w-full mx-auto bg-green-800"
+                className="lg:w-1/2 w-[90%] mx-auto bg-green-800"
               ></img>
             </div>
             <div className="flex gap-2 mt-3">
@@ -223,7 +223,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
             <button
               onClick={closeModelWindow}
               type="button"
-              className="absolute hover:cursor-pointer bg-[var(--muted)] text-[var(--text)] border-1 border-[var(--border)] top-2 right-2 text-2xl lg:px-3 lg:py-1 px-2 rounded-full"
+              className="absolute hover:cursor-pointer  text-[var(--text)]  top-2 right-2 text-2xl lg:p-1 lg:px-1 px-2 h-12 w-12 hover:bg-[var(--muted)]"
             >
               x
             </button>
