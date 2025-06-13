@@ -41,8 +41,10 @@ function ChatWrapper() {
       socket.on("connect", () => console.log("connected"));
       socket.on("messageRecieved", (data) => {
         console.log('message',data)
+        const token = localStorage.getItem("jwt");
+        const currentUserId = jwtDecode(token)?.id;
         queryClient.setQueryData(["chats"], (previousChats) => {
-          if (previousChats?.chats?.length < 1) return {chats:[...data?.chat]};
+          if (previousChats?.chats?.length < 1) return {status:'success',chats:[...data?.chat],currentUserId};
           const newChats = [...previousChats.chats];
           if(!previousChats.chats.some(el => el?.id === data?.chat[0]?.id)){
             console.log('unshift if')
@@ -69,8 +71,7 @@ function ChatWrapper() {
           console.log("finalchats: ", { ...previousChats, chats: newChats });
           return { ...previousChats, chats: newChats };
         });
-        const token = localStorage.getItem("jwt");
-        const currentUserId = jwtDecode(token)?.id;
+        
         if (data?.Type === "image" || data?.senderId !== currentUserId)
           setScroll(false);
         if (data?.senderId == friendId || data?.senderId === currentUserId) {
