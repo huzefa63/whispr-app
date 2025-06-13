@@ -40,6 +40,7 @@ function ChatWrapper() {
 
       socket.on("connect", () => console.log("connected"));
       socket.on("messageRecieved", (data) => {
+        console.log('message',data)
         queryClient.setQueryData(["chats"], (previousChats) => {
           if (!previousChats) return [...data?.chat];
           const latestChatIndex = previousChats?.chats.findIndex(
@@ -47,10 +48,17 @@ function ChatWrapper() {
           );
           const newChats = [...previousChats.chats];
           newChats[latestChatIndex] = data?.chat[0];
+          console.log('before newchats: ',newChats)
+          newChats.sort((a, b) => {
+            const aTime = a.recentMessageCreatedAt;
+            const bTime = b.recentMessageCreatedAt;
 
-          newChats.sort((a, b) =>
-            b?.recentMessageCreatedAt.localeCompare(a?.recentMessageCreatedAt)
-          );
+            if (!aTime && !bTime) return 0; // both are null
+            if (!aTime) return 1; // a is null -> goes after b
+            if (!bTime) return -1; // b is null -> goes after a
+
+            return bTime.localeCompare(aTime); // newest first
+          });
           return { ...previousChats, chats: newChats };
         });
         const token = localStorage.getItem("jwt");
@@ -93,7 +101,7 @@ function ChatWrapper() {
           console.log("from messageREad: ", index);
           if (index || index === 0) {
             const chatsCopy = [...oldData?.chats];
-            chatsCopy[index].isRecentMessageRead = true;
+            chatsCopy[index] && (chatsCopy[index].isRecentMessageRead = true);
             console.log('message read copy: ',chatsCopy);
             return { ...oldData, chats: chatsCopy };
           }
