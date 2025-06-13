@@ -184,7 +184,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
           <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
         </label>
         {userTypingId == searchParams.get("friendId") && (
-          <div className="absolute  w-fit   rounded-3xl lg:-top-7 lg:-left-5 -top-8 left-3 flex items-center gap-3">
+          <div className="absolute  w-fit   rounded-3xl lg:-top-7 lg:-left-1 -top-8 left-3 flex items-center gap-3">
             <BsChatDotsFill className=" text-xl text-green-500" />
             {/* <p className="text-green-500">typing...</p> */}
           </div>
