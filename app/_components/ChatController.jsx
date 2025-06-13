@@ -96,7 +96,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
           uniqueId,
         };
         setMessage("");
-        setMessages(el => [...el,{uniqueId,placeholder:true,message,recieverId:Number(recieverId),senderId:payload.id,Type:'text',time:new Date().toISOString()}])
+        setMessages(el => [...el,{isRead:false,uniqueId,placeholder:true,message,recieverId:Number(recieverId),senderId:payload.id,Type:'text',time:new Date().toISOString()}])
        inputRef?.current?.focus();
         console.log('scroll to true from controller');
         try {

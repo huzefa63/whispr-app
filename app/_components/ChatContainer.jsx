@@ -69,7 +69,9 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef }) 
   useEffect(()=>{
     const jwt = localStorage.getItem("jwt");
     const userId = jwtDecode(jwt);
-    if(messages[messages.length - 1]?.senderId == userId) return;
+    console.log('from read effect: ',friendId);
+    if(messages[messages.length - 1]?.senderId == userId || friendId != (messages[messages.length - 1]?.senderId)) return;
+    if(messages[messages.length - 1]?.senderId == friendId && messages[messages.length - 1]?.isRead === true) return;
     async function markRead() {
       const res2 = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/readMessages/${params}`,
@@ -81,7 +83,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef }) 
       );
     }
     markRead();
-  },[messages?.length])
+  },[messages?.length,params])
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
     const currentUserId = jwtDecode(jwt)?.id;
