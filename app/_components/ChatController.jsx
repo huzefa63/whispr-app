@@ -251,38 +251,38 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       />
       <div className="relative">
       <button
-        onClick={() => {
-            if(!isRecording){
-              setIsRecording(true);
-              speechRef.current.start();
-              inputRef.current.disabled = true;
-            }
-            // if(isRecording){
-            //   setIsRecording(false);
-            //   speechRef.current.stop();
-            //   inputRef.current.disabled = false;
-            // }
-            speechRef.current.onresult = (event) => {
-              const result = event.results[0][0];
-             inputRef.current.value = result.transcript;
-                // setMessage(result.transcript);
-                if(event.results[0].isFinal) {
-                  setMessage(result.transcript);
-                  setIsRecording(false);
-                  speechRef.current.stop();
-                  inputRef.current.disabled = false;
+        // onClick={() => {
+        //     if(!isRecording){
+        //       setIsRecording(true);
+        //       speechRef.current.start();
+        //       inputRef.current.disabled = true;
+        //     }
+        //     // if(isRecording){
+        //     //   setIsRecording(false);
+        //     //   speechRef.current.stop();
+        //     //   inputRef.current.disabled = false;
+        //     // }
+        //     speechRef.current.onresult = (event) => {
+        //       const result = event.results[0][0];
+        //      inputRef.current.value = result.transcript;
+        //         // setMessage(result.transcript);
+        //         if(event.results[0].isFinal) {
+        //           setMessage(result.transcript);
+        //           setIsRecording(false);
+        //           speechRef.current.stop();
+        //           inputRef.current.disabled = false;
 
-                };
+        //         };
           
-            }
-            speechRef.current.onend = () => {
-              setIsRecording(false);
-              speechRef.current.stop();
-              inputRef.current.disabled = false;
+        //     }
+        //     speechRef.current.onend = () => {
+        //       setIsRecording(false);
+        //       speechRef.current.stop();
+        //       inputRef.current.disabled = false;
               
-            }
-          }
-        }
+        //     }
+        //   }
+        // }
         disabled={mediaUrl}
         type={message.length > 0 && !isRecording ? "submit" : "button"}
         className="disabled:cursor-not-allowed"
