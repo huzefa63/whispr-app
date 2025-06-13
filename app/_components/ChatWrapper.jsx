@@ -35,14 +35,17 @@ function ChatWrapper() {
         document.documentElement.scrollHeight;
     }, []); // removed scroll
     useEffect(() => {
+      console.log("effect ran success 1");
       if (!socket) return;
-
+      console.log('effect ran success 2');
+      console.log(socket?.connected);
       socket.on("connect", () => console.log("connected"));
       socket.on("messageRecieved", (data) => {
         console.log('message',data)
         const token = localStorage.getItem("jwt");
         const currentUserId = jwtDecode(token)?.id;
         queryClient.setQueryData(["chats"], (previousChats) => {
+          if(previousChats === undefined) return; 
           if (previousChats?.chats?.length < 1) return {status:'success',chats:[...data?.chat],currentUserId};
           const newChats = [...previousChats.chats];
           if(!previousChats.chats.some(el => el?.id === data?.chat[0]?.id)){
