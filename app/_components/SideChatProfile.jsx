@@ -33,6 +33,7 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
       return chat?.userId === Number(friendId);
     }
   }
+  console.log('userTypingId: ',userTypingId, " ",' chatId: ',chat?.id);
     return (
       <button
         onClick={handleClick}
@@ -58,7 +59,7 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
               : chat?.user?.name}
           </p>
           {chat?.recentMessage || userTypingId == chat?.id && (
-            <div className="w-full pr-3 flex-1">
+            <div className="w-full pr-3 flex-1 text-left">
               <p className="brightness-80  truncate font-thin text-left flex gap-1 items-center">
                 {chat?.recentMessageSenderId === currentUserId && (
                   <span>
