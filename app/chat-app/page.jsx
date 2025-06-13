@@ -4,6 +4,7 @@ import Chat from "../_components/Chat"
 import ChatWrapper from "../_components/ChatWrapper";
 import SideChat from "../_components/SideChat"
 import { Suspense } from "react";
+import Spinner from "../_components/Spinner";
 async function verfiyUser(){
   // try{
   //   const jwt = (await cookies()).get('jwt');
@@ -23,7 +24,11 @@ function Page({searchParams}) {
     
      return (
        <div className="w-full h-screen overflow-hidden">
-         <ChatWrapper />
+         <Suspense fallback={<div className="fixed top-0 left-0 h-screen w-full bg-[var(--background)]">
+          <Spinner />
+         </div>}>
+           <ChatWrapper />
+         </Suspense>
        </div>
      );
 }
