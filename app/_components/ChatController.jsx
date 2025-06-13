@@ -11,7 +11,7 @@ import { jwtDecode } from "jwt-decode";
 import ModelWindow from "./ModelWindow";
 import { IoMdMic,IoMdMicOff } from "react-icons/io";
 import { UseSocketContext } from "./SocketProvider";
-import { BsChatDots } from "react-icons/bs";
+import { BsChatDotsFill } from "react-icons/bs";
 import { IoChevronDownSharp } from "react-icons/io5";
 
 // import connectSocket from "@/lib/socket";
@@ -184,8 +184,8 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
           <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
         </label>
         {userTypingId == searchParams.get("friendId") && (
-          <div className="absolute  w-fit   rounded-3xl lg:-top-7 lg:-left-2 -top-8 left-3 flex items-center gap-3">
-            <BsChatDots className=" text-xl text-green-500" />
+          <div className="absolute  w-fit   rounded-3xl lg:-top-7 lg:-left-5 -top-8 left-3 flex items-center gap-3">
+            <BsChatDotsFill className=" text-xl text-green-500" />
             {/* <p className="text-green-500">typing...</p> */}
           </div>
         )}

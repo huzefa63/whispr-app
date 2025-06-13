@@ -108,7 +108,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,par
   return (
     <div
       ref={containerRef}
-      className="bg-[var(--surface)] py-5  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
+      className="bg-[var(--surface)] py-7  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
       // className="bg-[var(--surface)] pt-[20%] pb-[calc(130px+env(safe-area-inset-bottom))]  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
     >
       {isFetching && <Spinner />}

@@ -112,7 +112,7 @@ function ChatWrapper() {
         <Suspense>
           <SideChat userTypingId={userTypingId}/>
         </Suspense>
-        <div className="h-screen w-full">
+        <div className="h-screen w-full bg-[var(--surface)]">
           <Suspense fallback={<div>loading chat...</div>}>
             <Chat friendId={friendId} scroll={scroll} setScroll={setScroll} messages={messages} params={params}  setFriendId={setFriendId} setMessages={setMessages} userTypingId={userTypingId} setUserTypingId={setUserTypingId}/>
           </Suspense>

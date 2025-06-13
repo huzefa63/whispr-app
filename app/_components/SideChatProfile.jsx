@@ -72,7 +72,7 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
           </p>
           
               <div className="w-full pr-3 flex-1 text-left">
-                <p className="brightness-80  truncate font-thin text-left flex gap-1 items-center">
+                <p className={`brightness-80 ${chat?.recentMessageIsRead && 'text-green-500'} truncate font-thin text-left flex gap-1 items-center`}>
                   {chat?.recentMessageSenderId === currentUserId && !typingId  &&(
                     <span>
                       <BiCheckDouble
