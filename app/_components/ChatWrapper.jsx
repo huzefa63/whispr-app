@@ -42,11 +42,15 @@ function ChatWrapper() {
       socket.on("messageRecieved", (data) => {
         console.log('message',data)
         queryClient.setQueryData(["chats"], (previousChats) => {
-          if (!previousChats) return [...data?.chat];
+          if (!previousChats?.chats?.length < 1) return [...data?.chat];
+          const newChats = [...previousChats.chats];
+          if(!previousChats.chats.some(el => el?.id === data?.chat?.id)){
+             newChats?.unshift(...data?.chat);
+             return {...previousChats,chats:newChats};
+          }
           const latestChatIndex = previousChats?.chats.findIndex(
             (el) => data?.chat[0]?.id === el?.id
           );
-          const newChats = [...previousChats.chats];
           newChats[latestChatIndex] = data?.chat[0];
           console.log('before newchats: ',newChats)
           newChats.sort((a, b) => {
