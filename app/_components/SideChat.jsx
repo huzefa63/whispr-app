@@ -54,7 +54,7 @@ function SideChat({userTypingId}) {
           <p>add friends to start chatting</p>
         </div>
       )}
-      <div className="border- border-[var(--border)] w-full flex-1 overflow-auto mt-3 py-3">
+      <div className="flex flex-col gap-2 items-center border-[var(--border)] w-full flex-1 overflow-auto mt-3 py-3">
         {chats?.chats?.map((el, i) => (
           <SideChatProfile
           userTypingId={userTypingId}

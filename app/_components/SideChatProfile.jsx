@@ -49,8 +49,10 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
     return (
       <button
         onClick={handleClick}
-        className={`w-full overflow-hidden border-b-1 grid grid-cols-5 h-[15%] relative hover:bg-[var(--surface)] ${
-          hightlightUser() ? "bg-[var(--muted)]" : ""
+        className={`w-[95%]  rounded-lg overflow-hidden  border-1 grid grid-cols-5 h-[15%] relative hover:bg-[var(--surface)] ${
+          hightlightUser()
+            ? "bg-neutral-800 border-neutral-700"
+            : "border-neutral-800"
         } hover:cursor-pointer transition-all duration-300 ease-in-out border-[var(--muted)] flex items-center px-2`}
       >
         {chat?.friend?.profileImage ? (
@@ -70,23 +72,28 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
               ? chat?.user2?.name
               : chat?.user?.name}
           </p>
-          
-              <div className="w-full pr-3 flex-1 text-left">
-                <p className={`brightness-80 ${chat?.recentMessageIsRead && 'text-green-500'} truncate font-thin text-left flex gap-1 items-center`}>
-                  {chat?.recentMessageSenderId === currentUserId && !typingId  &&(
-                    <span>
-                      <BiCheckDouble
-                        className={`text-lg  ${
-                          chat?.isRecentMessageRead && "text-blue-400"
-                        }`}
-                      />
-                    </span>
-                  )}
-                  {!typingId && chat?.recentMessage}
-                  {typingId == userTypingId && <span className="text-green-500 tracking-wider">typing...</span>}
-                </p>
-              </div>
-         
+
+          <div className="w-full pr-3 flex-1 text-left">
+            <p
+              className={`brightness-80 ${
+                chat?.recentMessageIsRead && "text-green-500"
+              } truncate font-thin text-left flex gap-1 items-center`}
+            >
+              {chat?.recentMessageSenderId === currentUserId && !typingId && (
+                <span>
+                  <BiCheckDouble
+                    className={`text-lg  ${
+                      chat?.isRecentMessageRead && "text-blue-400"
+                    }`}
+                  />
+                </span>
+              )}
+              {!typingId && chat?.recentMessage}
+              {typingId == userTypingId && (
+                <span className="text-green-500 tracking-wider">typing...</span>
+              )}
+            </p>
+          </div>
         </div>
         {/* <p className="absolute h-6 w-6 rounded-full text-stone-700 flex items-center justify-center bg-green-400 dark:bg-green-600 right-3 top-1/2 -translate-y-1/2">4</p> */}
       </button>
