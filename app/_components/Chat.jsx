@@ -11,7 +11,7 @@ const p = Poppins({
     variable:'p',
     weight:'400'
 })
-function Chat({userTypingId,setUserTypingId,messages,setMessages,setFriendId,params,scroll,setScroll}) {
+function Chat({userTypingId,setUserTypingId,messages,setMessages,setFriendId,friendId,params,scroll,setScroll}) {
     // const params = useSearchParams();
     const containerRef = useRef(null);
     
@@ -37,6 +37,7 @@ function Chat({userTypingId,setUserTypingId,messages,setMessages,setFriendId,par
         </div>
         <div className="lg:h-[80%] h-screen  border-white ">
           <ChatContainer
+          friendId={friendId}
           params={params}
           setFriendId={setFriendId}
           containerRef={containerRef}

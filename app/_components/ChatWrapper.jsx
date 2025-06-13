@@ -80,6 +80,7 @@ function ChatWrapper() {
           return el.map((msg) => {
             return { ...msg, isRead: true };
           });
+
         });
         queryClient.setQueryData(["chats"], (oldData) => {
           if (!oldData) return [];
@@ -109,7 +110,7 @@ function ChatWrapper() {
         </Suspense>
         <div className="h-screen w-full">
           <Suspense fallback={<div>loading chat...</div>}>
-            <Chat scroll={scroll} setScroll={setScroll} messages={messages} params={params}  setFriendId={setFriendId} setMessages={setMessages} userTypingId={userTypingId} setUserTypingId={setUserTypingId}/>
+            <Chat friendId={friendId} scroll={scroll} setScroll={setScroll} messages={messages} params={params}  setFriendId={setFriendId} setMessages={setMessages} userTypingId={userTypingId} setUserTypingId={setUserTypingId}/>
           </Suspense>
         </div>
       </div>
