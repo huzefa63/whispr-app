@@ -42,9 +42,10 @@ function ChatWrapper() {
       socket.on("messageRecieved", (data) => {
         console.log('message',data)
         queryClient.setQueryData(["chats"], (previousChats) => {
-          if (!previousChats?.chats?.length < 1) return [...data?.chat];
+          if (previousChats?.chats?.length < 1) return {chats:[...data?.chat]};
           const newChats = [...previousChats.chats];
           if(!previousChats.chats.some(el => el?.id === data?.chat[0]?.id)){
+            console.log('unshift if')
              newChats?.unshift(...data?.chat);
              return {...previousChats,chats:newChats};
           }
