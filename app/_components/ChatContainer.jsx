@@ -65,6 +65,23 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef }) 
     }
     markRead();
   }, [params]);
+
+  useEffect(()=>{
+    const jwt = localStorage.getItem("jwt");
+    const userId = jwtDecode(jwt);
+    if(messages[messages.length - 1]?.senderId == userId) return;
+    async function markRead() {
+      const res2 = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/readMessages/${params}`,
+        {
+          headers: {
+            Authorization: `jwt=${jwt}`,
+          },
+        }
+      );
+    }
+    markRead();
+  },[messages?.length])
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
     const currentUserId = jwtDecode(jwt)?.id;
