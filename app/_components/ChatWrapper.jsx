@@ -39,6 +39,9 @@ function ChatWrapper() {
       if (!socket) return;
       console.log('effect ran success 2');
       console.log(socket?.connected);
+      if(!socket?.connected){
+        socket.connect();
+      }
       socket.on("connect", () => console.log("connected"));
       socket.on("messageRecieved", (data) => {
         console.log('message',data)
