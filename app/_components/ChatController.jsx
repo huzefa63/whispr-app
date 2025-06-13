@@ -250,68 +250,79 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
         className={`${poppins.className} bg-[var(--muted)] rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
       />
       <div className="relative">
-        <button
-          onClick={(e) => {
-            if (!isRecording && message.length > 0) {
-              // This is the SUBMIT action
-              // Allow form submission
-              return;
-            }
-
-            e.preventDefault(); // Prevent accidental form submit
-
-            if (!isRecording) {
-              // Start recording
-              setIsRecording(true);
-              inputRef.current.disabled = true;
-
-              speechRef.current.start();
-
-              speechRef.current.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                inputRef.current.value = transcript;
-
-                if (event.results[0].isFinal) {
-                  setMessage(transcript);
-                  setIsRecording(false);
-                  speechRef.current.stop();
-                  inputRef.current.disabled = false;
-                }
-              };
-
+        {!isRecording && message.length > 0 && (
+          <button
+            disabled={mediaUrl}
+            type="submit"
+            className="disabled:cursor-not-allowed"
+          >
+            <div
+              className={`${
+                isRecording && "bg-red-500  transition-all hover:bg-red-600"
+              } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12`}
+            >
+              <IoIosSend className="text-[var(--text)] text-2xl" />
+            </div>
+          </button>
+        )}
+        {!isRecording && message.length < 1 &&
+          <button
+          onClick={()=>{
+            setIsRecording(true);
+            speechRef.current.start();
+            inputRef.current.disabled = true;
+            speechRef.current.onresult = (event) => {
+              const transcript = event.results[0][0].transcript;
+              inputRef.current.value = transcript;
+              if (event.results[0].isFinal) {
+                setMessage(transcript);
+                setIsRecording(false);
+                speechRef.current.stop();
+                inputRef.current.disabled = false;
+              }
               speechRef.current.onend = () => {
                 setIsRecording(false);
+                speechRef.current.stop();
                 inputRef.current.disabled = false;
               };
-            } else {
-              // Stop recording manually
-              setIsRecording(false);
-              speechRef.current.stop();
-              inputRef.current.disabled = false;
-            }
+            };
           }}
-          disabled={mediaUrl}
-          type={message.length > 0 && !isRecording ? "submit" : "button"}
-          className="disabled:cursor-not-allowed"
-        >
-          <div
-            className={`${
-              isRecording
-                ? "bg-red-500 transition-all hover:bg-red-600"
-                : "bg-green-500 hover:bg-green-600"
-            } p-3 rounded-full flex justify-center items-center w-12 h-12`}
+            disabled={mediaUrl}
+            type="button"
+            className="disabled:cursor-not-allowed"
           >
-            {message.length > 0 && !isRecording && (
-              <IoIosSend className="text-[var(--text)] text-2xl" />
-            )}
-            {message.length < 1 && !isRecording && (
-              <IoMdMic className="text-[var(--text)] text-2xl" />
-            )}
-            {isRecording && (
-              <IoMdMicOff className="text-[var(--text)] text-2xl" />
-            )}
-          </div>
-        </button>
+            <div
+              className={`${
+                isRecording && "bg-red-500  transition-all hover:bg-red-600"
+              } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12`}
+            > 
+                <IoMdMic className="text-[var(--text)] text-2xl" />
+            </div>
+          </button>
+        }
+        {isRecording && 
+          <button
+          onClick={()=>{
+            setIsRecording(false);
+            speechRef.current.stop();
+            inputRef.current.disabled = false;
+
+          }}
+            disabled={mediaUrl}
+            type="button"
+            className="disabled:cursor-not-allowed"
+          >
+            <div
+              className={`${
+                isRecording && "bg-red-500  transition-all hover:bg-red-600"
+              } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12`}
+            >
+              
+                <IoMdMicOff className="text-[var(--text)] text-2xl" />
+             
+            </div>
+          </button>
+        }
       </div>
       {/* {isDown && (
         <div className={`absolute h-12 w-12 p-2 bg-[var(--background)] rounded-full flex items-center justify-center bottom-20 right-10 border-[var(--border)] border-1 z-[500] duration-[5000] transition-opacity ease-in-out opacity-0 ${isDown && 'opacity-100'} `}>
@@ -323,3 +334,11 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
 }
 
 export default ChatController;
+
+if (!isRecording) {
+  
+}
+if (isRecording) {
+  
+}
+
