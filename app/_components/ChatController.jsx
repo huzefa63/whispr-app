@@ -36,7 +36,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
     const [isRecording,setIsRecording] = useState(false);
     const {socket} = UseSocketContext();
   const [isDown, setIsDown] = useState(false);
-
+    const speechRef = useRef(null);
   const friendId = searchParams.get('friendId');
 
     // useEffect(() => {
@@ -162,7 +162,13 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
     //   return () => containerRef.current.removeEventListener('scroll',scrollBottom);
     // }, []);
     useEffect(()=>{
-
+      
+        const recognition = new (window.webkitSpeechRecognition || window.speechRecognition)();
+        speechRef.current = recognition;
+        speechRef.current.lang = window.navigator.language;
+        speechRef.current.continuous = true;
+        speechRef.current.interimResults = true;
+        return () => speechRef.current = null; 
     },[])
   return (
     <form
@@ -245,32 +251,31 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       <div className="relative">
       <button
         onClick={() => {
-          if (message.length > 0) return;
-          const recognition = new (window.speechRecognition ||
-            window.webkitSpeechRecognition)();
-          if (message.length < 1 && !isRecording) {
-            setIsRecording(true);
-            inputRef.current.placeholder = "listening...";
-            recognition.lang = window.navigator.language;
-            recognition.interimResults = true;
-            recognition.continuous = true;
-            recognition.start();
-            recognition.onresult = (event) => {
-              console.log(event.results[0][0]);
-            };
-            recognition.onend = () => {
-              inputRef.current.placeholder = 'Type a message...';
+            if(!isRecording){
+              setIsRecording(true);
+              speechRef.current.start();
+              inputRef.current.disabled = true;
+            }
+            if(isRecording){
               setIsRecording(false);
+              speechRef.current.stop();
+              inputRef.current.disabled = false;
+            }
+            speechRef.current.onresult = (event) => {
+              const result = event.results[0][0];
+             inputRef.current.value = result.transcript;
+                // setMessage(result.transcript);
+                if(event.results[0].isFinal) console.log(result.transcript);
+          
+            }
+            speechRef.current.onend = () => {
+              
+              
             }
           }
-          if (message.length < 1 && isRecording) {
-            setIsRecording(false);
-            recognition.stop();
-            inputRef.current.placeholder = "Type a message";
-          }
-        }}
+        }
         disabled={mediaUrl}
-        type={message.length > 0 ? "submit" : "button"}
+        type={message.length > 0 && !isRecording ? "submit" : "button"}
         className="disabled:cursor-not-allowed"
       >
         <div
@@ -278,7 +283,16 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
             isRecording && "bg-red-500  transition-all hover:bg-red-600"
           } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12`}
         >
-          {!message.length < 1 && (
+          {message.length > 0 && !isRecording && (
+            <IoIosSend className="text-[var(--text)] text-2xl" />
+          )}
+          {message.length < 1 && !isRecording && (
+            <IoMdMic className="text-[var(--text)] text-2xl" />
+          )}
+          {isRecording && (
+            <IoMdMicOff className="text-[var(--text)] text-2xl" />
+          )}
+          {/* {message.length > 0 && !isRecording && (
             <IoIosSend className="text-[var(--text)] text-2xl" />
           )}
           {message.length < 1 && !isRecording && (
@@ -286,7 +300,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
           )}
           {message.length < 1 && isRecording && (
             <IoMdMicOff className="text-[var(--text)] text-2xl" />
-          )}
+          )} */}
         </div>
       </button>
       </div>

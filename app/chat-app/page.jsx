@@ -1,5 +1,6 @@
 'use client';
 import Chat from "../_components/Chat"
+import ChatWrapper from "../_components/ChatWrapper";
 import SideChat from "../_components/SideChat"
 import { Suspense } from "react";
 async function verfiyUser(){
@@ -21,16 +22,7 @@ function Page({searchParams}) {
     
      return (
        <div className="w-full h-screen overflow-hidden">
-         <div className="flex h-full  w-full">
-           <Suspense>
-             <SideChat />
-           </Suspense>
-           <div className="h-screen w-full">
-             <Suspense fallback={<div>loading chat...</div>}>
-               <Chat />
-             </Suspense>
-           </div>
-         </div>
+         <ChatWrapper />
        </div>
      );
 }

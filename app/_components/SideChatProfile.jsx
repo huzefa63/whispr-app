@@ -4,7 +4,7 @@ import { usePathname, useSearchParams,useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { BiCheckDouble } from "react-icons/bi";
 import { RiAccountCircleFill } from "react-icons/ri";
-function SideChatProfile({chat,currentUserId}) {
+function SideChatProfile({chat,currentUserId,userTypingId}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter()
@@ -33,7 +33,6 @@ function SideChatProfile({chat,currentUserId}) {
       return chat?.userId === Number(friendId);
     }
   }
-    const recentMessage = chat?.recentMessage?.length < 23 ? chat?.recentMessage : chat?.recentMessage.slice(0,23) + '...'
     return (
       <button
         onClick={handleClick}
@@ -58,7 +57,7 @@ function SideChatProfile({chat,currentUserId}) {
               ? chat?.user2?.name
               : chat?.user?.name}
           </p>
-          {chat?.recentMessage && (
+          {chat?.recentMessage || userTypingId == chat?.id && (
             <div className="w-full pr-3 flex-1">
               <p className="brightness-80  truncate font-thin text-left flex gap-1 items-center">
                 {chat?.recentMessageSenderId === currentUserId && (
@@ -70,7 +69,8 @@ function SideChatProfile({chat,currentUserId}) {
                     />
                   </span>
                 )}
-                {chat?.recentMessage}
+                {userTypingId != chat?.id && chat?.recentMessage}
+                {userTypingId == chat?.id && <span className="text-green-500 ">typing...</span>}
               </p>
             </div>
           )}

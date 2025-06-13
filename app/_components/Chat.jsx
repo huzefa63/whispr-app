@@ -11,27 +11,13 @@ const p = Poppins({
     variable:'p',
     weight:'400'
 })
-function Chat() {
+function Chat({userTypingId,setUserTypingId}) {
     const params = useSearchParams();
     const [messages,setMessages] = useState([]);
     const [scroll, setScroll] = useState(false);
-    const [userTypingId,setUserTypingId] = useState(null);
-    const {socket} = UseSocketContext();
-  const containerRef = useRef(null);
-
-    useEffect(()=>{
-      if(!socket) return;
-      let timeout;
-      socket.on('typing',(userId) => {
-        console.log(userId);
-        setUserTypingId(userId);
-        clearTimeout(timeout);
-        timeout = setInterval(() => {
-          setUserTypingId(null);
-        }, 1000);
-      })
-      return () => socket.off('typing');
-    },[socket])
+    const containerRef = useRef(null);
+    
+    
 
     if(!params.get('friendId')) return (
       <div className={`${p.className} hidden lg:flex bg-[var(--surface)] flex-col gap-25 text-[var(--text)] tracking-wider text-3xl items-center justify-center w-full h-full`}>
