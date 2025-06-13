@@ -142,12 +142,23 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef }) 
         // if (data.Type !== "image") setScroll(true);
       }
     });
-    socket.on("message-read", () => {
+    socket.on("message-read", ({userId,friendId}) => {
       setMessages((el) => {
         return el.map((msg) => {
           return { ...msg, isRead: true };
         });
       });
+      queryClient.setQueryData(['chats'],(oldData) => {
+        const index = oldData?.chats?.findIndex(
+          (el) =>
+            (el.userId === userId && el.user2Id === friendId) ||
+            (el.userId === friendId && el.user2Id === userId)
+        );
+      })
+      if(!index) return oldData;
+      const chatsCopy = [...oldData?.chats];
+      chatsCopy[index].isRecentMessageRead = true;
+      return {...oldData,chats:chatsCopy}
     });
     return () => {
       socket?.off?.("connect");
