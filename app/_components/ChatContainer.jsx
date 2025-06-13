@@ -52,6 +52,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,par
     
     console.log("from effect of id: ", params);
     const jwt = localStorage.getItem("jwt");
+    const userId = jwtDecode(jwt)?.id;
     async function markRead() {
       const res2 = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/readMessages/${params}`,
@@ -63,6 +64,20 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,par
       );
     }
     markRead();
+    queryClient.setQueryData(['chats'],(previousChats) => {
+      console.log('no chats');
+      if(previousChats?.chats?.length < 1) return;
+      console.log('starting recent msg');
+      const index = previousChats?.chats?.findIndex(el => (el?.userId == userId && el?.user2Id == params) || (el?.userId == params && el?.user2Id == userId))
+      if(!index) return previousChats
+      console.log('index',index);
+      if(previousChats?.chats[index]?.isRecentMessageRead || previousChats?.chats[index]?.recentMessageSenderId == userId) return previousChats;
+      console.log('setting recent message to true');
+      const copy = [...previousChats?.chats];
+      copy[index].isRecentMessageRead = true;
+      console.log('final recent msg obj: ',{...previousChats,chats:copy});
+      return {...previousChats,chats:copy}
+    })
   }, [params]);
 
   useEffect(()=>{
