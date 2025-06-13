@@ -132,6 +132,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
 
     useEffect(()=>{
       if(!socket) return;
+      if(message.length === 0) return;
       const jwt = localStorage.getItem('jwt');
       const userId = jwtDecode(jwt)?.id;
       console.log(searchParams.get('friendId'));
@@ -256,20 +257,28 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
               speechRef.current.start();
               inputRef.current.disabled = true;
             }
-            if(isRecording){
-              setIsRecording(false);
-              speechRef.current.stop();
-              inputRef.current.disabled = false;
-            }
+            // if(isRecording){
+            //   setIsRecording(false);
+            //   speechRef.current.stop();
+            //   inputRef.current.disabled = false;
+            // }
             speechRef.current.onresult = (event) => {
               const result = event.results[0][0];
              inputRef.current.value = result.transcript;
                 // setMessage(result.transcript);
-                if(event.results[0].isFinal) console.log(result.transcript);
+                if(event.results[0].isFinal) {
+                  setMessage(result.transcript);
+                  setIsRecording(false);
+                  speechRef.current.stop();
+                  inputRef.current.disabled = false;
+
+                };
           
             }
             speechRef.current.onend = () => {
-              
+              setIsRecording(false);
+              speechRef.current.stop();
+              inputRef.current.disabled = false;
               
             }
           }
