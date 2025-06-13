@@ -66,13 +66,22 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,par
     markRead();
     queryClient.setQueryData(['chats'],(previousChats) => {
       console.log('no chats');
-      if(previousChats?.chats?.length < 1) return;
+      if(previousChats?.chats?.length < 1 || !previousChats) return previousChats;
+      console.log(previousChats);
+      console.log(...previousChats?.chats)
       console.log('starting recent msg');
       const index = previousChats?.chats?.findIndex(el => (el?.userId == userId && el?.user2Id == params) || (el?.userId == params && el?.user2Id == userId))
-      if(!index) return previousChats
       console.log('index',index);
+      if(index === -1) return previousChats
+      console.log('after index')
+      console.log('isReaded: ',previousChats?.chats[index]?.isRecentMessageRead);
+      console.log('isSendedByMe: ',previousChats?.chats[index]?.recentMessageSenderId == userId);
       if(previousChats?.chats[index]?.isRecentMessageRead || previousChats?.chats[index]?.recentMessageSenderId == userId) return previousChats;
       console.log('setting recent message to true');
+      console.log('chats ?: ',previousChats?.chats)
+      console.log("Array check:", Array.isArray(previousChats?.chats));
+      console.log("Type:", typeof previousChats?.chats);
+      console.log(...previousChats?.chats);
       const copy = [...previousChats?.chats];
       copy[index].isRecentMessageRead = true;
       console.log('final recent msg obj: ',{...previousChats,chats:copy});
