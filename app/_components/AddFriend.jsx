@@ -68,7 +68,7 @@ function AddFriend() {
           value={number}
           onChange={(e) => setNumber(e.target.value)}
           type="number"
-          className="bg-[var(--surface)] max-w-[150px] lg:max-w-[300px] no-spinner placeholder:text-sm h-fit focus:outline-none focus:border-[var(--border)] border-1 border-[var(--muted)] rounded-sm px-2 py-1 text-[var(--text)] "
+          className="bg-[var(--surface)] flex-1 no-spinner placeholder:text-sm h-fit focus:outline-none focus:border-[var(--border)] border-1 border-[var(--muted)] rounded-sm px-2 py-1 text-[var(--text)] "
         />
         <button className="bg-[var(--surface)] lg:p-3 p-2 rounded-full hover:cursor-pointer hover:bg-[var(--background)]  border-1 border-[var(--muted)]">
           <MdPersonAddAlt1 className="lg:text-2xl text-xl text-[var(--text)]" />
