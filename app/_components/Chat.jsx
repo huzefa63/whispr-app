@@ -64,7 +64,7 @@ function Chat({chats,userTypingId,setUserTypingId,messages,setMessages,setFriend
           <ChatProfile setMessages={setMessages} params={params} chats={chats}/>
         </div>}
         {/* <div className="lg:h-[80%] h-screen  border-white "> */}
-        {chats?.chats?.length > 0 && <div className="lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0  border-white ">
+        <div className="lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0  border-white ">
           <ChatContainer
           friendId={friendId}
           params={params}
@@ -75,7 +75,7 @@ function Chat({chats,userTypingId,setUserTypingId,messages,setMessages,setFriend
             scroll={scroll}
             setScroll={setScroll}
           />
-        </div>}
+        </div>
         {chats?.chats?.length > 0 && <div className="lg:h-[10%] w-full h-[8%] lg:relative lg:top-0 lg:left-0 fixed bottom-0 left-0 z-50">
           <ChatController userTypingId={userTypingId} setMessages={setMessages} setScroll={setScroll} containerRef={containerRef}/>
         </div>}
