@@ -9,7 +9,7 @@ import { jwtDecode } from "jwt-decode";
 import Spinner from "./Spinner";
 import { BiCheckDouble,BiCheck } from "react-icons/bi";
 import { IoChevronDownSharp } from "react-icons/io5";
-function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,params,friendId,setFriendId }) {
+function ChatContainer({chats, messages, setMessages,scroll,setScroll,containerRef,params,friendId,setFriendId }) {
   const searchParams = useSearchParams();
   const { socket } = UseSocketContext();
   // const [scroll, setScroll] = useState(true);
@@ -137,7 +137,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,par
       // className="bg-[var(--surface)] pt-[20%] pb-[calc(130px+env(safe-area-inset-bottom))]  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
     >
       {isFetching && <Spinner />}
-      {!isFetching &&
+      {!isFetching && chats?.length > 0 &&
         messages?.map((el, i) => (
           <Message key={i} message={el} setScroll={setScroll} />
         ))}

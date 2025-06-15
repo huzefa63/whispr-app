@@ -66,6 +66,7 @@ function Chat({chats,userTypingId,setUserTypingId,messages,setMessages,setFriend
         {/* <div className="lg:h-[80%] h-screen  border-white "> */}
         <div className="lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0  border-white ">
           <ChatContainer
+          chats={chats?.chats}
           friendId={friendId}
           params={params}
           setFriendId={setFriendId}
