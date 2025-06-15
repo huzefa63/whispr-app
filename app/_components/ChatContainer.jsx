@@ -18,12 +18,12 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,par
     queryKey: ["messages", params],
     queryFn: () => getMessages(params),
     refetchOnWindowFocus: false,
-    placeholderData: [],
   });
   async function getMessages(params) {
     if (!params) return [];
     console.log("fetch friend ", params);
     const jwt = localStorage.getItem("jwt");
+    setScroll(false);
     // const params = new URLSearchParams(searchParams).toString();
     try {
       const res = await axios.get(
@@ -52,6 +52,7 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,par
     
     console.log("from effect of id: ", params);
     const jwt = localStorage.getItem("jwt");
+    if(!jwt) return;
     const userId = jwtDecode(jwt)?.id;
     async function markRead() {
       const res2 = await axios.get(
@@ -65,23 +66,23 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,par
     }
     markRead();
     queryClient.setQueryData(['chats'],(previousChats) => {
-      console.log('no chats');
+      // console.log('no chats');
       if(previousChats?.chats?.length < 1 || !previousChats) return previousChats;
-      console.log(previousChats);
-      console.log(...previousChats?.chats)
-      console.log('starting recent msg');
+      // console.log(previousChats);
+      // console.log(...previousChats?.chats)
+      // console.log('starting recent msg');
       const index = previousChats?.chats?.findIndex(el => (el?.userId == userId && el?.user2Id == params) || (el?.userId == params && el?.user2Id == userId))
       console.log('index',index);
       if(index === -1) return previousChats
-      console.log('after index')
-      console.log('isReaded: ',previousChats?.chats[index]?.isRecentMessageRead);
-      console.log('isSendedByMe: ',previousChats?.chats[index]?.recentMessageSenderId == userId);
+      // console.log('after index')
+      // console.log('isReaded: ',previousChats?.chats[index]?.isRecentMessageRead);
+      // console.log('isSendedByMe: ',previousChats?.chats[index]?.recentMessageSenderId == userId);
       if(previousChats?.chats[index]?.isRecentMessageRead || previousChats?.chats[index]?.recentMessageSenderId == userId) return previousChats;
-      console.log('setting recent message to true');
-      console.log('chats ?: ',previousChats?.chats)
-      console.log("Array check:", Array.isArray(previousChats?.chats));
-      console.log("Type:", typeof previousChats?.chats);
-      console.log(...previousChats?.chats);
+      // console.log('setting recent message to true');
+      // console.log('chats ?: ',previousChats?.chats)
+      // console.log("Array check:", Array.isArray(previousChats?.chats));
+      // console.log("Type:", typeof previousChats?.chats);
+      // console.log(...previousChats?.chats);
       const copy = [...previousChats?.chats];
       copy[index].isRecentMessageRead = true;
       console.log('final recent msg obj: ',{...previousChats,chats:copy});
@@ -140,17 +141,21 @@ function ChatContainer({ messages, setMessages,scroll,setScroll,containerRef,par
         messages?.map((el, i) => (
           <Message key={i} message={el} setScroll={setScroll} />
         ))}
-      {/* {[
-          {
-            time: "2025-06-07 09:40:59.216",
-            senderId:1,
-            Type: "image",
-            mediaUrl,
-            caption: "am i looking good in this outfit ?",
-          },
-        ].map((el, i) => (
-          <Message key={i} message={el} />
-        ))} */}
+      {!isFetching && messages?.length < 1 && (
+        
+          <div className="text-center flex items-center text-lg lg:text-xl flex-col justify-center text-gray-400 mt-5  h-full">
+            <p className="">
+              This chat is{" "}
+              <span className="font-semibold text-gray-300">
+                end-to-end encrypted
+              </span>
+              .
+            </p>
+            <p>Only you and your contact can read the messages.</p>
+            <p className="mt-2 italic">Start the conversation securely.</p>
+          </div>
+        
+      )}
     </div>
   );
 }

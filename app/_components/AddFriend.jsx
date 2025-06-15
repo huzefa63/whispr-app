@@ -2,22 +2,28 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { MdPersonAddAlt1 } from "react-icons/md";
 
 function AddFriend() {
     const [number,setNumber] = useState('');
     const queryClient = useQueryClient();
     const searchParams = useSearchParams();
-    const {mutate} = useMutation({
+    const {mutateAsync} = useMutation({
         mutationFn:addFriend,
+        
         onSuccess:() => queryClient.invalidateQueries(['chats'])
     });
+   const [disableSubmit,setDisableSubmit] = useState();
+   const router = useRouter();
     async function addFriend(number){
         try {
           const jwt = localStorage.getItem("jwt");
           if(!jwt) return false;
+          if(disableSubmit) return;
+          setDisableSubmit(true);
           const chatRes = await axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/createChat/${number}`,
             { headers: { Authorization: `jwt=${jwt}` } }
@@ -28,23 +34,44 @@ function AddFriend() {
           return false;
         }finally{
           setNumber('');
+          setDisableSubmit(false);
         }
         
     }
     function handleSubmit(e){
         e.preventDefault();
-        mutate(number);
+        
+        toast.promise(mutateAsync(number), {
+          loading: "adding friend...",
+          success: <b>adding friend!</b>,
+          error: <b>Could not add, maybe friend does not exist!</b>,
+        })
     }
+  
     return (
-      <form onSubmit={handleSubmit} className="px-2 flex items-center justify-around  mt-3">
+      <form
+        onSubmit={handleSubmit}
+        className=" flex items-center justify-between px-5 lg:px-2  mt-3 max-w-full"
+      >
+        <button
+          type="button"
+          onClick={() => {
+            localStorage.removeItem("jwt");
+            router.replace("/auth/signin");
+          }}
+          className="px-3 py-1 h-fit opacity-80 left-2 top-2 hover:bg-red-500 transition-all duration-300 ease-in-out hover:cursor-pointer bg-neutral-800 text-white rounded-sm"
+        >
+          logout
+        </button>
         <input
-        value={number}
-        onChange={(e)=>setNumber(e.target.value)}
+          placeholder="add a friend with contact number"
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
           type="number"
-          className="bg-[var(--surface)] focus:outline-none focus:border-[var(--border)] border-1 border-[var(--muted)] rounded-sm px-2 py-1 text-[var(--text)] "
+          className="bg-[var(--surface)] no-spinner placeholder:text-sm h-fit focus:outline-none focus:border-[var(--border)] border-1 border-[var(--muted)] rounded-sm px-2 py-1 text-[var(--text)] "
         />
-        <button className="bg-[var(--surface)] p-3 rounded-full hover:cursor-pointer hover:bg-[var(--background)]  border-1 border-[var(--muted)]">
-          <MdPersonAddAlt1 className="text-2xl text-[var(--text)]" />
+        <button className="bg-[var(--surface)] lg:p-3 p-2 rounded-full hover:cursor-pointer hover:bg-[var(--background)]  border-1 border-[var(--muted)]">
+          <MdPersonAddAlt1 className="lg:text-2xl text-xl text-[var(--text)]" />
         </button>
       </form>
     );

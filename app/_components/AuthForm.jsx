@@ -1,10 +1,12 @@
 'use client';
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {createUserAction} from '@/actions/authActions';
 import axios from "axios";
+import Spinner from "./Spinner";
+import toast from "react-hot-toast";
 function AuthForm() {
   const {
     handleSubmit,
@@ -14,6 +16,7 @@ function AuthForm() {
   } = useForm({ mode: "onSubmit" });
   const pathname = usePathname();
   const router = useRouter();
+  const [isSubmitting,setIsSubmitting] = useState(false);
   const fields = useMemo(
     () => [
       {
@@ -81,6 +84,7 @@ function AuthForm() {
   ); // Prevent excessive recalculations
   async function signUp(data){
     try {
+      setIsSubmitting(true);
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/createUser`,
         data
@@ -89,12 +93,16 @@ function AuthForm() {
       localStorage.setItem("jwt", res.data?.jwt);
       location.href = '/chat-app';
     } catch (err) {
+      toast.error('failed to signup, email or contact number may already exist!')
       console.trace();
       console.error("Error creating user:", err);
+    }finally{
+      setIsSubmitting(false);
     }
   }
   async function signIn(data){
     try {
+      setIsSubmitting(true);
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signIn`,
         data,
@@ -103,8 +111,11 @@ function AuthForm() {
       localStorage.setItem("jwt", res.data?.jwt);
       location.href = "/chat-app";
     } catch (err) {
+      toast.error('failed to signin, email or password is incorrect!')
       console.trace();
       console.error("Error creating user:", err);
+    }finally{
+      setIsSubmitting(false);
     }
   }
 
@@ -153,9 +164,10 @@ function AuthForm() {
         </div>
         <button
           type="submit"
-          className="mt-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          className="mt-3 relative text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
-          Submit
+          <span className={`${isSubmitting && 'opacity-0'}`}>submit</span>
+          <span className={`${isSubmitting ? 'block absolute top-1/2 left-1/2 -translate-1/2 p-1':'hidden'}`}><Spinner /></span>
         </button>
       </form>
   );

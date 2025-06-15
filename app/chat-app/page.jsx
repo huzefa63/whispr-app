@@ -24,6 +24,7 @@ function Page({searchParams}) {
     
      return (
        <div className="w-full h-screen  overflow-hidden">
+        <AuthRedirect />
          <Suspense fallback={<div className="fixed top-0 left-0 h-screen w-full bg-[var(--background)]">
           <Spinner />
          </div>}>

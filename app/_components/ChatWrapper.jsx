@@ -3,9 +3,10 @@ import { Suspense, useEffect, useState } from "react";
 import SideChat from "./SideChat";
 import Chat from "./Chat";
 import { UseSocketContext } from "./SocketProvider";
-import { useSearchParams } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 function ChatWrapper() {
     const searchParams = useSearchParams();
@@ -16,7 +17,34 @@ function ChatWrapper() {
     const {socket} = UseSocketContext();
     const queryClient = useQueryClient();
         const [scroll, setScroll] = useState(false);
+    // const [chats,setChats] = useState([]);
+  const router = useRouter();
+
+    const { data: chats, isLoading, isPending } = useQuery({
+      queryKey: ["chats"],
+      queryFn: getChats,
+      refetchOnWindowFocus: false,
+    });
     
+    async function getChats() {
+      try {
+        const jwt = localStorage.getItem("jwt");
+        if (!jwt) return [];
+        const chatRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/getChats`,
+          { headers: { Authorization: `jwt=${jwt}` } }
+        );
+        console.log("chats", chatRes.data);
+        // setChats(chatRes.data?.chats);
+        return chatRes.data;
+      } catch (err) {
+        console.log(err);
+        // return {chats:[{user2:{name:'Huzefa ratlam'}}]};
+        return [];
+      }
+    }
+
+
     useEffect(() => {
       if (!socket) return;
       let timeout;
@@ -52,7 +80,9 @@ function ChatWrapper() {
           if (previousChats?.chats?.length < 1) return {status:'success',chats:[...data?.chat],currentUserId};
           const newChats = [...previousChats.chats];
           if(!previousChats.chats.some(el => el?.id === data?.chat[0]?.id)){
-            console.log('unshift if')
+            console.log('unshift if',data?.chat);
+            console.log(data?.chat);
+            console.log(previousChats);
              newChats?.unshift(...data?.chat);
              return {...previousChats,chats:newChats};
           }
@@ -132,11 +162,11 @@ function ChatWrapper() {
     return (
       <div className="flex h-full  w-full">
         <Suspense>
-          <SideChat userTypingId={userTypingId}/>
+          <SideChat isPending={isPending} isLoading={isLoading} chats={chats} userTypingId={userTypingId}/>
         </Suspense>
         <div className="h-screen w-full bg-[var(--surface)]">
           <Suspense fallback={<div>loading chat...</div>}>
-            <Chat friendId={friendId} scroll={scroll} setScroll={setScroll} messages={messages} params={params}  setFriendId={setFriendId} setMessages={setMessages} userTypingId={userTypingId} setUserTypingId={setUserTypingId}/>
+            <Chat chats={chats} friendId={friendId} scroll={scroll} setScroll={setScroll} messages={messages} params={params}  setFriendId={setFriendId} setMessages={setMessages} userTypingId={userTypingId} setUserTypingId={setUserTypingId}/>
           </Suspense>
         </div>
       </div>
