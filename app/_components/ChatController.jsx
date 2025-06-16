@@ -293,6 +293,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       )}
       {audioSrc && (
         <audio
+        controlsList="nodownload"
           src={audioSrc}
           controls
           className={`${poppins.className} opacity-70 rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
