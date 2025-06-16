@@ -98,7 +98,7 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
               <RiAccountCircleFill className="text-5xl text-[var(--text)]" />
             </div>
           )}
-          <div className="text-[var(--textDark)]  w-full col-span-4 space-y-2 tracking-wider  flex-1">
+          <div className="text-[var(--textDark)]  w-full col-span-4 space-y-1 tracking-wider  flex-1">
             <p className="text-left">
               {chat?.user?.id === currentUserId
                 ? chat?.user2?.name
