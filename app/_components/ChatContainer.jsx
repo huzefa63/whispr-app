@@ -251,7 +251,7 @@ function Message({ message, setScroll }) {
           <audio
             controls
             src={message?.mediaUrl}
-            controlsList="noplaybackrate noremoteplayback"
+            controlsList="nodownload noplaybackrate noremoteplayback"
             className="w-full lg:hidden"
           />
 
