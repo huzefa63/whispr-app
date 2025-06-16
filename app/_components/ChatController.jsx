@@ -36,9 +36,12 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
     const [isRecording,setIsRecording] = useState(false);
     const {socket} = UseSocketContext();
   const [isDown, setIsDown] = useState(false);
-    const speechRef = useRef(null);
+    const recordingRef = useRef(null);
+    const streamRef = useRef(null);
   const friendId = searchParams.get('friendId');
-  const [transcript,setTranscript] = useState();
+  const [audioSrc,setAudioSrc] = useState('');
+  const [audioBlob,setAudioBlob] = useState(null);
+  const [isSendingAudio,setIsSendingAudio] = useState(false);
     // useEffect(() => {
         // console.log(
         //   Object.keys(document.activeElement).length < 1,
@@ -82,11 +85,40 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
         setMedia(null);
       }
     }
+
+    async function handleAudioSubmit(audioBlob,jwt,recieverId){
+      const formData = new FormData();
+      formData.append("media", audioBlob);
+      formData.append("recieverId", recieverId);
+      try {
+        setIsSendingAudio(true);
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/sendMessage`,
+          formData,
+          {
+            headers: {
+              Authorization: `jwt=${jwt}`,
+            },
+          }
+        );
+        console.log(res);
+        setMessage("");
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setIsSendingAudio(false);
+        setLoading(false);
+        setAudioBlob(null);
+        setAudioSrc('');
+
+      }
+    }
     async function handleSubmit(e){
       e.preventDefault();
       const jwt = localStorage.getItem("jwt");
       const payload = jwtDecode(jwt);
       const recieverId = searchParams.get("friendId");
+      if(jwt && audioBlob) await handleAudioSubmit(audioBlob,jwt,recieverId);
       if(jwt && media) await handleMediaSubmit(media,caption,jwt,recieverId);
       if(jwt && !media && message) {
         const uniqueId = `${Date.now()}-${Math.round(Math.random() * 10000000)}`
@@ -131,6 +163,45 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
     }
 
     useEffect(()=>{
+      const audioChunks = [];
+        async function getMedia(){
+          if(!isRecording) return;
+          const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+          recordingRef.current = new MediaRecorder(stream);
+          streamRef.current = stream;
+          recordingRef.current.start();
+          inputRef.current.disabled = true;
+          inputRef.current.value = "recording audio..."
+          recordingRef.current.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+          }
+          recordingRef.current.onstop = (event) => {
+            inputRef.current.disabled = false;
+            inputRef.current.value = "Type a message...";
+            const audioBlob = new Blob(audioChunks,{type:'audio/webm'})
+            const audioSrc =  URL.createObjectURL(audioBlob);
+            setAudioSrc(audioSrc);
+            setAudioBlob(audioBlob);
+
+          }
+        }
+        getMedia();
+        return () => {
+          recordingRef.current = null;
+          streamRef.current = null;
+        }
+    },[isRecording])
+    function startRecording(){
+      setIsRecording(true);
+      
+    }
+    function stopRecording(){
+      setIsRecording(false);
+      if(streamRef.current){
+        streamRef.current.getTracks().forEach(tracks => tracks.stop());
+      }
+    }
+    useEffect(()=>{
       if(!socket) return;
       if(message.length === 0) return;
       const jwt = localStorage.getItem('jwt');
@@ -139,63 +210,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       socket.emit("typing", { typerId: userId, toTypingId: Number(searchParams.get("friendId"))});
     },[message,socket])
 
-    // useEffect(() => {
-    //   if (!containerRef.current) return;
-    //   console.log(containerRef.current);
-    //   let timeout;
-    //   function scrollBottom(){
-    //     if (containerRef.current.scrollTop < containerRef.current.scrollHeight){
-    //       setIsDown(false);
-    //       return;
-    //     }
-    //       if (
-    //         containerRef.current.scrollTop < containerRef.current.scrollHeight
-    //       ) {
-    //         setIsDown(true);
-    //         clearTimeout(timeout);
-    //         timeout = setTimeout(() => {
-    //           setIsDown(false);
-    //         }, 4000);
-    //       }
-         
-    //   }
-    //   containerRef.current.addEventListener("scroll", scrollBottom);
-    //   return () => containerRef.current.removeEventListener('scroll',scrollBottom);
-    // }, []);
-    useEffect(()=>{
-      
-        const recognition = new (window.webkitSpeechRecognition || window.speechRecognition)();
-        speechRef.current = recognition;
-        speechRef.current.lang = window.navigator.language;
-        speechRef.current.continuous = true;
-        speechRef.current.interimResults = true;
-        return () => speechRef.current = null; 
-    },[])
-    function startRecording(){
-      setIsRecording(true);
-      speechRef.current.start();
-      inputRef.current.disabled = true;
-      speechRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        inputRef.current.value = transcript;
-        if (event.results[0].isFinal) {
-          setMessage(transcript);
-          setIsRecording(false);
-          speechRef.current.stop();
-          inputRef.current.disabled = false;
-        }
-        speechRef.current.onend = () => {
-          setIsRecording(false);
-          speechRef.current.stop();
-          inputRef.current.disabled = false;
-        };
-      };
-    }
-    function stopRecording(){
-      setIsRecording(false);
-      speechRef.current.stop();
-      inputRef.current.disabled = false;
-    }
+    
   return (
     <form
       onSubmit={handleSubmit}
@@ -265,32 +280,45 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
         name="media"
         id="media"
       />
-      <input
-        disabled={mediaUrl}
-        onChange={(e) => setMessage(e.target.value)}
-        value={message}
-        ref={inputRef}
-        type="text"
-        placeholder="Type a message"
-        className={`${poppins.className} bg-[var(--muted)] rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
-      />
+      {!audioSrc && (
+        <input
+          disabled={mediaUrl}
+          onChange={(e) => setMessage(e.target.value)}
+          value={message}
+          ref={inputRef}
+          type="text"
+          placeholder="Type a message"
+          className={`${poppins.className}  bg-[var(--muted)] rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
+        />
+      )}
+      {audioSrc && (
+        <audio
+          src={audioSrc}
+          controls
+          className={`${poppins.className} opacity-70 rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
+        />
+      )}
       <div className="relative">
-        {!isRecording && message.length > 0 && (
-          <button
-            disabled={mediaUrl}
-            type="submit"
-            className="disabled:cursor-not-allowed"
-          >
-            <div
-              className={`${
-                isRecording && "bg-red-500  transition-all hover:bg-red-600"
-              } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12`}
+        {(!isRecording && message.length > 0) ||
+          (audioSrc && (
+            <button
+              disabled={mediaUrl}
+              type="submit"
+              className="disabled:cursor-not-allowed"
             >
-              <IoIosSend className="text-[var(--text)] text-2xl" />
-            </div>
-          </button>
-        )}
-        {message.length < 1 && (
+              <div
+                className={`${
+                  isRecording && "bg-red-500  transition-all hover:bg-red-600"
+                } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center relative w-12 h-12`}
+              >
+                <div className={`${isSendingAudio && 'opacity-0'}`}>
+                  <IoIosSend className="text-[var(--text)] text-2xl" />
+                </div>
+                {isSendingAudio && <Spinner />}
+              </div>
+            </button>
+          ))}
+        {message.length < 1 && !audioSrc && (
           <button
             onClick={!isRecording ? startRecording : stopRecording}
             disabled={mediaUrl}
@@ -302,8 +330,12 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
                 isRecording && "bg-red-500  transition-all hover:bg-red-600"
               } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center w-12 h-12`}
             >
-              {!isRecording && <IoMdMic className="text-[var(--text)] text-2xl" />}
-              {isRecording && <IoMdMicOff className="text-[var(--text)] text-2xl" />}
+              {!isRecording && (
+                <IoMdMic className="text-[var(--text)] text-2xl" />
+              )}
+              {isRecording && (
+                <IoMdMicOff className="text-[var(--text)] text-2xl" />
+              )}
             </div>
           </button>
         )}

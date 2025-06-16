@@ -107,13 +107,13 @@ function ChatWrapper() {
           return { ...previousChats, chats: newChats };
         });
         
-        if (data?.Type === "image" || data?.senderId !== currentUserId)
+        if ((data?.Type === "image" || data?.Type === 'audio') || data?.senderId !== currentUserId)
           setScroll(false);
         if (data?.senderId == friendId || data?.senderId === currentUserId) {
           // setMessages(el=>[...el,data]);
           setMessages((el) => {
-            if (data?.Type === "image" || data?.senderId !== currentUserId) {
-              if (data?.senderId !== currentUserId && data?.Type !== "image")
+            if ((data?.Type === "image" || data?.Type === 'audio') || data?.senderId !== currentUserId) {
+              if (data?.senderId !== currentUserId && data?.Type !== "image" && data?.Type !== 'audio')
                 setScroll(true);
               return [...el, data];
             }

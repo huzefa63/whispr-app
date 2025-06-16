@@ -120,7 +120,7 @@ function ChatContainer({chats, messages, setMessages,scroll,setScroll,containerR
       if (
         ((containerRef.current &&
           scroll &&
-          messages[messages.length - 1]?.Type === "image") )||
+          messages[messages.length - 1]?.Type === "image" || messages[messages.length -1]?.Type === 'audio') )||
         messages[messages.length - 1]?.placeholder || 
         messages[messages.length - 1]?.senderId !== currentUserId
       ) {
@@ -168,7 +168,7 @@ function Message({ message, setScroll }) {
   const currentUserId = jwtDecode(token)?.id;
 
   const time = format(new Date(message?.time), "HH:mm");
-  if (message.Type !== "image")
+  if (message.Type === "text")
     return (
       <div className="w-full">
         <p
@@ -184,15 +184,23 @@ function Message({ message, setScroll }) {
             {message?.senderId === currentUserId && (
               <>
                 <BiCheckDouble
-                  className={`text-lg ${message?.placeholder ?'hidden':'block'} ${message?.isRead && "text-blue-400"}`}
+                  className={`text-lg ${
+                    message?.placeholder ? "hidden" : "block"
+                  } ${message?.isRead && "text-blue-400"}`}
                 />
                 <BiCheck
-                  className={`text-lg ${message?.placeholder ? 'block':'hidden'}`}
+                  className={`text-lg ${
+                    message?.placeholder ? "block" : "hidden"
+                  }`}
                 />
               </>
             )}
           </span>
         </p>
+        {/* <audio
+          controls
+          src="https://res.cloudinary.com/dkqsfm61z/video/upload/v1750058725/iogykmwmsqdnggo3ulwg.webm"
+        className="min-w-full" /> */}
       </div>
     );
   if (message.Type === "image")
@@ -217,6 +225,37 @@ function Message({ message, setScroll }) {
           >
             {time}
             {message?.senderId === currentUserId &&  (
+              <BiCheckDouble
+                className={`text-lg ${message?.isRead && "text-blue-400"}`}
+              />
+            )}
+          </span>
+        </div>
+      </div>
+    );
+  if (message.Type === "audio")
+    
+    return (
+      <div className="w-full gap-2 ">
+        <div
+          className={` relative gap-3  p-2 rounded-sm min-w-[70%] max-w-[80%]  lg:w-fit lg:min-w-[30%] lg:max-w-[30%] ${
+            currentUserId === Number(message?.senderId)
+              ? "ml-auto "
+              : ""
+          }`}
+        >
+          <div className=" relative">
+            <audio controls src={message?.mediaUrl} className="min-w-full " onLoad={()=>setScroll(true)}/>
+           
+          </div>
+
+          <span
+            className={`text-xs text-black ${
+              "right-6 bottom-2"
+            }  absolute flex gap-1 items-center`}
+          >
+            {time}
+            {message?.senderId === currentUserId && (
               <BiCheckDouble
                 className={`text-lg ${message?.isRead && "text-blue-400"}`}
               />
