@@ -7,6 +7,7 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { BiDotsVertical } from "react-icons/bi";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { format } from "date-fns";
 function ChatProfile({chats,params,setMessages}) {
   const searchParams = useSearchParams();
  const router = useRouter();
@@ -68,6 +69,10 @@ function ChatProfile({chats,params,setMessages}) {
       toast.error("failed to clear chat!");
     }
   }
+  let lastSeen;
+  if(friend?.lastSeen){
+    lastSeen = format(new Date(friend?.lastSeen), "HH:mm");
+  }
   return (
     <div className="h-full bg-[var(--muted)] lg:px-5 pr-3 flex justify-between items-center  w-full">
       <div className="h-full gap-7 hover:cursor-pointer transition-all duration-300 ease-in-out border-[var(--muted)] flex items-center px-2">
@@ -87,10 +92,15 @@ function ChatProfile({chats,params,setMessages}) {
           />
           <RiAccountCircleFill className="text-5xl text-[var(--text)]" />
         </div>
-        <div className="text-[var(--textDark)] tracking-wider">
-          <p className="ml-1">{friend?.name}</p>
-          <p className="text-xs brightness-75">
-            {friend?.contactNumber && "+91"} {friend?.contactNumber}
+        <div className="pl-1 text-[var(--textDark)] tracking-wider">
+          <p className="">{friend?.name}</p>
+          <p className="text-xs ">
+            {/* {friend?.contactNumber && "+91"} {friend?.contactNumber} */}
+            {friend?.status === "offline" && lastSeen && `last seen at ${lastSeen}`}
+            {friend?.status === "online" && (
+              <span className="text-green-500">online</span>
+            )}
+            {!friend?.status && `+91 ${friend?.contactNumber}`}
           </p>
         </div>
       </div>
@@ -103,7 +113,10 @@ function ChatProfile({chats,params,setMessages}) {
         </span>
         {showContext && (
           // <div className="  flex justify-center items-center  border-1 border-neutral-600 rounded-sm    ">
-          <button onClick={deleteMessages} className=" hover:cursor-pointer absolute top-7 right-2 transition-all duration-300 ease-in-out hover:bg-red-600 bg-red-500 rounded-sm h-fit whitespace-nowrap py-2 px-3">
+          <button
+            onClick={deleteMessages}
+            className=" hover:cursor-pointer absolute top-7 right-2 transition-all duration-300 ease-in-out hover:bg-red-600 bg-red-500 rounded-sm h-fit whitespace-nowrap py-2 px-3"
+          >
             clear chat
           </button>
           // </div>
