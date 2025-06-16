@@ -238,17 +238,21 @@ function Message({ message, setScroll }) {
     return (
       <div className="w-full">
         <div
-          className={`relative py-2  min-w-[50%] max-w-[60%] lg:w-fit lg:min-w-[30%] lg:max-w-[30%] ${
-            currentUserId === Number(message?.senderId)
-              ? "ml-auto "
-              : ""
+          className={`relative py-2  min-w-[55%] max-w-[65%] lg:w-fit lg:min-w-[30%] lg:max-w-[30%] ${
+            currentUserId === Number(message?.senderId) ? "ml-auto " : ""
           }`}
         >
           <audio
             controls
             src={message?.mediaUrl}
-            className="w-full" // You can adjust `h-8` to control height
+            className="w-full hidden lg:block" // You can adjust `h-8` to control height
             onLoadedData={() => setScroll(true)} // correct event for audio
+          />
+          <audio
+            controls
+            src={message?.mediaUrl}
+            controlsList="noplaybackrate noremoteplayback"
+            className="w-full lg:hidden"
           />
 
           <span className="text-xs text-black absolute right-5 bottom-2 flex gap-1 items-center">
