@@ -236,28 +236,26 @@ function Message({ message, setScroll }) {
   if (message.Type === "audio")
     
     return (
-      <div className="w-full gap-2 ">
+      <div className="w-full">
         <div
-          className={` relative gap-3  p-2 rounded-sm min-w-[70%] max-w-[80%]  lg:w-fit lg:min-w-[30%] lg:max-w-[30%] ${
+          className={`relative py-2  min-w-[50%] max-w-[60%] lg:w-fit lg:min-w-[30%] lg:max-w-[30%] ${
             currentUserId === Number(message?.senderId)
               ? "ml-auto "
               : ""
           }`}
         >
-          <div className=" relative">
-            <audio controls src={message?.mediaUrl} className="min-w-full " onLoad={()=>setScroll(true)}/>
-           
-          </div>
+          <audio
+            controls
+            src={message?.mediaUrl}
+            className="w-full" // You can adjust `h-8` to control height
+            onLoadedData={() => setScroll(true)} // correct event for audio
+          />
 
-          <span
-            className={`text-xs text-black ${
-              "right-6 bottom-2"
-            }  absolute flex gap-1 items-center`}
-          >
+          <span className="text-xs text-black absolute right-5 bottom-2 flex gap-1 items-center">
             {time}
             {message?.senderId === currentUserId && (
               <BiCheckDouble
-                className={`text-lg ${message?.isRead && "text-blue-400"}`}
+                className={`text-lg ${message?.isRead ? "text-blue-400" : ""}`}
               />
             )}
           </span>
