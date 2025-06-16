@@ -103,7 +103,7 @@ function ChatProfile({chats,params,setMessages}) {
         </span>
         {showContext && (
           // <div className="  flex justify-center items-center  border-1 border-neutral-600 rounded-sm    ">
-          <button onClick={deleteMessages} className=" hover:cursor-pointer absolute top-7 right-2 transition-all duration-300 ease-in-out hover:bg-green-600 bg-green-500 rounded-sm h-fit whitespace-nowrap py-2 px-3">
+          <button onClick={deleteMessages} className=" hover:cursor-pointer absolute top-7 right-2 transition-all duration-300 ease-in-out hover:bg-red-600 bg-red-500 rounded-sm h-fit whitespace-nowrap py-2 px-3">
             clear chat
           </button>
           // </div>
