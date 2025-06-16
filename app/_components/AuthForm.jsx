@@ -83,11 +83,19 @@ function AuthForm() {
     [pathname]
   ); // Prevent excessive recalculations
   async function signUp(data){
+    console.log(data);
+    const formData = new FormData();
+    formData.append('email',data.email);
+    formData.append('name',data.name);
+    formData.append('contactNumber',data.contactNumber);
+    formData.append('password',data.password);
+    formData.append('passwordConfirm',data.passwordConfirm);
+    formData.append('profileImage',data.profileImage[0]);
     try {
       setIsSubmitting(true);
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/createUser`,
-        data
+        formData
       );
       
       localStorage.setItem("jwt", res.data?.jwt);
@@ -137,6 +145,7 @@ function AuthForm() {
           {fields.map((el, i) => (
             <Field key={i} field={el} errors={errors} />
           ))}
+          {pathname === '/auth/signup' && <input {...register('profileImage')} type="file" className="file:bg-blue-500 file:px-3 file:py-2 file:rounded-md file:hover:bg-blue-600"  />}
         </div>
         <div className="flex items-center gap-2 mb-3">
           <input type="checkbox" name="" id="remember" />

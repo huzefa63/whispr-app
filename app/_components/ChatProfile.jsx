@@ -90,13 +90,23 @@ function ChatProfile({chats,params,setMessages}) {
             }}
             className="text-5xl block lg:hidden text-[var(--text)]"
           />
-          <RiAccountCircleFill className="text-5xl text-[var(--text)]" />
+          {friend?.profileImage ? (
+            <img
+              src={friend?.profileImage}
+              alt=""
+              className="border-white  w-12 h-12 object-cover  rounded-full"
+            />
+          ) : (
+            <RiAccountCircleFill className="text-5xl text-[var(--text)]" />
+          )}
         </div>
         <div className="pl-1 text-[var(--textDark)] tracking-wider">
           <p className="">{friend?.name}</p>
           <p className="text-xs ">
             {/* {friend?.contactNumber && "+91"} {friend?.contactNumber} */}
-            {friend?.status === "offline" && lastSeen && `last seen at ${lastSeen}`}
+            {friend?.status === "offline" &&
+              lastSeen &&
+              `last seen at ${lastSeen}`}
             {friend?.status === "online" && (
               <span className="text-green-500">online</span>
             )}
