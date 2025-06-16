@@ -13,7 +13,7 @@ import { IoMdMic,IoMdMicOff } from "react-icons/io";
 import { UseSocketContext } from "./SocketProvider";
 import { BsChatDotsFill } from "react-icons/bs";
 import { IoChevronDownSharp } from "react-icons/io5";
-
+import { FaTrash } from "react-icons/fa";
 // import connectSocket from "@/lib/socket";
 // import { UseSocketContext } from "./SocketProvider";
 const poppins = Poppins({
@@ -118,8 +118,14 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       const jwt = localStorage.getItem("jwt");
       const payload = jwtDecode(jwt);
       const recieverId = searchParams.get("friendId");
-      if(jwt && audioBlob) await handleAudioSubmit(audioBlob,jwt,recieverId);
-      if(jwt && media) await handleMediaSubmit(media,caption,jwt,recieverId);
+      if(jwt && audioBlob) {
+        await handleAudioSubmit(audioBlob, jwt, recieverId);
+        return;
+      }
+      if(jwt && media) {
+        await handleMediaSubmit(media, caption, jwt, recieverId);
+        return;
+      }
       if(jwt && !media && message) {
         const uniqueId = `${Date.now()}-${Math.round(Math.random() * 10000000)}`
         const data = {
@@ -191,6 +197,13 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
           streamRef.current = null;
         }
     },[isRecording])
+    function clearAudio(){
+      setIsRecording(false);
+      setAudioBlob(null);
+      setAudioSrc('');
+      
+      
+    }
     function startRecording(){
       setIsRecording(true);
       
@@ -218,12 +231,27 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
     >
       {/* <div className=""> */}
       <div className="relative">
-        <label
-          htmlFor="media"
-          className="hover:cursor-pointer flex justify-center items-center bg-[var(--muted)] rounded-full w-12 h-12 lg:w-14 lg:h-14 z-50 hover:bg-stone-700"
-        >
-          <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
-        </label>
+        {!audioSrc && (
+          <label
+            htmlFor="media"
+            className={` flex justify-center items-center bg-[var(--muted)] rounded-full w-12 h-12 lg:w-14 lg:h-14 z-50 hover:bg-stone-700 ${
+              message.length > 0 || audioSrc || isRecording
+                ? "hover:cursor-not-allowed"
+                : "hover:cursor-pointer"
+            }`}
+          >
+            <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
+          </label>
+        )}
+        {(audioSrc && !isRecording) && 
+          <button
+            onClick={clearAudio}
+            type="button"
+            className=" flex hover:cursor-pointer justify-center items-center bg-red-500 hover:bg-red-600 rounded-full w-12 h-12 lg:w-14 lg:h-14 z-50"
+          >
+            <FaTrash className="text-[var(--text)] text-2xl" />
+          </button>
+        }
         {userTypingId == searchParams.get("friendId") && (
           <div className="absolute  w-fit   rounded-3xl lg:-top-7 lg:-left-1 -top-8 left-3 flex items-center gap-3">
             <BsChatDotsFill className=" text-xl text-green-500" />
@@ -273,6 +301,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       )}
 
       <input
+        disabled={message.length > 0 || audioSrc || isRecording}
         ref={fileRef}
         hidden
         onChange={handleSelectMedia}
@@ -293,32 +322,31 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       )}
       {audioSrc && (
         <audio
-        controlsList="nodownload"
+          controlsList="nodownload"
           src={audioSrc}
           controls
           className={`${poppins.className} opacity-70 rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
         />
       )}
       <div className="relative">
-        {(!isRecording && message.length > 0) ||
-          (audioSrc && (
-            <button
-              disabled={mediaUrl}
-              type="submit"
-              className="disabled:cursor-not-allowed"
+        {((!isRecording && message.length > 0) || audioSrc) && (
+          <button
+            disabled={mediaUrl || isRecording}
+            type="submit"
+            className="disabled:cursor-not-allowed"
+          >
+            <div
+              className={`${
+                isRecording && "bg-red-500  transition-all hover:bg-red-600"
+              } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center relative w-12 h-12`}
             >
-              <div
-                className={`${
-                  isRecording && "bg-red-500  transition-all hover:bg-red-600"
-                } bg-green-500 hover:bg-green-600 p-3 rounded-full flex justify-center items-center relative w-12 h-12`}
-              >
-                <div className={`${isSendingAudio && 'opacity-0'}`}>
-                  <IoIosSend className="text-[var(--text)] text-2xl" />
-                </div>
-                {isSendingAudio && <Spinner />}
+              <div className={`${isSendingAudio && "opacity-0"}`}>
+                <IoIosSend className="text-[var(--text)] text-2xl" />
               </div>
-            </button>
-          ))}
+              {isSendingAudio && <Spinner />}
+            </div>
+          </button>
+        )}
         {message.length < 1 && !audioSrc && (
           <button
             onClick={!isRecording ? startRecording : stopRecording}
