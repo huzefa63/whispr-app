@@ -14,6 +14,8 @@ import { UseSocketContext } from "./SocketProvider";
 import { BsChatDotsFill } from "react-icons/bs";
 import { IoChevronDownSharp } from "react-icons/io5";
 import { FaTrash } from "react-icons/fa";
+import AudioPlayer from "react-h5-audio-player";
+
 // import connectSocket from "@/lib/socket";
 // import { UseSocketContext } from "./SocketProvider";
 const poppins = Poppins({
@@ -42,6 +44,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
   const [audioSrc,setAudioSrc] = useState('');
   const [audioBlob,setAudioBlob] = useState(null);
   const [isSendingAudio,setIsSendingAudio] = useState(false);
+  const [seconds,setSeconds] = useState(0);
     // useEffect(() => {
         // console.log(
         //   Object.keys(document.activeElement).length < 1,
@@ -170,33 +173,90 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
 
     useEffect(()=>{
       const audioChunks = [];
+      let recordingInterval;
         async function getMedia(){
           if(!isRecording) return;
+          setSeconds(0);
+          recordingInterval = setInterval(() => {
+            setSeconds(seconds => seconds + 1);
+          }, 1000);
           const stream = await navigator.mediaDevices.getUserMedia({audio:true});
           recordingRef.current = new MediaRecorder(stream);
           streamRef.current = stream;
           recordingRef.current.start();
-          inputRef.current.disabled = true;
-          inputRef.current.value = "recording audio..."
+          if(inputRef.current){
+            inputRef.current.disabled = true;
+          }
+          
           recordingRef.current.ondataavailable = (event) => {
             audioChunks.push(event.data);
           }
           recordingRef.current.onstop = (event) => {
-            inputRef.current.disabled = false;
-            inputRef.current.value = "Type a message...";
+            clearInterval(recordingInterval);
+            if(inputRef.current){
+              inputRef.current.disabled = false;
+              inputRef.current.placeholder = "Type a message...";
+            }
             const audioBlob = new Blob(audioChunks,{type:'audio/webm'})
             const audioSrc =  URL.createObjectURL(audioBlob);
             setAudioSrc(audioSrc);
             setAudioBlob(audioBlob);
-
           }
         }
         getMedia();
         return () => {
-          recordingRef.current = null;
-          streamRef.current = null;
+          if(recordingRef.current){
+            recordingRef.current = null;
+          }
+          if(streamRef.current){
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+          }
+          if(inputRef.current){
+            inputRef.current.placeholder = "Type a message...";
+          }
+          clearInterval(recordingInterval);
+          setAudioBlob(null);
+          setAudioSrc('');
         }
     },[isRecording])
+    useEffect(()=>{
+      if(isRecording || audioSrc && inputRef.current){
+        const hours = Math.floor((seconds / 3600)).toString().padStart(2,'0');
+        const minutes = Math.floor(((seconds % 3600) / 60)).toString().padStart(2,'0');
+        const second = (seconds % 60).toString().padStart(2,'0');
+        inputRef.current.placeholder = `${hours}:${minutes}:${second} recording audio...`
+      }
+    },[seconds,audioSrc,isRecording])
+    // useEffect(()=>{
+    //   const audioChunks = [];
+    //     async function getMedia(){
+    //       if(!isRecording) return;
+    //       const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    //       recordingRef.current = new MediaRecorder(stream);
+    //       streamRef.current = stream;
+    //       recordingRef.current.start();
+    //       inputRef.current.disabled = true;
+    //       inputRef.current.value = "recording audio..."
+    //       recordingRef.current.ondataavailable = (event) => {
+    //         audioChunks.push(event.data);
+    //       }
+    //       recordingRef.current.onstop = (event) => {
+    //         inputRef.current.disabled = false;
+    //         inputRef.current.value = "Type a message...";
+    //         const audioBlob = new Blob(audioChunks,{type:'audio/webm'})
+    //         const audioSrc =  URL.createObjectURL(audioBlob);
+    //         setAudioSrc(audioSrc);
+    //         setAudioBlob(audioBlob);
+
+    //       }
+    //     }
+    //     getMedia();
+    //     return () => {
+    //       recordingRef.current = null;
+    //       streamRef.current = null;
+    //     }
+    // },[isRecording])
     function clearAudio(){
       setIsRecording(false);
       setAudioBlob(null);
@@ -227,7 +287,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="h-full max-w-full gap-1 z-[1000]  bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
+      className="h-full min-w-full max-w-full w-full gap-1 z-[1000]  bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
     >
       {/* <div className=""> */}
       <div className="relative">
@@ -243,15 +303,15 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
             <MdOutlineAttachFile className="text-[var(--text)] text-2xl" />
           </label>
         )}
-        {(audioSrc && !isRecording) && 
+        {audioSrc && !isRecording && (
           <button
             onClick={clearAudio}
             type="button"
             className=" flex hover:cursor-pointer justify-center items-center bg-red-500 hover:bg-red-600 rounded-full w-12 h-12 lg:w-14 lg:h-14 z-50"
           >
-            <FaTrash className="text-[var(--text)] text-2xl" />
+            <FaTrash className="text-[var(--text)] text-xl" />
           </button>
-        }
+        )}
         {userTypingId == searchParams.get("friendId") && (
           <div className="absolute  w-fit   rounded-3xl lg:-top-7 lg:-left-1 -top-8 left-3 flex items-center gap-3">
             <BsChatDotsFill className=" text-xl text-green-500" />
@@ -320,13 +380,31 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
           className={`${poppins.className}  bg-[var(--muted)] rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
         />
       )}
-      {audioSrc && (
+      {/* {audioSrc && (
         <audio
           controlsList="nodownload"
           src={audioSrc}
           controls
           className={`${poppins.className} opacity-70 rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
         />
+      )} */}
+      {audioSrc && (
+          <div className="w-full col-span-6 ">
+            <AudioPlayer
+              className="rhap_current-time rhap_total-time audio-player"
+              src={audioSrc}
+              layout="horizontal-reverse"
+              showJumpControls={false}
+              showSkipControls={false}
+              customVolumeControls={["volume"]} // Optional
+              // customControlsSection={["mainControls", "progressBar"]} // No "volumeControls"
+              defaultDuration={["00:00"]}
+              defaultCurrentTime={["00:00"]}
+              customAdditionalControls={[]} // ❗ Make sure this is not hiding play
+              // Optional
+            />
+          </div>
+
       )}
       <div className="relative">
         {((!isRecording && message.length > 0) || audioSrc) && (

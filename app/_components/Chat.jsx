@@ -7,6 +7,8 @@ import { Poppins } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
 import { UseSocketContext } from "./SocketProvider";
 import { BsFillChatLeftTextFill } from "react-icons/bs";
+import "react-h5-audio-player/lib/styles.css";
+
 const p = Poppins({
     subsets:['latin'],
     variable:'p',
@@ -77,7 +79,7 @@ function Chat({chats,userTypingId,setUserTypingId,messages,setMessages,setFriend
             setScroll={setScroll}
           />
         </div>
-        {chats?.chats?.length > 0 && <div className="lg:h-[10%] w-full h-[8%] lg:relative lg:top-0 lg:left-0 fixed bottom-0 left-0 z-50">
+        {chats?.chats?.length > 0 && <div className="lg:h-[10%] w-full h-[8%] lg:relative lg:top-0 lg:left-0 fixed bottom-0 left-0 z-50 ">
           <ChatController userTypingId={userTypingId} setMessages={setMessages} setScroll={setScroll} containerRef={containerRef}/>
         </div>}
       </div>

@@ -9,6 +9,7 @@ import { jwtDecode } from "jwt-decode";
 import Spinner from "./Spinner";
 import { BiCheckDouble,BiCheck } from "react-icons/bi";
 import { IoChevronDownSharp } from "react-icons/io5";
+import AudioPlayer from "react-h5-audio-player";
 function ChatContainer({chats, messages, setMessages,scroll,setScroll,containerRef,params,friendId,setFriendId }) {
   const searchParams = useSearchParams();
   const { socket } = UseSocketContext();
@@ -98,6 +99,7 @@ function ChatContainer({chats, messages, setMessages,scroll,setScroll,containerR
 
   useEffect(()=>{
     const jwt = localStorage.getItem("jwt");
+    if(!jwt) return;
     const userId = jwtDecode(jwt);
     console.log('from read effect: ',friendId);
     if(messages[messages.length - 1]?.senderId == userId || friendId != (messages[messages.length - 1]?.senderId)) return;
@@ -116,6 +118,7 @@ function ChatContainer({chats, messages, setMessages,scroll,setScroll,containerR
   },[messages?.length,params])
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
+    if(!jwt) return;
     const currentUserId = jwtDecode(jwt)?.id;
       if (
         ((containerRef.current &&
@@ -165,6 +168,7 @@ export default ChatContainer;
 function Message({ message, setScroll }) {
   if (typeof window === "undefined") return;
   const token = localStorage.getItem("jwt");
+  if(!token) return;
   const currentUserId = jwtDecode(token)?.id;
 
   const time = format(new Date(message?.time), "HH:mm");
@@ -242,20 +246,25 @@ function Message({ message, setScroll }) {
             currentUserId === Number(message?.senderId) ? "ml-auto " : ""
           }`}
         >
-          <audio
+          {/* <audio
             controls
             src={message?.mediaUrl}
             className="w-full hidden lg:block" // You can adjust `h-8` to control height
             onLoadedData={() => setScroll(true)} // correct event for audio
-          />
-          <audio
-            controls
+          /> */}
+          <AudioPlayer
             src={message?.mediaUrl}
-            controlsList="nodownload noplaybackrate noremoteplayback"
-            className="w-full lg:hidden"
+            className={message?.senderId === currentUserId ? 'audio-player audio-sended':'audio-player audio-recieved'}
+            layout="horizontal-reverse"
+            defaultDuration={["00:00"]}
+            defaultCurrentTime={["00:00"]}
+            showJumpControls={false}
+            preload="metadata"
+            customAdditionalControls={[]} // ❗ Make sure this is not hiding play
+            customVolumeControls={["volume"]} // Optional
           />
-
-          <span className="text-xs text-black absolute right-5 bottom-2 flex gap-1 items-center">
+          {/* ); */}
+          <span className="text-xs text-white absolute right-2 bottom-2 flex gap-1 items-center">
             {time}
             {message?.senderId === currentUserId && (
               <BiCheckDouble

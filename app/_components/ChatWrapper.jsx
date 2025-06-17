@@ -7,8 +7,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+// import useAuth from "./useAuth";
 
 function ChatWrapper() {
+    // useAuth();
     const searchParams = useSearchParams();
     const [userTypingId, setUserTypingId] = useState(null);
     const [messages, setMessages] = useState([]);

@@ -40,23 +40,48 @@
     margin: 0;
   }
 }
-/* 
-.rhap_container {
-  background-color: black;
-} */
+ 
 
-/* .rhap_container {
-  background-color: #404040 !important;
+
+.rhap_container {
+  background-color: #27272a !important;
   border-radius: 50px !important;
-  width: 100px !important;
+  /* width: 100px !important; */
+  height: 100% !important;
+  color: white !important;
 }
 
+.audio-sended{
+  background-color: #14532d !important;
+  height: 70px !important;
+  border-radius: 10px !important;
+
+}
+
+.audio-recieved{
+  background-color: var(--muted) !important;
+  height: 70px !important;
+  border-radius: 10px !important;
+
+  
+}
+.audio-player .rhap_main-controls button {
+  color: white !important; /* Tailwind's emerald-500 */
+}
+.audio-player .rhap_total-time{
+  color: white !important;
+}
+.audio-player .rhap_current-time{
+  color: white !important;
+
+}
 .rhap_progress-filled {
   background-color: white !important;
 }
 .rhap_progress-indicator {
   background-color: white !important; 
 }
-.rhap_time {
-  color: black !important;
-} */
+
+.audio-sended .rhap_current-time{
+  margin-right: 20px !important;
+}
