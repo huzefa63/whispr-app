@@ -242,7 +242,7 @@ function Message({ message, setScroll }) {
     return (
       <div className="w-full">
         <div
-          className={`relative py-2  min-w-[60%] max-w-[70%] lg:w-fit lg:min-w-[30%] lg:max-w-[30%] ${
+          className={`relative py-2  w-[85%] lg:w-fit lg:min-w-[35%] lg:max-w-[35%] ${
             currentUserId === Number(message?.senderId) ? "ml-auto " : ""
           }`}
         >

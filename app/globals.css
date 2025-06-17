@@ -70,10 +70,11 @@
 }
 .audio-player .rhap_total-time{
   color: white !important;
+  font-size: small !important;
 }
 .audio-player .rhap_current-time{
   color: white !important;
-
+  font-size: small !important;
 }
 .rhap_progress-filled {
   background-color: white !important;

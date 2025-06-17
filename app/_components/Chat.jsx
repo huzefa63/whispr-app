@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { UseSocketContext } from "./SocketProvider";
 import { BsFillChatLeftTextFill } from "react-icons/bs";
 import "react-h5-audio-player/lib/styles.css";
+import { jwtDecode } from "jwt-decode";
 
 const p = Poppins({
     subsets:['latin'],
@@ -29,6 +30,12 @@ function Chat({chats,userTypingId,setUserTypingId,messages,setMessages,setFriend
         router.replace(`${pathname}?${params}`);
       }
     },[params,chats])
+    useEffect(()=>{
+      const token = jwtDecode(
+        "eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDExMUFBQSIsImtpZCI6Imluc18yeURmVVlpZzdKRjVkWmNRQWVFN0Jod1VyTmoiLCJ0eXAiOiJKV1QifQ.eyJhenAiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJleHAiOjE3NTAxNDg2NzUsImZ2YSI6WzAsLTFdLCJpYXQiOjE3NTAxNDg2MTUsImlzcyI6Imh0dHBzOi8vZ2VudWluZS1lc2NhcmdvdC04OC5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3NTAxNDg2MDUsInNpZCI6InNlc3NfMnljek5yTWdMbXdMMERteVVYM3habEI2SlZiIiwic3ViIjoidXNlcl8yeURmYVlaZ2EyQzRDd09Kd0JoOUVZNXV3cU8iLCJ2IjoyfQ.jg2HQz9nVc9Kgjme5vFM7lP0vC5dme8vG4Bqdt5ouq6f-xrEixk4wmpgGOvbzHj9sIpGXGNEkWdS85nAZJLokxgXuWj3_2TYh_4VVQDDbA70f_t8BTT3G46cx2FcjEAIDu_oogNcw7qdPiJCzxrAD-Fu5up8eDbxstSokcbrvaGe5RYC73VNbfjaKAr2gJBnVfoK_Su7ZCczNFVrPLSJ5S5RBsn0VPJFK-am4vshmQMuaUcp57IkU4bA2wdYXQYIbmtAO-6-pQWcrzzcgHcXJYRa-1UEMMf8Eud14L04VTzoPePWUY6b4gjgrMN4JwEPCaEc9yKlTgX964crF8V-5Q"
+      );
+      console.log(token);
+    },[])
     // useEffect(() => {
     //   console.log(router);
 
