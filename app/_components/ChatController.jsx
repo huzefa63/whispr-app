@@ -454,7 +454,7 @@ function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
       )} */}
     </form>
   );
-}
+} 
 
 export default ChatController;
 
