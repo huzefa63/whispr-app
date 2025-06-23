@@ -213,7 +213,15 @@ function ChatProfile({ chats, params, setMessages }) {
     setIsIncoming(false);
     try {
       // ✅ Get mic access
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      
 
       // ✅ Play your own voice (muted to prevent echo)
 
@@ -249,7 +257,15 @@ function ChatProfile({ chats, params, setMessages }) {
 
     try {
       // ✅ Get mic access
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      
 
       // ✅ Play your own voice (muted to prevent echo)
       if (localAudioRef.current) {
@@ -322,7 +338,7 @@ function ChatProfile({ chats, params, setMessages }) {
           </p>
         </div>
       </div>
-      <audio ref={ref} autoPlay controls />
+      <audio ref={ref} hidden autoPlay />
 
       {/* <h1>hello</h1> */}
       <div className="flex gap-5 text-white items-center">
