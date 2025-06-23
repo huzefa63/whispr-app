@@ -18,7 +18,16 @@ export default function CallUI({
   remoteOffer,
   localAudioRef,
   inComingUser,
+  socket,
+  setIsIncoming,
+  setIncomingUser,
+  setRemoteOffer,
+  peerConnection,
+  mediaRef,
+  setIsCall,
+  setIsInCall
 }) {
+  
   const [user, setUser] = useState(null);
   const searchParams = useSearchParams();
   const [seconds, setSeconds] = useState(0);
@@ -65,7 +74,7 @@ export default function CallUI({
 
       return () => clearInterval(interval);
     }
-  }, [isInCall,callRecieved]);
+  }, [isInCall, callRecieved]);
 
   useEffect(() => {
     if (isInCall || callRecieved) {
@@ -113,7 +122,7 @@ export default function CallUI({
         <div className="mt-6 flex justify-center gap-4">
           {/* {isIncoming && ( */}
           <>
-            {isIncoming && !callRecieved &&(
+            {isIncoming && !callRecieved && (
               <button
                 className="hover:cursor-pointer rounded-sm bg-green-500 hover:bg-green-600 px-4 py-2"
                 onClick={async () => {
@@ -131,18 +140,47 @@ export default function CallUI({
                 Accept
               </button>
             )}
-            {isIncoming && !callRecieved &&(
+            {isIncoming && !callRecieved && (
               <button
                 className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  socket.emit("reject-call", { caller: remoteOffer?.from });
+                  if(peerConnection.current){
+                    peerConnection.current.close();
+                    peerConnection.current = null;
+                  }
+                  setIsCall(false);
+                  setIsIncoming(false);
+                  setIncomingUser(null);
+                  setRemoteOffer({ from: "", remoteOffer: null });
+                  setIsInCall(false);
+                }}
               >
                 Reject
               </button>
             )}
-            {callRecieved &&(
+            {callRecieved && (
               <button
                 className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
-                onClick={() => window.location.reload()}
+                onClick={()=>{
+                  socket.emit('end-call',{callee:Number(remoteOffer?.from)});
+                  console.log(mediaRef.current);
+                  console.log(peerConnection.current);
+                  if(mediaRef.current){
+                    console.log('stopping track');
+                    mediaRef.current.getTracks().forEach((track) => track.stop());
+                  }
+                  if (peerConnection) {
+                    console.log('closing peer connection');
+                    peerConnection.current.close();
+                    peerConnection.current = null;
+                  }
+                  setIsCall(false);
+                  setIsIncoming(false);
+                  setIncomingUser(null);
+                  setRemoteOffer({ from: "", remoteOffer: null });
+                  setIsInCall(false);
+                }}
               >
                 hang up
               </button>
@@ -150,22 +188,32 @@ export default function CallUI({
           </>
           {/* )} */}
 
-          {!isIncoming && isInCall &&(
+          {!isIncoming && (
             <button
               className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
-              onClick={() => window.location.reload()}
+              onClick={() => {
+                socket.emit('end-call',{callee:Number(remoteOffer?.from)});
+                console.log(mediaRef);
+                console.log(peerConnection);
+                if(mediaRef){
+                  mediaRef.getTracks().forEach((track) => track.stop());
+                }
+                if (peerConnection) {
+                  peerConnection.close();
+                  peerConnection = null;
+                }
+                setIsCall(false);
+                setIsIncoming(false);
+                setIncomingUser(null);
+                setRemoteOffer({ from: "", remoteOffer: null });
+                setIsInCall(false);
+              }
+            }
             >
               hangup
             </button>
           )}
-          {!isIncoming && !isInCall &&(
-            <button
-              className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
-              onClick={() => window.location.reload()}
-            >
-              hangup
-            </button>
-          )}
+          
         </div>
       </div>
     </div>

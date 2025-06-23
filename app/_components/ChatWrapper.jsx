@@ -173,6 +173,7 @@ function ChatWrapper() {
           remoteOffer: null,
         });
         const [isInCall,setIsInCall] = useState(false);
+        const mediaRef = useRef(null);
         async function startCall() {
           console.log('hey start')
           if (!socket) return;
@@ -189,7 +190,7 @@ function ChatWrapper() {
           try {
             // ✅ Get mic access
             // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const stream = await navigator.mediaDevices.getUserMedia({
+            mediaRef.current = await navigator.mediaDevices.getUserMedia({
               audio: {
                 echoCancellation: true,
                 noiseSuppression: true,
@@ -204,10 +205,10 @@ function ChatWrapper() {
             // localRef.current.play();
 
             // ✅ Add audio tracks to peer connection
-            stream
+            mediaRef.current
               .getTracks()
               .forEach((track) =>
-                peerConnection.current.addTrack(track, stream)
+                peerConnection.current.addTrack(track, mediaRef.current)
               );
 
             // ✅ Create and set offer
@@ -234,7 +235,7 @@ function ChatWrapper() {
           try {
             // ✅ Get mic access
             // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const stream = await navigator.mediaDevices.getUserMedia({
+            mediaRef.current = await navigator.mediaDevices.getUserMedia({
               audio: {
                 echoCancellation: true,
                 noiseSuppression: true,
@@ -246,10 +247,10 @@ function ChatWrapper() {
             
 
             // ✅ Add audio tracks to peer connection
-            stream
+            mediaRef.current
               .getTracks()
               .forEach((track) =>
-                peerConnection.current.addTrack(track, stream)
+                peerConnection.current.addTrack(track, mediaRef.current)
               );
 
             // ✅ Set remote offer (from caller)
@@ -281,7 +282,7 @@ function ChatWrapper() {
         if (!jwt) return;
         const id = jwtDecode(jwt)?.id;
         const iceQue = [];
-        if (!peerConnection.current) {
+        if (!peerConnection.current || peerConnection.current?.signalingState === 'closed') {
           const configuration = {
             iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
           };
@@ -345,6 +346,19 @@ function ChatWrapper() {
             iceQue.push(candidate);
           }
         });
+
+        socket.on('call-rejected',() => {
+          mediaRef.current.getTracks().forEach(track => track.stop());
+         if(peerConnection.current){
+          peerConnection.current.close();
+          peerConnection.current = null;
+         }
+          setIsCall(false);
+          setIsIncoming(false);
+          setIncomingUser(null);
+          setRemoteOffer({from:'',remoteOffer:null});
+          setIsInCall(false);
+        })
     
         // Handle answer (only caller uses this)
         socket.on("answer", async ({ answer }) => {
@@ -387,7 +401,7 @@ function ChatWrapper() {
             peerConnection.current = null;
           }
         };
-      }, [socket]);
+      }, [socket,peerConnection.current]);
     return (
       <div className="flex h-full  w-full">
         <Suspense>
@@ -402,6 +416,14 @@ function ChatWrapper() {
           <Suspense fallback={<div>loading chat...</div>}>
             {isCall && remoteOffer && (
               <CallUI
+              setIsInCall={setIsInCall}
+              peerConnection={peerConnection}
+              mediaRef={mediaRef}
+              setIsCall={setIsCall}
+          setIsIncoming={setIsIncoming}
+          setIncomingUser={setIncomingUser}
+          setRemoteOffer={setRemoteOffer}
+              socket={socket}
               isInCall={isInCall}
               inComingUser={inComingUser}
                 isIncoming={isIncoming}
