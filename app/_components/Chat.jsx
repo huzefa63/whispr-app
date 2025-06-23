@@ -15,7 +15,7 @@ const p = Poppins({
     variable:'p',
     weight:'400'
 })
-function Chat({chats,userTypingId,setUserTypingId,messages,setMessages,setFriendId,friendId,params,scroll,setScroll}) {
+function Chat({startCall,isIncoming,isCall,remoteOffer,chats,userTypingId,setUserTypingId,messages,setMessages,setFriendId,friendId,params,scroll,setScroll}) {
     // const params = useSearchParams();
     const containerRef = useRef(null);
     const searchParams = useSearchParams();
@@ -70,7 +70,7 @@ function Chat({chats,userTypingId,setUserTypingId,messages,setMessages,setFriend
         } h-full flex flex-col`}
       >
         {chats?.chats?.length > 0 && <div className="lg:h-[10%] w-full h-[9%] lg:relative lg:top-0 lg:left-0 fixed top-0 left-0 z-50">
-          <ChatProfile setMessages={setMessages} params={params} chats={chats}/>
+          <ChatProfile startCall={startCall} isCall={isCall} isIncoming={isIncoming} remoteOffer={remoteOffer} setMessages={setMessages} params={params} chats={chats}/>
         </div>}
         {/* <div className="lg:h-[80%] h-screen  border-white "> */}
         <div className="lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0  border-white ">

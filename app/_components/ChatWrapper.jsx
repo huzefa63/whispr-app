@@ -1,5 +1,5 @@
 'use client';
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import SideChat from "./SideChat";
 import Chat from "./Chat";
 import { UseSocketContext } from "./SocketProvider";
@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import CallUI from "./CallUI";
 // import useAuth from "./useAuth";
 
 function ChatWrapper() {
@@ -161,14 +162,271 @@ function ChatWrapper() {
         socket?.off?.("message-read");
       };
     }, [socket, friendId]);
+     const ref = useRef(null);
+      const [isIncoming, setIsIncoming] = useState(false);
+      const [inComingUser,setIncomingUser] = useState(null);
+      const isRemote = useRef(false);
+      const [isCall, setIsCall] = useState(false);
+        const peerConnection = useRef(null);
+        const [remoteOffer, setRemoteOffer] = useState({
+          from: "",
+          remoteOffer: null,
+        });
+        const [isInCall,setIsInCall] = useState(false);
+        async function startCall() {
+          console.log('hey start')
+          if (!socket) return;
+          console.log('socket here')
+          const jwt = localStorage.getItem("jwt");
+          if (!jwt) return;
+          console.log('jwt here')
+          if (!peerConnection.current) return;
+          console.log('peer here')
+          // alert('call started')
+          const id = jwtDecode(jwt)?.id;
+          setIsCall(true);
+          setIsIncoming(false);
+          try {
+            // ✅ Get mic access
+            // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              },
+            });
+
+            // ✅ Play your own voice (muted to prevent echo)
+
+            // localRef.current.srcObject = stream;
+            // localRef.current.muted = true;
+            // localRef.current.play();
+
+            // ✅ Add audio tracks to peer connection
+            stream
+              .getTracks()
+              .forEach((track) =>
+                peerConnection.current.addTrack(track, stream)
+              );
+
+            // ✅ Create and set offer
+            const offer = await peerConnection.current.createOffer();
+            await peerConnection.current.setLocalDescription(offer);
+
+            // ✅ Optional: slight delay to allow ICE candidates to gather
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            // ✅ Send offer to remote peer
+            socket.emit("start-call", { to: Number(params), from: id, offer });
+          } catch (err) {
+            console.error("❌ Error in startCall:", err);
+          }
+        }
+
+        async function answerCall(remoteOffer) {
+          if (!peerConnection.current) return;
+          // alert("answered");
+          const jwt = localStorage.getItem("jwt");
+          if (!jwt) return;
+          const id = jwtDecode(jwt)?.id;
+
+          try {
+            // ✅ Get mic access
+            // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              },
+            });
+
+            // ✅ Play your own voice (muted to prevent echo)
+            
+
+            // ✅ Add audio tracks to peer connection
+            stream
+              .getTracks()
+              .forEach((track) =>
+                peerConnection.current.addTrack(track, stream)
+              );
+
+            // ✅ Set remote offer (from caller)
+            await peerConnection.current.setRemoteDescription(
+              new RTCSessionDescription(remoteOffer.remoteOffer)
+            );
+
+            // ✅ Create and set local answer
+            const answer = await peerConnection.current.createAnswer();
+            await peerConnection.current.setLocalDescription(answer);
+
+            // ✅ Optional: slight delay for ICE candidates to gather
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            // ✅ Send answer back to caller
+            socket.emit("answer", {
+              to: remoteOffer.from,
+              from: id,
+              answer,
+            });
+          } catch (err) {
+            console.error("❌ Error in answerCall:", err);
+          }
+        }
+      useEffect(() => {
+        if (!socket) return;
+        console.log('peer effect');
+        const jwt = localStorage.getItem("jwt");
+        if (!jwt) return;
+        const id = jwtDecode(jwt)?.id;
+        const iceQue = [];
+        if (!peerConnection.current) {
+          const configuration = {
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+          };
+          peerConnection.current = new RTCPeerConnection(configuration);
+          console.log('peer: ',peerConnection.current);
+        }
+    
+        // Assign onicecandidate early
+        peerConnection.current.onicecandidate = ({ candidate }) => {
+          console.log("candidate gathereing", candidate);
+          if (candidate) {
+            socket.emit("ice-candidate", {
+              candidate,
+              to: Number(params),
+              from: id,
+            });
+          }
+        };
+        // Listen for connectionstatechange on the local RTCPeerConnection
+        peerConnection.connectionstatechange = (event) => {
+          if (peerConnection.connectionState === "connected") {
+            console.log("connectedddddddddddddddddddddddddddddddd");
+          }
+        };
+    
+        // Prepare remote stream and ontrack
+        const remoteStream = new MediaStream();
+        peerConnection.current.ontrack = (event) => {
+          console.log("track recieved");
+          event.streams[0].getTracks().forEach((track) => {
+            console.log("Track kind:", track.kind, "enabled:", track.enabled);
+            remoteStream.addTrack(track);
+          });
+          if (ref.current) {
+            ref.current.srcObject = remoteStream;
+            ref.current.play().catch((err) => alert(err, "auto play blocked"));
+          }
+        };
+    
+        // Incoming call handler
+        socket.on("call-incoming", async ({ from, remoteOffer }) => {
+          setIsCall(true);
+          setIsIncoming(true);
+          setIncomingUser(from);
+          console.log("hey");
+          console.log(remoteOffer);
+          setRemoteOffer({ from, remoteOffer });
+        });
+    
+        // Handle ICE
+    
+        socket.on("ice-candidate", async ({ candidate }) => {
+          console.log("ice receieved: ", candidate);
+          if (isRemote.current && peerConnection.current.remoteDescription) {
+            await peerConnection.current.addIceCandidate(
+              new RTCIceCandidate(candidate)
+            );
+            // alert("ice applied");
+          } else {
+            // alert("pushed to que");
+            iceQue.push(candidate);
+          }
+        });
+    
+        // Handle answer (only caller uses this)
+        socket.on("answer", async ({ answer }) => {
+          if (!peerConnection.current) return;
+    
+          console.log(
+            "1️⃣ Signaling state BEFORE setting remote answer:",
+            peerConnection.current.signalingState
+          );
+    
+          if (peerConnection.current.signalingState !== "have-local-offer") {
+            console.warn(
+              "❗ Can't apply answer — wrong state:",
+              peerConnection.current.signalingState
+            );
+            return;
+          }
+    
+          console.log("📩 Got answer, applying...");
+          try {
+            await peerConnection.current.setRemoteDescription(
+              new RTCSessionDescription(answer)
+            );
+            isRemote.current = true;
+            for (let c of iceQue) {
+              await peerConnection.current.addIceCandidate(new RTCIceCandidate(c));
+              // alert("qued ice applied");
+            }
+            setIsInCall(true);
+            console.log("✅ Answer applied successfully.");
+          } catch (err) {
+            console.error("❌ Failed to apply answer:", err);
+          }
+        });
+        return () => {
+          socket.off("answer");
+          socket.off("call-incoming");
+          if (peerConnection.current) {
+            peerConnection.current = null;
+          }
+        };
+      }, [socket]);
     return (
       <div className="flex h-full  w-full">
         <Suspense>
-          <SideChat isPending={isPending} isLoading={isLoading} chats={chats} userTypingId={userTypingId}/>
+          <SideChat
+            isPending={isPending}
+            isLoading={isLoading}
+            chats={chats}
+            userTypingId={userTypingId}
+          />
         </Suspense>
         <div className="h-screen w-full bg-[var(--surface)]">
           <Suspense fallback={<div>loading chat...</div>}>
-            <Chat chats={chats} friendId={friendId} scroll={scroll} setScroll={setScroll} messages={messages} params={params}  setFriendId={setFriendId} setMessages={setMessages} userTypingId={userTypingId} setUserTypingId={setUserTypingId}/>
+            {isCall && remoteOffer && (
+              <CallUI
+              isInCall={isInCall}
+              inComingUser={inComingUser}
+                isIncoming={isIncoming}
+                answerCall={answerCall}
+                remoteOffer={remoteOffer}
+              />
+            )}
+            <audio ref={ref} hidden autoPlay />
+
+            <Chat
+            startCall={startCall}
+              ref={ref}
+              isIncoming={isIncoming}
+              isCall={isCall}
+              remoteOffer={remoteOffer}
+              chats={chats}
+              friendId={friendId}
+              scroll={scroll}
+              setScroll={setScroll}
+              messages={messages}
+              params={params}
+              setFriendId={setFriendId}
+              setMessages={setMessages}
+              userTypingId={userTypingId}
+              setUserTypingId={setUserTypingId}
+            />
           </Suspense>
         </div>
       </div>
