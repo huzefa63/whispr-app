@@ -9,8 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { MdCall } from "react-icons/md";
 import toast from "react-hot-toast";
 import { UseSocketContext } from "./SocketProvider";
-import CallPortal from "./CallPortal";
-import CallUI from "./CallUi";
+import CallUI from "./CallUI";
 import { jwtDecode } from "jwt-decode";
 function ChatProfile({ chats, params, setMessages }) {
   const searchParams = useSearchParams();
