@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function CallUI({
@@ -25,7 +25,6 @@ export default function CallUI({
   const [stopwatch, setStopwatch] = useState("");
   const friendId = searchParams.get("friendId");
   const [callRecieved, setCallRecieved] = useState(false);
-  const router = useRouter();
   useEffect(() => {
     async function getFriend() {
       try {
@@ -154,7 +153,7 @@ export default function CallUI({
           {!isIncoming && isInCall &&(
             <button
               className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
-              onClick={() => router.refresh()}
+              onClick={() => window.location.reload()}
             >
               hangup
             </button>
@@ -162,7 +161,7 @@ export default function CallUI({
           {!isIncoming && !isInCall &&(
             <button
               className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
-              onClick={() => router.refresh()}
+              onClick={() => window.location.reload()}
             >
               hangup
             </button>
