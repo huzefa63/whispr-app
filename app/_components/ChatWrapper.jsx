@@ -358,6 +358,9 @@ function ChatWrapper() {
           setIncomingUser(null);
           setRemoteOffer({from:'',remoteOffer:null});
           setIsInCall(false);
+          if(navigator.vibrate){
+            navigator.vibrate([300,150,300]);
+          }
         })
     
         // Handle answer (only caller uses this)
