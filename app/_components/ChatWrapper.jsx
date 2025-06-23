@@ -324,10 +324,10 @@ function ChatWrapper() {
     
         // Incoming call handler
         socket.on("call-incoming", async ({ from, remoteOffer }) => {
+          console.log("call incoming");
           setIsCall(true);
           setIsIncoming(true);
           setIncomingUser(from);
-          console.log("hey");
           console.log(remoteOffer);
           setRemoteOffer({ from, remoteOffer });
         });
@@ -359,7 +359,7 @@ function ChatWrapper() {
           setRemoteOffer({from:'',remoteOffer:null});
           setIsInCall(false);
           if(navigator.vibrate){
-            navigator.vibrate([300,150,300]);
+            navigator.vibrate(400);
           }
         })
     
@@ -400,6 +400,7 @@ function ChatWrapper() {
           socket.off("answer");
           socket.off("call-incoming");
           socket.off('ice-candidate');
+          socket.off('call-rejected');
           if (peerConnection.current) {
             peerConnection.current = null;
           }
@@ -439,7 +440,6 @@ function ChatWrapper() {
 
             <Chat
             startCall={startCall}
-              ref={ref}
               isIncoming={isIncoming}
               isCall={isCall}
               remoteOffer={remoteOffer}
