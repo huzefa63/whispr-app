@@ -134,7 +134,7 @@ export default function CallUI({
             {isIncoming && !callRecieved &&(
               <button
                 className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
-                onClick={() => console.log("rejected")}
+                onClick={() => window.location.reload()}
               >
                 Reject
               </button>
@@ -142,7 +142,7 @@ export default function CallUI({
             {callRecieved &&(
               <button
                 className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
-                onClick={() => router.refresh()}
+                onClick={() => window.location.reload()}
               >
                 hang up
               </button>
