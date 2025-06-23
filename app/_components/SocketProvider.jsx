@@ -26,26 +26,22 @@ function SocketProvider({children}) {
        window.addEventListener('storage',handleStorage);
        return ()=> window.removeEventListener('storage',handleStorage);
     },[])
-    useEffect(()=>{
-        console.log('from outside of io socket');
-        console.log(token);
-        if(!socket && token){
-        console.log('from inside of io')
-            console.log('setting token')
-            setSocket(io(`${process.env.NEXT_PUBLIC_BACKEND_URL}/`,{auth:{jwt:token}}));
-        }
-        if(socket && !token){
-            socket?.disconnect?.();
-            console.log('socket disconnected');
-        }
-        return () => {
-            if(socket){
-                socket?.disconnect?.();
-               setSocket(null);
-                console.log('socket disconnected');
-            }
-        }
-    },[token,socket]);
+    useEffect(() => {
+      if (!token) return;
+
+      console.log("Connecting socket with token:", token);
+      const newSocket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}/`, {
+        auth: { jwt: token },
+      });
+
+      setSocket(newSocket);
+
+      return () => {
+        newSocket.disconnect();
+        console.log("🔌 Socket disconnected");
+      };
+    }, [token]);
+      
     return (
         <Context.Provider value={{socket}}>
             {children}

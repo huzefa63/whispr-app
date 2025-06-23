@@ -382,6 +382,7 @@ function ChatWrapper() {
         return () => {
           socket.off("answer");
           socket.off("call-incoming");
+          socket.off('ice-candidate');
           if (peerConnection.current) {
             peerConnection.current = null;
           }
