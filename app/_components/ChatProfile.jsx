@@ -185,7 +185,7 @@ function ChatProfile({ chats, params, setMessages }) {
         isRemote.current = true;
         for (let c of iceQue) {
           await peerConnection.current.addIceCandidate(new RTCIceCandidate(c));
-          alert("qued ice applied");
+          // alert("qued ice applied");
         }
         console.log("✅ Answer applied successfully.");
       } catch (err) {
@@ -207,7 +207,7 @@ function ChatProfile({ chats, params, setMessages }) {
     const jwt = localStorage.getItem("jwt");
     if (!jwt) return;
     if (!peerConnection.current) return;
-    alert('call started')
+    // alert('call started')
     const id = jwtDecode(jwt)?.id;
     setIsCall(true);
     setIsIncoming(false);
