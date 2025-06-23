@@ -242,7 +242,7 @@ function ChatProfile({ chats, params, setMessages }) {
 
   async function answerCall(remoteOffer, localAudioRef) {
     if (!peerConnection.current) return;
-
+    alert('answered');
     const jwt = localStorage.getItem("jwt");
     if (!jwt) return;
     const id = jwtDecode(jwt)?.id;
