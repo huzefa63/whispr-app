@@ -153,9 +153,9 @@ function ChatProfile({ chats, params, setMessages }) {
         await peerConnection.current.addIceCandidate(
           new RTCIceCandidate(candidate)
         );
-        alert("ice applied");
+        // alert("ice applied");
       } else {
-        alert("pushed to que");
+        // alert("pushed to que");
         iceQue.push(candidate);
       }
     });
@@ -207,7 +207,7 @@ function ChatProfile({ chats, params, setMessages }) {
     const jwt = localStorage.getItem("jwt");
     if (!jwt) return;
     if (!peerConnection.current) return;
-
+    alert('call started')
     const id = jwtDecode(jwt)?.id;
     setIsCall(true);
     setIsIncoming(false);
