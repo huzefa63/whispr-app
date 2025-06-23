@@ -25,7 +25,8 @@ export default function CallUI({
   peerConnection,
   mediaRef,
   setIsCall,
-  setIsInCall
+  setIsInCall,
+  ref
 }) {
   
   const [user, setUser] = useState(null);
@@ -128,7 +129,9 @@ export default function CallUI({
                 onClick={async () => {
                   if (!remoteOffer) return;
                   console.log("answered", remoteOffer);
-
+                  if(ref?.current){
+                    console.log('audio ref: ',ref.current);
+                  }
                   try {
                     await answerCall(remoteOffer);
                     setCallRecieved(true);

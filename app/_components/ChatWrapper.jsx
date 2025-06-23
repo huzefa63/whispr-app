@@ -419,6 +419,7 @@ function ChatWrapper() {
           <Suspense fallback={<div>loading chat...</div>}>
             {isCall && remoteOffer && (
               <CallUI
+              ref={ref}
               setIsInCall={setIsInCall}
               peerConnection={peerConnection}
               mediaRef={mediaRef}
