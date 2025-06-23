@@ -309,17 +309,26 @@ function ChatWrapper() {
         };
     
         // Prepare remote stream and ontrack
-        const remoteStream = new MediaStream();
+        // const remoteStream = new MediaStream();
+        // peerConnection.current.ontrack = (event) => {
+        //   console.log("track recieved");
+        //   event.streams[0].getTracks().forEach((track) => {
+        //     console.log("Track kind:", track.kind, "enabled:", track.enabled);
+        //     remoteStream.addTrack(track);
+        //   });
+        //   if (ref.current) {
+        //     ref.current.srcObject = remoteStream;
+        //     ref.current.play().catch((err) => alert(err, "auto play blocked"));
+        //   }
+        // };
+
         peerConnection.current.ontrack = (event) => {
-          console.log("track recieved");
-          event.streams[0].getTracks().forEach((track) => {
-            console.log("Track kind:", track.kind, "enabled:", track.enabled);
-            remoteStream.addTrack(track);
-          });
-          if (ref.current) {
-            ref.current.srcObject = remoteStream;
-            ref.current.play().catch((err) => alert(err, "auto play blocked"));
-          }
+          const inboundStream = new MediaStream([event.track]);
+          const audio = new Audio();
+          audio.srcObject = inboundStream;
+          audio.autoplay = true;
+          audio.play().catch((err) => console.error("Playback error:", err));
+          console.log("Playing audio manually");
         };
     
         // Incoming call handler
