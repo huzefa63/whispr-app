@@ -195,7 +195,7 @@ export default function CallUI({
             <button
               className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
               onClick={() => {
-                socket.emit('end-call',{callee:Number(remoteOffer?.from)});
+                socket.emit('end-call',{callee:Number(user?.id)});
                 console.log(mediaRef);
                 console.log(peerConnection);
                 if(mediaRef){
