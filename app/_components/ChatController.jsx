@@ -26,7 +26,7 @@ const poppins = Poppins({
     
 
 
-function ChatController({setMessages,setScroll,userTypingId,containerRef}) {
+function ChatController({setMessages,userTypingId}) {
     const inputRef = useRef(null);
     const [message,setMessage] = useState('');
     const searchParams = useSearchParams();

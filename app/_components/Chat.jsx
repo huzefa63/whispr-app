@@ -70,7 +70,7 @@ function Chat({startCall,isIncoming,isCall,remoteOffer,chats,userTypingId,setUse
         } h-full flex flex-col`}
       >
         {chats?.chats?.length > 0 && <div className="lg:h-[10%] w-full h-[9%] lg:relative lg:top-0 lg:left-0 fixed top-0 left-0 z-50">
-          <ChatProfile startCall={startCall} isCall={isCall} isIncoming={isIncoming} remoteOffer={remoteOffer} setMessages={setMessages} params={params} chats={chats}/>
+          <ChatProfile startCall={startCall} setMessages={setMessages} params={params} />
         </div>}
         {/* <div className="lg:h-[80%] h-screen  border-white "> */}
         <div className="lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0  border-white ">
@@ -87,7 +87,7 @@ function Chat({startCall,isIncoming,isCall,remoteOffer,chats,userTypingId,setUse
           />
         </div>
         {chats?.chats?.length > 0 && <div className="lg:h-[10%] w-full h-[8%] lg:relative lg:top-0 lg:left-0 fixed bottom-0 left-0 z-50 ">
-          <ChatController userTypingId={userTypingId} setMessages={setMessages} setScroll={setScroll} containerRef={containerRef}/>
+          <ChatController userTypingId={userTypingId} setMessages={setMessages} />
         </div>}
       </div>
     );

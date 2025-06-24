@@ -12,7 +12,7 @@ import { UseSocketContext } from "./SocketProvider";
 import CallUI from "./CallUI";
 import { jwtDecode } from "jwt-decode";
 import { format } from "date-fns";
-function ChatProfile({startCall,isIncoming,isCall,remoteOffer, chats, params, setMessages }) {
+function ChatProfile({startCall, params, setMessages }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();

@@ -4,19 +4,10 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function CallUI({
-  //   callerName = "huzefa ratlam",
-  isCalling,
   isIncoming,
   isInCall,
-  onAccept,
-  onReject,
-  onEnd,
-  onMuteToggle,
-  muted,
-  friend,
   answerCall,
   remoteOffer,
-  localAudioRef,
   inComingUser,
   socket,
   setIsIncoming,
@@ -196,14 +187,12 @@ export default function CallUI({
               className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
               onClick={() => {
                 socket.emit('end-call',{callee:Number(user?.id)});
-                console.log(mediaRef);
-                console.log(peerConnection);
-                if(mediaRef){
-                  mediaRef.getTracks().forEach((track) => track.stop());
+                if(mediaRef.current){
+                  mediaRef.current.getTracks().forEach((track) => track.stop());
                 }
-                if (peerConnection) {
-                  peerConnection.close();
-                  peerConnection = null;
+                if (peerConnection.current) {
+                  peerConnection.current.close();
+                  peerConnection.current = null;
                 }
                 setIsCall(false);
                 setIsIncoming(false);
