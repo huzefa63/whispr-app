@@ -402,6 +402,7 @@ function ChatWrapper() {
             }
             setIsInCall(true);
             console.log("✅ Answer applied successfully.");
+            console.log(iceQue);
           } catch (err) {
             console.error("❌ Failed to apply answer:", err);
           }
