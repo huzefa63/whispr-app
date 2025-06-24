@@ -396,8 +396,9 @@ function ChatWrapper() {
             );
             isRemote.current = true;
             for (let c of iceQue) {
+              console.log('applying candidates');
               await peerConnection.current.addIceCandidate(new RTCIceCandidate(c));
-              // alert("qued ice applied");
+              
             }
             setIsInCall(true);
             console.log("✅ Answer applied successfully.");
