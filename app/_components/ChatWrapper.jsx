@@ -291,16 +291,16 @@ function ChatWrapper() {
         }
     
         // Assign onicecandidate early
-        peerConnection.current.onicecandidate = ({ candidate }) => {
-          console.log("candidate gathereing", candidate);
-          if (candidate) {
-            socket.emit("ice-candidate", {
-              candidate,
-              to: Number(params),
-              from: id,
-            });
-          }
-        };
+          peerConnection.current.onicecandidate = ({ candidate }) => {
+            console.log("candidate gathereing", candidate);
+            if (candidate) {
+              socket.emit("ice-candidate", {
+                candidate,
+                to: !inComingUser ? Number(params) : Number(inComingUser),
+                from: id,
+              });
+            }
+          };
         // Listen for connectionstatechange on the local RTCPeerConnection
         peerConnection.connectionstatechange = (event) => {
           if (peerConnection.connectionState === "connected") {
