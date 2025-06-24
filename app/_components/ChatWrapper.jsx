@@ -344,7 +344,7 @@ function ChatWrapper() {
         // Handle ICE
     
         socket.on("ice-candidate", async ({ candidate }) => {
-          console.log("ice receieved: ", candidate);
+          // console.log("ice receieved: ", candidate);
           if (isRemote.current && peerConnection.current.remoteDescription) {
             await peerConnection.current.addIceCandidate(
               new RTCIceCandidate(candidate)
@@ -352,6 +352,7 @@ function ChatWrapper() {
             // alert("ice applied");
           } else {
             // alert("pushed to que");
+            console.log('pushing ICE to que');
             iceQue.push(candidate);
           }
         });
