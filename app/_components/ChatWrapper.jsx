@@ -362,7 +362,7 @@ function ChatWrapper() {
          if(peerConnection.current){
           peerConnection.current.close();
           peerConnection.current = null;
-         }
+         } 
           setIsCall(false);
           setIsIncoming(false);
           setIncomingUser(null);
