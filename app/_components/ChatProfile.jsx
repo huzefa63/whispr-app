@@ -106,7 +106,7 @@ function ChatProfile({startVideoCall,startCall, params, setMessages }) {
               newParams.delete("friendId");
               router.replace(`${pathname}?${newParams.toString()}`);
             }}
-            className="text-5xl block lg:hidden text-[var(--text)]"
+            className="text-3xl block lg:hidden text-[var(--text)]"
           />
           {friend?.profileImage ? (
             <img
@@ -134,15 +134,15 @@ function ChatProfile({startVideoCall,startCall, params, setMessages }) {
       </div>
 
       {/* <h1>hello</h1> */}
-      <div className="flex gap-5 text-white items-center">
+      <div className="flex lg:gap-5 gap-2 text-white items-center">
         <div
-          className="text-3xl p-1 hover:bg-gray-600 hover:cursor-pointer"
+          className="lg:text-3xl text-2xl p-1 hover:bg-gray-600 hover:cursor-pointer"
           onClick={async () => await startCall()}
         >
           <MdCall />
         </div>
         <div
-          className="text-3xl p-1 hover:bg-gray-600 hover:cursor-pointer"
+          className="lg:text-3xl text-2xl p-1 hover:bg-gray-600 hover:cursor-pointer"
           onClick={async () => await startVideoCall()}
         >
           <FaVideo />
