@@ -28,6 +28,7 @@ export default function CallUI({
   videoRef,
   setIsVideoCall,
   answerVideoCall,
+  callTimeout,
 }) {
   
   const [user, setUser] = useState(null);
@@ -37,11 +38,10 @@ export default function CallUI({
   const friendId = searchParams.get("friendId");
   const [callRecieved, setCallRecieved] = useState(false);
   const [isMute,setIsMute] = useState(false);
-
   useEffect(()=>{
-    let timeout;
+    
     if(!isIncoming){
-      timeout = setTimeout(() => {
+      callTimeout.current = setTimeout(() => {
         setIsCall(false);
         socket.emit("end-call", { callee: Number(user?.id) });
         if (mediaRef.current) {
@@ -61,9 +61,9 @@ export default function CallUI({
           callRingRef.current.pause();
           callRingRef.current.currentTime = 0;
         }
-      }, 19 * 1000);
+      }, 16 * 1000);
     }
-    return () => clearTimeout(timeout);
+    return () => clearTimeout(callTimeout.current);
   },[user])
   useEffect(() => {
     async function getFriend() {

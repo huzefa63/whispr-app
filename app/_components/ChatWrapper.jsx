@@ -29,8 +29,10 @@ function ChatWrapper() {
       queryFn: getChats,
       refetchOnWindowFocus: false,
     });
-    const callRingRef = useRef();
-    const callIncomingRingRef = useRef();
+    const callRingRef = useRef(null);
+    const callIncomingRingRef = useRef(null);
+    const callTimeout = useRef(null);
+
     async function getChats() {
       try {
         const jwt = localStorage.getItem("jwt");
@@ -557,6 +559,9 @@ function ChatWrapper() {
           }
     
           console.log("📩 Got answer, applying...");
+          if(callTimeout.current){
+            clearTimeout(callTimeout.current);
+          }
           try {
             await peerConnection.current.setRemoteDescription(
               new RTCSessionDescription(answer)
@@ -603,6 +608,7 @@ function ChatWrapper() {
           <Suspense fallback={<div>loading chat...</div>}>
             {isCall && remoteOffer && (
               <CallUI
+              callTimeout={callTimeout}
                 callIncomingRingRef={callIncomingRingRef}
                 callRingRef={callRingRef}
                 setIsVideoCall={setIsVideoCall}
