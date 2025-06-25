@@ -234,7 +234,23 @@ export default function CallUI({
     },[])
     return (
       <div className="fixed inset-0 z-[999] bg-[var(--muted)] bg-opacity-70 flex flex-col items-center justify-center text-white font-sans">
-        <div className="w-full h-full lg:h-full">
+        <div className="w-full h-full lg:h-full relative ">
+          <div
+            className={`${
+              !isInCall && !callRecieved
+                ? '"w-full h-full'
+                : "lg:h-1/2 h-1/3 lg:w-1/6 w-1/3 absolute right-0 z-[999]"
+            }`}
+          >
+            <video
+              id="video"
+              autoPlay
+              playsInline
+              muted
+              ref={localRef}
+              className={`object-cover h-full w-full`}
+            ></video>
+          </div>
           <video
             autoPlay
             playsInline
@@ -242,10 +258,10 @@ export default function CallUI({
             ref={videoRef}
             className={`${
               isInCall || callRecieved ? "block" : "hidden"
-            } h-full w-full object-cover`}
+            } h-full w-full object-cover `}
           ></video>
 
-          {!isInCall && !callRecieved && (
+          {/* {!isInCall && !callRecieved && (
             <video
               id="video"
               autoPlay
@@ -254,9 +270,9 @@ export default function CallUI({
               ref={localRef}
               className="w-full h-full object-cover"
             ></video>
-          )}
+          )} */}
         </div>
-        {isIncoming && callRecieved &&(
+        {isIncoming && callRecieved && (
           <button
             className="px-5 mt-1 py-2 rounded-sm bg-red-500 z-[999] absolute bottom-2"
             onClick={() => {
