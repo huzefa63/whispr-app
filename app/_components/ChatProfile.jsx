@@ -119,7 +119,7 @@ function ChatProfile({startVideoCall,startCall, params, setMessages }) {
           )}
         </div>
         <div className="pl-1 text-[var(--textDark)] tracking-wider">
-          <p className="">{friend?.name}</p>
+          <p className="text-sm lg:text-lg">{friend?.name}</p>
           <p className="text-xs ">
             {/* {friend?.contactNumber && "+91"} {friend?.contactNumber} */}
             {friend?.status === "offline" &&
