@@ -530,6 +530,9 @@ function ChatWrapper() {
            callIncomingRingRef.current.pause();
            callIncomingRingRef.current.currentTime = 0;
          }
+         if(!navigator.vibrate){
+          new Audio('/call-rejected.mp3').play().catch(el => console.log(el));
+         }
           setIsCall(false);
           setIsIncoming(false);
           setIncomingUser(null);
