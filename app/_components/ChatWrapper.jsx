@@ -29,7 +29,8 @@ function ChatWrapper() {
       queryFn: getChats,
       refetchOnWindowFocus: false,
     });
-    
+    const callRingRef = useRef();
+    const callIncomingRingRef = useRef();
     async function getChats() {
       try {
         const jwt = localStorage.getItem("jwt");
@@ -48,6 +49,16 @@ function ChatWrapper() {
       }
     }
 
+    useEffect(() => {
+      callRingRef.current = new Audio("/call-ring.mp3");
+      callIncomingRingRef.current = new Audio("/call-incoming.mp3");
+      return () => {
+        if (callRingRef.current) {
+          callRingRef.current.pause();
+          callRingRef.current.currentTime = 0;
+        }
+      };
+    },[])
 
     useEffect(() => {
       if (!socket) return;
@@ -188,6 +199,9 @@ function ChatWrapper() {
           const id = jwtDecode(jwt)?.id;
           setIsCall(true);
           setIsIncoming(false);
+          if(callRingRef.current){
+            await callRingRef.current.play();
+          }
           try {
             // ✅ Get mic access
             // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -239,6 +253,9 @@ function ChatWrapper() {
           setIsCall(true);
           setIsIncoming(false);
           setIsVideoCall(true);
+          if (callRingRef.current) {
+            await callRingRef.current.play();
+          }
           try {
             // ✅ Get mic access
             // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -284,7 +301,10 @@ function ChatWrapper() {
           const jwt = localStorage.getItem("jwt");
           if (!jwt) return;
           const id = jwtDecode(jwt)?.id;
-
+          if(callIncomingRingRef.current){
+            callIncomingRingRef.current.pause();
+            callIncomingRingRef.current.currentTime =0;
+          }
           try {
             // ✅ Get mic access
             // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -334,7 +354,10 @@ function ChatWrapper() {
           const jwt = localStorage.getItem("jwt");
           if (!jwt) return;
           const id = jwtDecode(jwt)?.id;
-
+          if (callIncomingRingRef.current) {
+            callIncomingRingRef.current.pause();
+            callIncomingRingRef.current.currentTime = 0;
+          }
           try {
             // ✅ Get mic access
             // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -456,6 +479,11 @@ function ChatWrapper() {
         // Incoming call handler
         socket.on("call-incoming", async ({ from, remoteOffer,type }) => {
           console.log("call incoming");
+          if (callIncomingRingRef.current) {
+            callIncomingRingRef.current.loop = true;
+            callIncomingRingRef.current.play();
+            // callIncomingRingRef.current.currentTime = 0;
+          }
           if(type === 'video'){
             setIsVideoCall(true);
           }else{
@@ -492,6 +520,14 @@ function ChatWrapper() {
           peerConnection.current.close();
           peerConnection.current = null;
          } 
+         if(callRingRef.current){
+          callRingRef.current.pause();
+          callRingRef.current.currentTime = 0;
+         }
+         if (callIncomingRingRef.current) {
+           callIncomingRingRef.current.pause();
+           callIncomingRingRef.current.currentTime = 0;
+         }
           setIsCall(false);
           setIsIncoming(false);
           setIncomingUser(null);
@@ -524,7 +560,12 @@ function ChatWrapper() {
           try {
             await peerConnection.current.setRemoteDescription(
               new RTCSessionDescription(answer)
+              
             );
+            if(callRingRef.current){
+              callRingRef.current.pause();
+              callRingRef.current.currentTime = 0;
+            }
             isRemote.current = true;
             for (let c of iceQue) {
               console.log('applying candidates');
@@ -562,32 +603,34 @@ function ChatWrapper() {
           <Suspense fallback={<div>loading chat...</div>}>
             {isCall && remoteOffer && (
               <CallUI
-              setIsVideoCall={setIsVideoCall}
-              answerVideoCall={answerVideoCall}
-              videoRef={videoRef}
-              isVideoCall={isVideoCall}
-              ref={ref}
-              setIsInCall={setIsInCall}
-              peerConnection={peerConnection}
-              mediaRef={mediaRef}
-              setIsCall={setIsCall}
-          setIsIncoming={setIsIncoming}
-          setIncomingUser={setIncomingUser}
-          setRemoteOffer={setRemoteOffer}
-              socket={socket}
-              isInCall={isInCall}
-              inComingUser={inComingUser}
+                callIncomingRingRef={callIncomingRingRef}
+                callRingRef={callRingRef}
+                setIsVideoCall={setIsVideoCall}
+                answerVideoCall={answerVideoCall}
+                videoRef={videoRef}
+                isVideoCall={isVideoCall}
+                ref={ref}
+                setIsInCall={setIsInCall}
+                peerConnection={peerConnection}
+                mediaRef={mediaRef}
+                setIsCall={setIsCall}
+                setIsIncoming={setIsIncoming}
+                setIncomingUser={setIncomingUser}
+                setRemoteOffer={setRemoteOffer}
+                socket={socket}
+                isInCall={isInCall}
+                inComingUser={inComingUser}
                 isIncoming={isIncoming}
                 answerCall={answerCall}
                 remoteOffer={remoteOffer}
               />
             )}
-           
+
             <audio ref={ref} hidden autoPlay />
 
             <Chat
-            startVideoCall={startVideoCall}
-            startCall={startCall}
+              startVideoCall={startVideoCall}
+              startCall={startCall}
               isIncoming={isIncoming}
               isCall={isCall}
               remoteOffer={remoteOffer}

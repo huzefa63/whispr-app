@@ -3,8 +3,13 @@ import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Draggable from "react-draggable";
+import { FaPhone, FaPhoneSlash } from "react-icons/fa";
+import { IoMdCall } from "react-icons/io";
+import { MdCallEnd, MdMic, MdOutlineMicOff } from "react-icons/md";
 
 export default function CallUI({
+  callIncomingRingRef,
+  callRingRef,
   isVideoCall,
   isIncoming,
   isInCall,
@@ -31,6 +36,35 @@ export default function CallUI({
   const [stopwatch, setStopwatch] = useState("");
   const friendId = searchParams.get("friendId");
   const [callRecieved, setCallRecieved] = useState(false);
+  const [isMute,setIsMute] = useState(false);
+
+  useEffect(()=>{
+    let timeout;
+    if(!isIncoming){
+      timeout = setTimeout(() => {
+        setIsCall(false);
+        socket.emit("end-call", { callee: Number(user?.id) });
+        if (mediaRef.current) {
+          mediaRef.current.getTracks().forEach((track) => track.stop());
+        }
+        if (peerConnection.current) {
+          peerConnection.current.close();
+          peerConnection.current = null;
+        }
+        setIsCall(false);
+        setIsIncoming(false);
+        setIncomingUser(null);
+        setRemoteOffer({ from: "", remoteOffer: null });
+        setIsInCall(false);
+        setIsVideoCall(false);
+        if (callRingRef.current) {
+          callRingRef.current.pause();
+          callRingRef.current.currentTime = 0;
+        }
+      }, 19 * 1000);
+    }
+    return () => clearTimeout(timeout);
+  },[user])
   useEffect(() => {
     async function getFriend() {
       try {
@@ -121,7 +155,7 @@ export default function CallUI({
           <>
             {isIncoming && !callRecieved && (
               <button
-                className="hover:cursor-pointer rounded-sm bg-green-500 hover:bg-green-600 px-4 py-2"
+                className="hover:cursor-pointer rounded-full bg-green-500 hover:bg-green-600 px-3 py-3"
                 onClick={async () => {
                   if (!remoteOffer) return;
                   console.log("answered", remoteOffer);
@@ -136,12 +170,12 @@ export default function CallUI({
                   }
                 }}
               >
-                Accept
+                <IoMdCall className="text-2xl"/>
               </button>
             )}
             {isIncoming && !callRecieved && (
               <button
-                className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
+                className="hover:cursor-pointer rounded-full bg-red-500 hover:bg-red-600 px-3 py-3"
                 onClick={() => {
                   socket.emit("reject-call", { caller: remoteOffer?.from });
                   if(peerConnection.current){
@@ -153,14 +187,18 @@ export default function CallUI({
                   setIncomingUser(null);
                   setRemoteOffer({ from: "", remoteOffer: null });
                   setIsInCall(false);
+                  if(callIncomingRingRef.current){
+                    callIncomingRingRef.current.pause();
+                    callIncomingRingRef.current.currentTime = 0;
+                  }
                 }}
               >
-                Reject
+                <FaPhoneSlash className="text-2xl"/>
               </button>
             )}
             {callRecieved && (
               <button
-                className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
+                className="hover:cursor-pointer rounded-full bg-red-500 hover:bg-red-600 px-3 py-3"
                 onClick={()=>{
                   socket.emit('end-call',{callee:Number(remoteOffer?.from)});
                   console.log(mediaRef.current);
@@ -181,7 +219,7 @@ export default function CallUI({
                   setIsInCall(false);
                 }}
               >
-                hang up
+                <MdCallEnd className="text-2xl"/>
               </button>
             )}
           </>
@@ -189,7 +227,7 @@ export default function CallUI({
 
           {!isIncoming && (
             <button
-              className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 py-2"
+              className="hover:cursor-pointer rounded-full bg-red-500 hover:bg-red-600 px-3 py-3"
               onClick={() => {
                 socket.emit('end-call',{callee:Number(user?.id)});
                 if(mediaRef.current){
@@ -204,10 +242,30 @@ export default function CallUI({
                 setIncomingUser(null);
                 setRemoteOffer({ from: "", remoteOffer: null });
                 setIsInCall(false);
+                if(callRingRef.current){
+                  callRingRef.current.pause();
+                  callRingRef.current.currentTime = 0;
+                }
               }
             }
             >
-              hangup
+              <MdCallEnd className="text-2xl"/>
+            </button>
+          )}
+          {(isInCall || callRecieved) && (
+            <button
+              className={`hover:cursor-pointer rounded-full ${isMute ?'bg-red-500 hover:bg-red-600':'bg-green-500 hover:bg-green-600'} px-3 py-3`}
+              onClick={() => {
+              if(mediaRef.current){
+                mediaRef.current.getAudioTracks().forEach((track) => {
+                  setIsMute(!isMute);
+                  track.enabled = !track.enabled;
+                });
+              }
+              }
+            }
+            >
+              {isMute ? <MdOutlineMicOff className="text-2xl"/>:<MdMic className="text-2xl"/>}
             </button>
           )}
           
@@ -239,7 +297,7 @@ export default function CallUI({
         <div className="w-full h-full lg:h-full relative ">
           <Draggable nodeRef={nodeRef} disabled={!isInCall && !callRecieved}>
             <div
-            ref={nodeRef}
+              ref={nodeRef}
               className={`${
                 !isInCall && !callRecieved
                   ? '"w-full h-full'
@@ -277,72 +335,105 @@ export default function CallUI({
             ></video>
           )} */}
         </div>
-        {isIncoming && callRecieved && (
-          <button
-            className="px-5 mt-1 py-2 rounded-sm bg-red-500 z-[999] absolute bottom-2"
-            onClick={() => {
-              socket.emit("end-call", { callee: Number(remoteOffer?.from) });
-              console.log(mediaRef.current);
-              console.log(peerConnection.current);
-              if (localMedia.current) {
-                localMedia.current.getTracks().forEach((track) => track.stop());
-                localMedia.current = null;
-              }
-              if (mediaRef.current) {
-                console.log("stopping track");
-                mediaRef.current.getTracks().forEach((track) => track.stop());
-              }
-              if (peerConnection) {
-                console.log("closing peer connection");
-                peerConnection.current.close();
-                peerConnection.current = null;
-              }
-              setIsCall(false);
-              setIsIncoming(false);
-              setIncomingUser(null);
-              setRemoteOffer({ from: "", remoteOffer: null });
-              setIsInCall(false);
-              setIsVideoCall(false);
-            }}
-          >
-            hang up
-          </button>
-        )}
-        {!isIncoming && (
-          <button
-            className="px-5 mt-1 py-2 rounded-sm bg-red-500 z-[999] absolute bottom-2"
-            onClick={() => {
-              socket.emit("end-call", { callee: Number(user?.id) });
-              console.log(mediaRef.current);
-              console.log(peerConnection.current);
-              if (localMedia.current) {
-                localMedia.current.getTracks().forEach((track) => track.stop());
-                localMedia.current = null;
-              }
-              if (mediaRef.current) {
-                console.log("stopping track");
-                mediaRef.current.getTracks().forEach((track) => track.stop());
-              }
-              if (peerConnection) {
-                console.log("closing peer connection");
-                peerConnection.current.close();
-                peerConnection.current = null;
-              }
-              setIsCall(false);
-              setIsIncoming(false);
-              setIncomingUser(null);
-              setRemoteOffer({ from: "", remoteOffer: null });
-              setIsInCall(false);
-              setIsVideoCall(false);
-            }}
-          >
-            hang up
-          </button>
-        )}
+        <div className="z-[999] absolute bottom-2 mt-1 flex gap-3">
+          {isIncoming && callRecieved && (
+            <button
+              className="px-3  py-3 rounded-full bg-red-500 "
+              onClick={() => {
+                socket.emit("end-call", { callee: Number(remoteOffer?.from) });
+                console.log(mediaRef.current);
+                console.log(peerConnection.current);
+                if (localMedia.current) {
+                  localMedia.current
+                    .getTracks()
+                    .forEach((track) => track.stop());
+                  localMedia.current = null;
+                }
+                if (mediaRef.current) {
+                  console.log("stopping track");
+                  mediaRef.current.getTracks().forEach((track) => track.stop());
+                }
+                if (peerConnection) {
+                  console.log("closing peer connection");
+                  peerConnection.current.close();
+                  peerConnection.current = null;
+                }
+                setIsCall(false);
+                setIsIncoming(false);
+                setIncomingUser(null);
+                setRemoteOffer({ from: "", remoteOffer: null });
+                setIsInCall(false);
+                setIsVideoCall(false);
+              }}
+            >
+              <MdCallEnd className="text-2xl" />
+            </button>
+          )}
+          {!isIncoming && (
+            <button
+              className="px-3 py-3 rounded-full bg-red-500"
+              onClick={() => {
+                socket.emit("end-call", { callee: Number(user?.id) });
+                console.log(mediaRef.current);
+                console.log(peerConnection.current);
+                if (localMedia.current) {
+                  localMedia.current
+                    .getTracks()
+                    .forEach((track) => track.stop());
+                  localMedia.current = null;
+                }
+                if (mediaRef.current) {
+                  console.log("stopping track");
+                  mediaRef.current.getTracks().forEach((track) => track.stop());
+                }
+                if (peerConnection) {
+                  console.log("closing peer connection");
+                  peerConnection.current.close();
+                  peerConnection.current = null;
+                }
+                setIsCall(false);
+                setIsIncoming(false);
+                setIncomingUser(null);
+                setRemoteOffer({ from: "", remoteOffer: null });
+                setIsInCall(false);
+                setIsVideoCall(false);
+                if (callRingRef.current) {
+                  callRingRef.current.pause();
+                  callRingRef.current.currentTime = 0;
+                }
+              }}
+            >
+              <MdCallEnd className="text-2xl" />
+            </button>
+          )}
+          {(isInCall || callRecieved) && (
+            <button
+              className={`hover:cursor-pointer rounded-full ${
+                isMute
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-green-500 hover:bg-green-600"
+              } px-3 py-3`}
+              onClick={() => {
+                if (mediaRef.current) {
+                  mediaRef.current.getAudioTracks().forEach((track) => {
+                    setIsMute(!isMute);
+                    track.enabled = !track.enabled;
+                  });
+                }
+              }}
+            >
+              {isMute ? (
+                <MdOutlineMicOff className="text-2xl" />
+              ) : (
+                <MdMic className="text-2xl" />
+              )}
+            </button>
+          )}
+        </div>
         <div className="z-[999] absolute bottom-2 flex gap-3">
           {isIncoming && !callRecieved && (
             <button
-              className="px-5 mt-1 py-2 rounded-sm bg-green-500 "
+              className="px-3 mt-1 py-3 rounded-full bg-green-500 "
               onClick={async () => {
                 if (!remoteOffer) return;
                 console.log("answered", remoteOffer);
@@ -357,12 +448,12 @@ export default function CallUI({
                 }
               }}
             >
-              Accept
+              <IoMdCall className="text-2xl" />
             </button>
           )}
           {isIncoming && !callRecieved && (
             <button
-              className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 "
+              className="hover:cursor-pointer rounded-full bg-red-500 hover:bg-red-600 px-3 py-3 "
               onClick={() => {
                 socket.emit("reject-call", { caller: remoteOffer?.from });
                 if (peerConnection.current) {
@@ -374,9 +465,13 @@ export default function CallUI({
                 setIncomingUser(null);
                 setRemoteOffer({ from: "", remoteOffer: null });
                 setIsInCall(false);
+                if (callIncomingRingRef.current) {
+                  callIncomingRingRef.current.pause();
+                  callIncomingRingRef.current.currentTime = 0;
+                }
               }}
             >
-              Reject
+              <FaPhoneSlash className="text-2xl" />
             </button>
           )}
         </div>
