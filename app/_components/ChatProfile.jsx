@@ -12,7 +12,8 @@ import { UseSocketContext } from "./SocketProvider";
 import CallUI from "./CallUI";
 import { jwtDecode } from "jwt-decode";
 import { format } from "date-fns";
-function ChatProfile({startCall, params, setMessages }) {
+import { FaVideo } from "react-icons/fa";
+function ChatProfile({startVideoCall,startCall, params, setMessages }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -139,6 +140,12 @@ function ChatProfile({startCall, params, setMessages }) {
           onClick={async () => await startCall()}
         >
           <MdCall />
+        </div>
+        <div
+          className="text-3xl p-1 hover:bg-gray-600 hover:cursor-pointer"
+          onClick={async () => await startVideoCall()}
+        >
+          <FaVideo />
         </div>
         <div className=" relative z-[500] text-white">
           <span ref={buttonRef} className="">

@@ -22,7 +22,8 @@ function ChatWrapper() {
         const [scroll, setScroll] = useState(false);
     // const [chats,setChats] = useState([]);
   const router = useRouter();
-
+  const videoRef = useRef(null);
+  const [isVideoCall,setIsVideoCall] = useState(false);
     const { data: chats, isLoading, isPending } = useQuery({
       queryKey: ["chats"],
       queryFn: getChats,
@@ -224,6 +225,58 @@ function ChatWrapper() {
             console.error("❌ Error in startCall:", err);
           }
         }
+        async function startVideoCall() {
+          console.log('hey start')
+          if (!socket) return;
+          console.log('socket here')
+          const jwt = localStorage.getItem("jwt");
+          if (!jwt) return;
+          console.log('jwt here')
+          if (!peerConnection.current) return;
+          console.log('peer here')
+          // alert('call started')
+          const id = jwtDecode(jwt)?.id;
+          setIsCall(true);
+          setIsIncoming(false);
+          setIsVideoCall(true);
+          try {
+            // ✅ Get mic access
+            // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRef.current = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              },
+              video:true,
+            });
+
+            // ✅ Play your own voice (muted to prevent echo)
+
+            // localRef.current.srcObject = stream;
+            // localRef.current.muted = true;
+            // localRef.current.play();
+
+            // ✅ Add audio tracks to peer connection
+            mediaRef.current
+              .getTracks()
+              .forEach((track) =>
+                peerConnection.current.addTrack(track, mediaRef.current)
+              );
+
+            // ✅ Create and set offer
+            const offer = await peerConnection.current.createOffer();
+            await peerConnection.current.setLocalDescription(offer);
+
+            // ✅ Optional: slight delay to allow ICE candidates to gather
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            // ✅ Send offer to remote peer
+            socket.emit("start-call", { to: Number(params), from: id, offer,type:'video' });
+          } catch (err) {
+            console.error("❌ Error in startCall:", err);
+          }
+        }
 
         async function answerCall(remoteOffer) {
           if (!peerConnection.current) return;
@@ -261,6 +314,58 @@ function ChatWrapper() {
             // ✅ Create and set local answer
             const answer = await peerConnection.current.createAnswer();
             await peerConnection.current.setLocalDescription(answer);
+           
+            // ✅ Optional: slight delay for ICE candidates to gather
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            // ✅ Send answer back to caller
+            socket.emit("answer", {
+              to: remoteOffer.from,
+              from: id,
+              answer,
+            });
+          } catch (err) {
+            console.error("❌ Error in answerCall:", err);
+          }
+        }
+        async function answerVideoCall(remoteOffer) {
+          if (!peerConnection.current) return;
+          // alert("answered");
+          const jwt = localStorage.getItem("jwt");
+          if (!jwt) return;
+          const id = jwtDecode(jwt)?.id;
+
+          try {
+            // ✅ Get mic access
+            // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRef.current = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              },
+              video:true,
+            });
+
+            // ✅ Play your own voice (muted to prevent echo)
+            
+
+            // ✅ Add audio tracks to peer connection
+            mediaRef.current
+              .getTracks()
+              .forEach((track) =>
+                peerConnection.current.addTrack(track, mediaRef.current)
+              );
+              setIsVideoCall(true);
+
+            // ✅ Set remote offer (from caller)
+            await peerConnection.current.setRemoteDescription(
+              new RTCSessionDescription(remoteOffer.remoteOffer)
+            );
+
+            // ✅ Create and set local answer
+            const answer = await peerConnection.current.createAnswer();
+            await peerConnection.current.setLocalDescription(answer);
 
             // ✅ Optional: slight delay for ICE candidates to gather
             await new Promise((resolve) => setTimeout(resolve, 500));
@@ -270,6 +375,7 @@ function ChatWrapper() {
               to: remoteOffer.from,
               from: id,
               answer,
+              type:'video'
             });
           } catch (err) {
             console.error("❌ Error in answerCall:", err);
@@ -323,17 +429,38 @@ function ChatWrapper() {
         // };
 
         peerConnection.current.ontrack = (event) => {
+          const track = event.track;
+          const stream = event.streams[0];
+         if(track.kind === 'audio'){
           const inboundStream = new MediaStream([event.track]);
           const audio = new Audio();
           audio.srcObject = inboundStream;
           audio.autoplay = true;
           audio.play().catch((err) => console.error("Playback error:", err));
           console.log("Playing audio manually");
+         }
+         if(track.kind === 'video'){
+          console.log('kind: video',videoRef.current);
+          if(videoRef.current){
+            console.log('setting remote video');
+            console.log(stream);
+            videoRef.current.srcObject = stream;
+            videoRef.current.play();
+          }
+          // const video = document.getElementById('video');
+          // video.srcObject = stream;
+          // video.autoplay = true;
+         }
         };
     
         // Incoming call handler
-        socket.on("call-incoming", async ({ from, remoteOffer }) => {
+        socket.on("call-incoming", async ({ from, remoteOffer,type }) => {
           console.log("call incoming");
+          if(type === 'video'){
+            setIsVideoCall(true);
+          }else{
+            setIsVideoCall(false);
+          }
           setIsCall(true);
           setIsIncoming(true);
           setIncomingUser(from);
@@ -358,7 +485,9 @@ function ChatWrapper() {
         });
 
         socket.on('call-rejected',() => {
-          mediaRef.current.getTracks().forEach(track => track.stop());
+          if(mediaRef.current){
+            mediaRef.current.getTracks().forEach((track) => track.stop());
+          }
          if(peerConnection.current){
           peerConnection.current.close();
           peerConnection.current = null;
@@ -368,6 +497,7 @@ function ChatWrapper() {
           setIncomingUser(null);
           setRemoteOffer({from:'',remoteOffer:null});
           setIsInCall(false);
+          setIsVideoCall(false);
           if(navigator.vibrate){
             navigator.vibrate(400);
           }
@@ -432,6 +562,10 @@ function ChatWrapper() {
           <Suspense fallback={<div>loading chat...</div>}>
             {isCall && remoteOffer && (
               <CallUI
+              setIsVideoCall={setIsVideoCall}
+              answerVideoCall={answerVideoCall}
+              videoRef={videoRef}
+              isVideoCall={isVideoCall}
               ref={ref}
               setIsInCall={setIsInCall}
               peerConnection={peerConnection}
@@ -448,9 +582,11 @@ function ChatWrapper() {
                 remoteOffer={remoteOffer}
               />
             )}
+           
             <audio ref={ref} hidden autoPlay />
 
             <Chat
+            startVideoCall={startVideoCall}
             startCall={startCall}
               isIncoming={isIncoming}
               isCall={isCall}

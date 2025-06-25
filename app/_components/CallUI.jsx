@@ -1,9 +1,10 @@
 "use client";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CallUI({
+  isVideoCall,
   isIncoming,
   isInCall,
   answerCall,
@@ -17,7 +18,10 @@ export default function CallUI({
   mediaRef,
   setIsCall,
   setIsInCall,
-  ref
+  ref,
+  videoRef,
+  setIsVideoCall,
+  answerVideoCall,
 }) {
   
   const [user, setUser] = useState(null);
@@ -82,7 +86,7 @@ export default function CallUI({
       setStopwatch(`${hours}:${minutes}:${secondss}`);
     }
   }, [seconds]);
-  return (
+  if(!isVideoCall) return (
     <div className="fixed top-1/2 left-1/2 -translate-1/2 h-[400px] w-[400px] bg-opacity-70 flex items-center justify-center z-50 text-white font-sans">
       <div className="bg-gray-900 p-6 rounded-2xl shadow-lg w-full text-center">
         {/* Header Text */}
@@ -210,4 +214,152 @@ export default function CallUI({
       </div>
     </div>
   );
+
+  if(isVideoCall){
+    const localRef = useRef(null);
+    const localMedia = useRef(null);
+    useEffect(()=>{
+      async function getMedia(){
+        if(!localRef.current && localMedia.current) return;
+        localMedia.current = await navigator.mediaDevices.getUserMedia({audio:true,video:true});
+        localRef.current.srcObject = localMedia.current;
+      }
+      getMedia();
+      return () => {
+        if(localMedia.current){
+          localMedia.current.getTracks().forEach(track => track.stop());
+          localMedia.current = null;
+        }
+      }
+    },[])
+    return (
+      <div className="fixed inset-0 z-[999] bg-[var(--muted)] bg-opacity-70 flex flex-col items-center justify-center text-white font-sans">
+        <div className="w-full h-full lg:h-full">
+          <video
+            autoPlay
+            playsInline
+            muted
+            ref={videoRef}
+            className={`${
+              isInCall || callRecieved ? "block" : "hidden"
+            } h-full w-full object-cover`}
+          ></video>
+
+          {!isInCall && !callRecieved && (
+            <video
+              id="video"
+              autoPlay
+              playsInline
+              muted
+              ref={localRef}
+              className="w-full h-full object-cover"
+            ></video>
+          )}
+        </div>
+        {isIncoming && callRecieved &&(
+          <button
+            className="px-5 mt-1 py-2 rounded-sm bg-red-500 z-[999] absolute bottom-2"
+            onClick={() => {
+              socket.emit("end-call", { callee: Number(remoteOffer?.from) });
+              console.log(mediaRef.current);
+              console.log(peerConnection.current);
+              if (localMedia.current) {
+                localMedia.current.getTracks().forEach((track) => track.stop());
+                localMedia.current = null;
+              }
+              if (mediaRef.current) {
+                console.log("stopping track");
+                mediaRef.current.getTracks().forEach((track) => track.stop());
+              }
+              if (peerConnection) {
+                console.log("closing peer connection");
+                peerConnection.current.close();
+                peerConnection.current = null;
+              }
+              setIsCall(false);
+              setIsIncoming(false);
+              setIncomingUser(null);
+              setRemoteOffer({ from: "", remoteOffer: null });
+              setIsInCall(false);
+              setIsVideoCall(false);
+            }}
+          >
+            hang up
+          </button>
+        )}
+        {!isIncoming && (
+          <button
+            className="px-5 mt-1 py-2 rounded-sm bg-red-500 z-[999] absolute bottom-2"
+            onClick={() => {
+              socket.emit("end-call", { callee: Number(user?.id) });
+              console.log(mediaRef.current);
+              console.log(peerConnection.current);
+              if (localMedia.current) {
+                localMedia.current.getTracks().forEach((track) => track.stop());
+                localMedia.current = null;
+              }
+              if (mediaRef.current) {
+                console.log("stopping track");
+                mediaRef.current.getTracks().forEach((track) => track.stop());
+              }
+              if (peerConnection) {
+                console.log("closing peer connection");
+                peerConnection.current.close();
+                peerConnection.current = null;
+              }
+              setIsCall(false);
+              setIsIncoming(false);
+              setIncomingUser(null);
+              setRemoteOffer({ from: "", remoteOffer: null });
+              setIsInCall(false);
+              setIsVideoCall(false);
+            }}
+          >
+            hang up
+          </button>
+        )}
+        <div className="z-[999] absolute bottom-2 flex gap-3">
+          {isIncoming && !callRecieved && (
+            <button
+              className="px-5 mt-1 py-2 rounded-sm bg-green-500 "
+              onClick={async () => {
+                if (!remoteOffer) return;
+                console.log("answered", remoteOffer);
+                if (ref?.current) {
+                  console.log("audio ref: ", ref.current);
+                }
+                try {
+                  await answerVideoCall(remoteOffer);
+                  setCallRecieved(true);
+                } catch (err) {
+                  alert("failed to connect call");
+                }
+              }}
+            >
+              Accept
+            </button>
+          )}
+          {isIncoming && !callRecieved && (
+            <button
+              className="hover:cursor-pointer rounded-sm bg-red-500 hover:bg-red-600 px-4 "
+              onClick={() => {
+                socket.emit("reject-call", { caller: remoteOffer?.from });
+                if (peerConnection.current) {
+                  peerConnection.current.close();
+                  peerConnection.current = null;
+                }
+                setIsCall(false);
+                setIsIncoming(false);
+                setIncomingUser(null);
+                setRemoteOffer({ from: "", remoteOffer: null });
+                setIsInCall(false);
+              }}
+            >
+              Reject
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 }
