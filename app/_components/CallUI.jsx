@@ -2,6 +2,7 @@
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import Draggable from "react-draggable";
 
 export default function CallUI({
   isVideoCall,
@@ -218,6 +219,7 @@ export default function CallUI({
   if(isVideoCall){
     const localRef = useRef(null);
     const localMedia = useRef(null);
+    const nodeRef = useRef(null);
     useEffect(()=>{
       async function getMedia(){
         if(!localRef.current && localMedia.current) return;
@@ -235,22 +237,26 @@ export default function CallUI({
     return (
       <div className="fixed inset-0 z-[999] bg-[var(--muted)] bg-opacity-70 flex flex-col items-center justify-center text-white font-sans">
         <div className="w-full h-full lg:h-full relative ">
-          <div
-            className={`${
-              !isInCall && !callRecieved
-                ? '"w-full h-full'
-                : "lg:h-1/2 h-1/3 lg:w-1/6 w-1/3 absolute right-0 z-[999]"
-            }`}
-          >
-            <video
-              id="video"
-              autoPlay
-              playsInline
-              muted
-              ref={localRef}
-              className={`object-cover h-full w-full`}
-            ></video>
-          </div>
+          <Draggable nodeRef={nodeRef} disabled={!isInCall && !callRecieved}>
+            <div
+            ref={nodeRef}
+              className={`${
+                !isInCall && !callRecieved
+                  ? '"w-full h-full'
+                  : "lg:h-1/2 h-1/3 lg:w-1/6 w-1/3 absolute right-0 z-[999]"
+              }`}
+            >
+              <video
+                id="video"
+                autoPlay
+                playsInline
+                muted
+                ref={localRef}
+                className={`object-cover h-full w-full`}
+              ></video>
+            </div>
+          </Draggable>
+
           <video
             autoPlay
             playsInline
@@ -260,7 +266,6 @@ export default function CallUI({
               isInCall || callRecieved ? "block" : "hidden"
             } h-full w-full object-cover `}
           ></video>
-
           {/* {!isInCall && !callRecieved && (
             <video
               id="video"
