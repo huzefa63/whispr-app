@@ -546,7 +546,7 @@ function ChatWrapper() {
     
         // Handle answer (only caller uses this)
         socket.on("answer", async ({ answer }) => {
-          if (!peerConnection.current) return;
+          if (!peerConnection.current) return; 
     
           console.log(
             "1️⃣ Signaling state BEFORE setting remote answer:",
