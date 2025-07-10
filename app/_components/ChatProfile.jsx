@@ -106,7 +106,9 @@ function ChatProfile({startVideoCall,startCall, params }) {
           )}
         </div>
         <div className="pl-1 text-[var(--textDark)] tracking-wider">
-          <p className="text-sm lg:text-lg overflow-hidden truncate ">ddfhfjkdsf fdfdsfsdf dfsdfsdf fsdfd sdfdsfds dsfsdf</p>
+          <p className="text-sm lg:text-lg overflow-hidden truncate ">
+            {friend?.name}
+          </p>
           <p className="text-xs ">
             {friend?.status === "offline" &&
               lastSeen &&
@@ -114,7 +116,9 @@ function ChatProfile({startVideoCall,startCall, params }) {
             {friend?.status === "online" && (
               <span className="text-green-500">online</span>
             )}
-            {!friend?.status && friend?.contactNumber && `+91 ${friend?.contactNumber}`}
+            {!friend?.status &&
+              friend?.contactNumber &&
+              `+91 ${friend?.contactNumber}`}
           </p>
         </div>
       </div>
