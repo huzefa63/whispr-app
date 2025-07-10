@@ -1,8 +1,9 @@
-import { Inter, Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "./_components/QueryProvider";
 import SocketProvider from "./_components/SocketProvider";
 import { Toaster } from "react-hot-toast";
+import GlobalStateProvider from "./_components/GlobalStateProvider";
 
 const inter = Poppins({
   variable: "inter",
@@ -22,11 +23,15 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${inter.className} overflow-auto antialiased`}>
         <QueryProvider>
-          <Toaster toastOptions={{
-            position:'top-right'
-          }}/>
+          <Toaster
+            toastOptions={{
+              position: "top-right",
+            }}
+          />
           <div id="root"></div>
-          <SocketProvider>{children}</SocketProvider>
+          <SocketProvider>
+            <GlobalStateProvider>{children}</GlobalStateProvider>
+          </SocketProvider>
         </QueryProvider>
       </body>
     </html>

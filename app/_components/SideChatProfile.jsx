@@ -1,9 +1,8 @@
 'use client';
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import { usePathname, useSearchParams,useRouter } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { BiCheckDouble } from "react-icons/bi";
 import { BiDotsVertical } from "react-icons/bi";
@@ -13,7 +12,6 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
   const searchParams = useSearchParams();
   const router = useRouter()
   const [showMenu,setShowMenu] = useState(false);
-  // const [userId,setUserId] = useState(null);
   const queryClient = useQueryClient();
   const buttonRef = useRef(null);
   function handleClick(){
@@ -49,7 +47,6 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
         }
           queryClient.invalidateQueries(["chats"]);
       }catch(err){
-        console.log(err);
         toast.error('failed to delete chat!');
       }
   }
@@ -81,7 +78,6 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
   }
   const profileImage = isProfileImage();
   const typingId = showTyping();
-  // console.log('userTypingId: ',userTypingId, " ",' chatId: ',chat?.id);
     return (
       <div className="h-[15%] w-[95%] relative">
         <div
@@ -136,7 +132,6 @@ function SideChatProfile({chat,currentUserId,userTypingId}) {
               </p>
             </div>
           </div>
-          {/* <p className="absolute h-6 w-6 rounded-full text-stone-700 flex items-center justify-center bg-green-400 dark:bg-green-600 right-3 top-1/2 -translate-y-1/2">4</p> */}
         </div>
         <div className="absolute right-2 top-2  z-[500] text-white">
           <span ref={buttonRef} onClick={() => setShowMenu(!showMenu)}>

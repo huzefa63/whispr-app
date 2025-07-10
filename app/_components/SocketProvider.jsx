@@ -3,11 +3,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
-function decodeTokenReturnUserId(token){
-    const userId = jwtDecode(token);
-    return userId.id;
-}
-
 const Context = createContext();
 function SocketProvider({children}) {
     const [socket,setSocket] = useState(null);
@@ -29,7 +24,7 @@ function SocketProvider({children}) {
     useEffect(() => {
       if (!token) return;
 
-      console.log("Connecting socket with token:", token);
+      
       const newSocket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}/`, {
         auth: { jwt: token },
       });

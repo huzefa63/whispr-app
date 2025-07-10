@@ -12,9 +12,9 @@ import ModelWindow from "./ModelWindow";
 import { IoMdMic,IoMdMicOff } from "react-icons/io";
 import { UseSocketContext } from "./SocketProvider";
 import { BsChatDotsFill } from "react-icons/bs";
-import { IoChevronDownSharp } from "react-icons/io5";
 import { FaTrash } from "react-icons/fa";
 import AudioPlayer from "react-h5-audio-player";
+import { useGlobalState } from "./GlobalStateProvider";
 
 // import connectSocket from "@/lib/socket";
 // import { UseSocketContext } from "./SocketProvider";
@@ -26,7 +26,8 @@ const poppins = Poppins({
     
 
 
-function ChatController({setMessages,userTypingId}) {
+function ChatController() {
+    const {setMessages,userTypingId} = useGlobalState();
     const inputRef = useRef(null);
     const [message,setMessage] = useState('');
     const searchParams = useSearchParams();
@@ -37,10 +38,8 @@ function ChatController({setMessages,userTypingId}) {
     const [loading,setLoading] = useState(false);
     const [isRecording,setIsRecording] = useState(false);
     const {socket} = UseSocketContext();
-  const [isDown, setIsDown] = useState(false);
     const recordingRef = useRef(null);
     const streamRef = useRef(null);
-  const friendId = searchParams.get('friendId');
   const [audioSrc,setAudioSrc] = useState('');
   const [audioBlob,setAudioBlob] = useState(null);
   const [isSendingAudio,setIsSendingAudio] = useState(false);

@@ -10,10 +10,8 @@ import { MdPersonAddAlt1 } from "react-icons/md";
 function AddFriend() {
     const [number,setNumber] = useState('');
     const queryClient = useQueryClient();
-    const searchParams = useSearchParams();
     const {mutateAsync} = useMutation({
         mutationFn:addFriend,
-        
         onSuccess:() => queryClient.invalidateQueries(['chats'])
     });
    const [disableSubmit,setDisableSubmit] = useState();
@@ -30,8 +28,7 @@ function AddFriend() {
           );
           return true;
         } catch (err) {
-          console.log(err);
-          return false;
+          return Promise.reject(err);
         }finally{
           setNumber('');
           setDisableSubmit(false);
@@ -43,8 +40,8 @@ function AddFriend() {
         
         toast.promise(mutateAsync(number), {
           loading: "adding friend...",
-          success: <b>adding friend!</b>,
-          error: <b>Could not add, maybe friend does not exist!</b>,
+          success: <b>friend added!</b>,
+          error: (err) => <b>{err.response.data.message}</b>,
         })
     }
   
