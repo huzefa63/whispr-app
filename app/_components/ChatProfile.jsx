@@ -85,8 +85,8 @@ function ChatProfile({startVideoCall,startCall, params }) {
   }
   return (
     <div className="h-full bg-[var(--muted)] lg:px-5 pr-3 flex justify-between items-center  w-full">
-      <div className="h-full gap-7 hover:cursor-pointer transition-all duration-300 ease-in-out border-[var(--muted)] flex items-center px-2">
-        <div className="flex items-center">
+      <div className="h-full gap-7 hover:cursor-pointer transition-all overflow-hidden mr-5  duration-300 ease-in-out flex items-center px-2">
+        <div className="flex items-center ">
           <IoIosArrowRoundBack
             onClick={() => {
               const newParams = new URLSearchParams(searchParams);
@@ -106,7 +106,7 @@ function ChatProfile({startVideoCall,startCall, params }) {
           )}
         </div>
         <div className="pl-1 text-[var(--textDark)] tracking-wider">
-          <p className="text-sm lg:text-lg overflow-hidden truncate ">{friend?.name}</p>
+          <p className="text-sm lg:text-lg overflow-hidden truncate ">ddfhfjkdsf fdfdsfsdf dfsdfsdf fsdfd sdfdsfds dsfsdf</p>
           <p className="text-xs ">
             {friend?.status === "offline" &&
               lastSeen &&
