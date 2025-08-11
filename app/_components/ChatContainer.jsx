@@ -195,7 +195,7 @@ function ShowDate({ dateString }) {
   const toadyDate = new Date();
   const isToday = (toadyDate.getDate() === day) && (toadyDate.getMonth() === month) && (toadyDate.getFullYear() === year); 
   return (
-    <div className="w-full text-sm lg:text-md flex justify-center items-center">
+    <div className="w-full my-3 text-sm lg:text-md flex justify-center items-center">
       <p className="bg-[var(--muted)] py-2 px-4 rounded-md shadow-sm">{isToday ? 'Today' : date}</p>
     </div>
   );
