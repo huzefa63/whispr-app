@@ -76,7 +76,7 @@ function Chat({ startVideoCall, startCall, chats, params }) {
       </div>
 
       {chats?.chats?.length > 0 && (
-        <div className="lg:h-[10%] h-[8%] w-full lg:relative fixed bottom-0 left-0 z-50">
+        <div className="lg:h-[10%] h-[8%] w-full lg:relative fixed bottom-0 left-0 z-0">
           <ChatController />
         </div>
       )}

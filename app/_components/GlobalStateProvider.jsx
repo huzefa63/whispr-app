@@ -5,6 +5,9 @@ import { createContext, useContext, useRef, useState } from "react";
 const GlobalStateContext = createContext();
 
 function GlobalStateProvider({ children }) {
+  // message state
+  const [editMessage,setEditMessage] = useState({isEditing:false,messageId:null,text:''});
+
   // Chat states
   const [userTypingId, setUserTypingId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -31,6 +34,10 @@ function GlobalStateProvider({ children }) {
   return (
     <GlobalStateContext.Provider
       value={{
+        // Message
+        editMessage,
+        setEditMessage,
+
         // Chat
         peerConnection,
         userTypingId,

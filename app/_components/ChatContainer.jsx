@@ -6,10 +6,12 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import Spinner from "./Spinner";
 import { BiCheckDouble, BiCheck } from "react-icons/bi";
-
+import "react-contexify/dist/ReactContexify.css";
 import AudioPlayer from "react-h5-audio-player";
 import { useGlobalState } from "./GlobalStateProvider";
 import { MdModeEditOutline } from "react-icons/md";
+import { Item, Menu, Separator, useContextMenu, hideall, contextMenu } from "react-contexify";
+import { FaEdit, FaTrash } from "react-icons/fa";
 function ChatContainer({ chats, containerRef, params }) {
   const { messages, setMessages, scroll, setScroll, friendId, setFriendId } =
     useGlobalState();
@@ -35,6 +37,7 @@ function ChatContainer({ chats, containerRef, params }) {
         }
       );
       setMessages(res.data.messages);
+      console.log(res.data.messages);
       return res.data.messages;
     } catch (err) {
       return [];
@@ -90,8 +93,8 @@ function ChatContainer({ chats, containerRef, params }) {
     if (!jwt) return;
     const userId = jwtDecode(jwt);
     if (
-      messages[messages.length - 1]?.senderId == userId ||
-      friendId != messages[messages.length - 1]?.senderId
+      messages[messages?.length - 1]?.senderId == userId ||
+      friendId != messages[messages?.length - 1]?.senderId
     )
       return;
     if (
@@ -128,11 +131,10 @@ function ChatContainer({ chats, containerRef, params }) {
     }
   }, [scroll, messages?.length]);
   // pb-[calc(130px+env(safe-area-inset-bottom))]
-
   return (
     <div
       ref={containerRef}
-      className="bg-[var(--surface)] py-7  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
+      className="chat-container bg-[var(--surface)] py-7  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
       // className="bg-[var(--surface)] pt-[20%] pb-[calc(130px+env(safe-area-inset-bottom))]  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
     >
       {isFetching && <Spinner />}
@@ -150,7 +152,7 @@ function ChatContainer({ chats, containerRef, params }) {
                   new Date(arr[i - 1]?.time).getFullYear()) && (
                 <ShowDate dateString={el?.time} />
               )}
-            <Message key={i} message={el} setScroll={setScroll} />
+            <Message key={i} message={el} setScroll={setScroll} setMessages={setMessages}/>
           </div>
         ))}
       {!isFetching && messages?.length < 1 && (
@@ -202,25 +204,61 @@ function ShowDate({ dateString }) {
 }
 
 export default ChatContainer;
-
-function Message({ message, setScroll }) {
+const MENU_ID = 'my-menu'
+function Message({ message, setScroll, setMessages }) {
+  const {show} = useContextMenu({
+    id:MENU_ID
+  })
+  const {setEditMessage} = useGlobalState();
   if (typeof window === "undefined") return;
   const token = localStorage.getItem("jwt");
   if (!token) return;
   const currentUserId = jwtDecode(token)?.id;
-
   const time = format(new Date(message?.time), "HH:mm");
+  async function handleDelete({props}){
+    setMessages((mess) => {
+      return mess.filter((el) => el.id !== Number(props.messId));
+    }); 
+    contextMenu.hideAll();
+    const jwt = localStorage.getItem('jwt');
+    try{
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/message/deleteMessage/${props.messId}`,{
+       headers:{
+        Authorization:`jwt=${jwt}`
+       }
+      });
+    }catch(err){
+      console.log(err);
+    }
+  }
+
+  async function handleUpdate({props}){
+    contextMenu.hideAll();
+    setEditMessage({isEditing:true,messageId:Number(props.messId),text:props.text})
+  }
   if (message.Type === "text")
     return (
-      <div className="w-full">
-        {/* <MdModeEditOutline /> */}
+      <div className="w-full rounded-sm">
         <p
-          className={`relative rounded-sm pl-3 pr-20 p-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
+          onContextMenu={(e) => {
+            if (currentUserId !== message?.senderId) return;
+            const messageDim = e.target.closest("p").getBoundingClientRect();
+            show({
+              props:{messId:message.id,text:message.message},
+              event: e,
+              position: {
+                x: messageDim.left,
+                y: messageDim.bottom + 5,
+              },
+            });
+          }}
+          className={`relative flex flex-col message rounded-sm pl-3 pr-20 p-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
             currentUserId === Number(message?.senderId)
               ? "ml-auto bg-green-900"
               : "bg-[var(--muted)]"
           }`}
         >
+          {message?.isEdited && <span className="text-xs opacity-90 mb-1">edited</span>}
           {message?.message}
           <span className="text-xs right-2 bottom-1 absolute flex gap-1 items-center">
             {time}
@@ -240,10 +278,28 @@ function Message({ message, setScroll }) {
             )}
           </span>
         </p>
-        {/* <audio
-          controls
-          src="https://res.cloudinary.com/dkqsfm61z/video/upload/v1750058725/iogykmwmsqdnggo3ulwg.webm"
-        className="min-w-full" /> */}
+        <Menu id={MENU_ID} theme="dark" animation="slide" className="z-[999]">
+          <Item
+            id="edit"
+            onClick={handleUpdate}
+            className="w-full"
+          >
+            <span className="w-full flex items-center gap-2">
+              <FaEdit className="text-blue-400 " /> Edit
+            </span>
+          </Item>
+          <Separator />
+          <Item
+            id="delete"
+            onClick={handleDelete}
+            // onClick={handleItemClick}
+            className="w-full"
+          >
+            <span className="flex items-center gap-2 w-full">
+              <FaTrash className="text-red-400" /> Delete
+            </span>
+          </Item>
+        </Menu>
       </div>
     );
   if (message.Type === "image")

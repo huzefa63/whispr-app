@@ -1,6 +1,7 @@
 'use client';
 import { MdOutlineAttachFile } from "react-icons/md";
-import { IoIosSend } from "react-icons/io";
+import { RxCross2 } from "react-icons/rx";
+import { IoIosSend, IoMdCheckmark } from "react-icons/io";
 import { Poppins } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
 // import sendMessage from '@/actions/messageActions'
@@ -15,6 +16,7 @@ import { BsChatDotsFill } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
 import AudioPlayer from "react-h5-audio-player";
 import { useGlobalState } from "./GlobalStateProvider";
+import toast from "react-hot-toast";
 
 // import connectSocket from "@/lib/socket";
 // import { UseSocketContext } from "./SocketProvider";
@@ -27,7 +29,7 @@ const poppins = Poppins({
 
 
 function ChatController() {
-    const {setMessages,userTypingId} = useGlobalState();
+    const {setMessages,userTypingId,setEditMessage,editMessage} = useGlobalState();
     const inputRef = useRef(null);
     const [message,setMessage] = useState('');
     const searchParams = useSearchParams();
@@ -44,21 +46,11 @@ function ChatController() {
   const [audioBlob,setAudioBlob] = useState(null);
   const [isSendingAudio,setIsSendingAudio] = useState(false);
   const [seconds,setSeconds] = useState(0);
-    // useEffect(() => {
-        // console.log(
-        //   Object.keys(document.activeElement).length < 1,
-        //   document.activeElement
-        // );
-        // function handleKeyDown(){
-        //     if(inputRef.current && document.activeElement !== inputRef.current){
-        //         inputRef.current.focus();
-        //     }
-        // }
-        // document.addEventListener('keydown',handleKeyDown);
-        // return () => document.removeEventListener('keydown',handleKeyDown);
-        // document.documentElement.classList.add('dark');
-        // inputRef.current.focus();
-    // }, [friendId]);
+  const params = useSearchParams();
+
+    useEffect(() => {
+      setEditMessage({isEditing:false,messageId:null,text:''});
+    },[params])
     async function handleMediaSubmit(media, caption, jwt, recieverId) {
       const formData = new FormData();
       formData.append("media", media);
@@ -128,7 +120,7 @@ function ChatController() {
         await handleMediaSubmit(media, caption, jwt, recieverId);
         return;
       }
-      if(jwt && !media && message) {
+      if(jwt && !media && message && !editMessage.isEditing) {
         const uniqueId = `${Date.now()}-${Math.round(Math.random() * 10000000)}`
         const data = {
           message,
@@ -153,6 +145,39 @@ function ChatController() {
         } catch (err) {
           console.log(err);
         }
+      }
+      if(editMessage.isEditing){
+        if(message.length < 1){
+          toast.error('type something to update it');
+          return;
+        }
+          setMessage("");
+          setMessages((mess) => {
+            return mess.map((el) => {
+              if (el.id === editMessage.messageId) {
+                return { ...el, message: message, isEdited:true };
+              } else {
+                return el;
+              }
+            });
+          });
+          inputRef?.current?.focus();
+          setEditMessage({ isEditing: false, messageId: null, text: "" });
+
+          try {
+            const res = await axios.patch(
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/updateMessage/${editMessage.messageId}`,
+              { message },
+              {
+                headers: {
+                  Authorization: `jwt=${jwt}`,
+                },
+              }
+            );
+            console.log(res);
+          } catch (err) {
+            console.log(err);
+          }
       }
     }
 
@@ -227,35 +252,7 @@ function ChatController() {
         inputRef.current.placeholder = `${hours}:${minutes}:${second} recording audio...`
       }
     },[seconds,audioSrc,isRecording])
-    // useEffect(()=>{
-    //   const audioChunks = [];
-    //     async function getMedia(){
-    //       if(!isRecording) return;
-    //       const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    //       recordingRef.current = new MediaRecorder(stream);
-    //       streamRef.current = stream;
-    //       recordingRef.current.start();
-    //       inputRef.current.disabled = true;
-    //       inputRef.current.value = "recording audio..."
-    //       recordingRef.current.ondataavailable = (event) => {
-    //         audioChunks.push(event.data);
-    //       }
-    //       recordingRef.current.onstop = (event) => {
-    //         inputRef.current.disabled = false;
-    //         inputRef.current.value = "Type a message...";
-    //         const audioBlob = new Blob(audioChunks,{type:'audio/webm'})
-    //         const audioSrc =  URL.createObjectURL(audioBlob);
-    //         setAudioSrc(audioSrc);
-    //         setAudioBlob(audioBlob);
-
-    //       }
-    //     }
-    //     getMedia();
-    //     return () => {
-    //       recordingRef.current = null;
-    //       streamRef.current = null;
-    //     }
-    // },[isRecording])
+    
     function clearAudio(){
       setIsRecording(false);
       setAudioBlob(null);
@@ -282,11 +279,14 @@ function ChatController() {
       socket.emit("typing", { typerId: userId, toTypingId: Number(searchParams.get("friendId"))});
     },[message,socket])
 
-    
+    useEffect(() => {
+      setMessage(editMessage.text);
+       inputRef?.current?.focus();
+    },[editMessage.text])
   return (
     <form
       onSubmit={handleSubmit}
-      className="h-full min-w-full max-w-full w-full gap-1 z-[1000]  bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
+      className="h-full min-w-full max-w-full w-full gap-1  bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
     >
       {/* <div className=""> */}
       <div className="relative">
@@ -369,15 +369,29 @@ function ChatController() {
         id="media"
       />
       {!audioSrc && (
-        <input
-          disabled={mediaUrl}
-          onChange={(e) => setMessage(e.target.value)}
-          value={message}
-          ref={inputRef}
-          type="text"
-          placeholder="Type a message"
-          className={`${poppins.className}  bg-[var(--muted)] rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
-        />
+        <div
+          className={`${
+            editMessage.isEditing ? "col-span-5" : "col-span-6"
+          } lg:flex-1 h-3/4 relative`}
+        >
+          {editMessage.isEditing && (
+            <div className="min-h-12 flex items-center px-4 justify-between text-white absolute -top-1 -translate-y-full rounded-md w-full py-1 break-words bg-gray-600">
+              <div className="w-full">
+                <p className="text-sm opacity-80">editing message</p>
+                <p className="">{editMessage.text}</p>
+              </div>
+            </div>
+          )}
+          <input
+            disabled={mediaUrl}
+            onChange={(e) => setMessage(e.target.value)}
+            value={message}
+            ref={inputRef}
+            type="text"
+            placeholder="Type a message"
+            className={`${poppins.className} w-full h-full bg-[var(--muted)] rounded-full  disabled:cursor-not-allowed   focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
+          />
+        </div>
       )}
       {/* {audioSrc && (
         <audio
@@ -388,25 +402,25 @@ function ChatController() {
         />
       )} */}
       {audioSrc && (
-          <div className="w-full col-span-6 ">
-            <AudioPlayer
-              className="rhap_current-time rhap_total-time audio-player"
-              src={audioSrc}
-              layout="horizontal-reverse"
-              showJumpControls={false}
-              showSkipControls={false}
-              customVolumeControls={["volume"]} // Optional
-              // customControlsSection={["mainControls", "progressBar"]} // No "volumeControls"
-              defaultDuration={["00:00"]}
-              defaultCurrentTime={["00:00"]}
-              customAdditionalControls={[]} // ❗ Make sure this is not hiding play
-              // Optional
-            />
-          </div>
-
+        <div className="w-full col-span-6 ">
+          <AudioPlayer
+            className="rhap_current-time rhap_total-time audio-player"
+            src={audioSrc}
+            layout="horizontal-reverse"
+            showJumpControls={false}
+            showSkipControls={false}
+            customVolumeControls={["volume"]} // Optional
+            // customControlsSection={["mainControls", "progressBar"]} // No "volumeControls"
+            defaultDuration={["00:00"]}
+            defaultCurrentTime={["00:00"]}
+            customAdditionalControls={[]} // ❗ Make sure this is not hiding play
+            // Optional
+          />
+        </div>
       )}
       <div className="relative">
-        {((!isRecording && message.length > 0) || audioSrc) && (
+        {((!isRecording && message.length > 0 && !editMessage.isEditing) ||
+          audioSrc) && (
           <button
             disabled={mediaUrl || isRecording}
             type="submit"
@@ -424,7 +438,7 @@ function ChatController() {
             </div>
           </button>
         )}
-        {message.length < 1 && !audioSrc && (
+        {message.length < 1 && !audioSrc && !editMessage.isEditing && (
           <button
             onClick={!isRecording ? startRecording : stopRecording}
             disabled={mediaUrl}
@@ -444,6 +458,58 @@ function ChatController() {
               )}
             </div>
           </button>
+        )}
+        {editMessage.isEditing && (
+          <div className="flex items-center gap-1 min-w-fit lg:w-32 flex-1">
+            <button
+            type="button"
+              onClick={() =>
+                setEditMessage({
+                  isEditing: false,
+                  messageId: null,
+                  text: "",
+                })
+              }
+              className="lg:py-3 py-2 px-3 hover:bg-red-600 hover:cursor-pointer lg:px-4 rounded-md bg-red-500 lg:text-xl"
+            >
+              <RxCross2 />
+            </button>
+            <button
+              onClick={async () =>{
+                const jwt = localStorage.getItem('jwt');
+      //            setMessage("");
+      //  setMessages(mess => {
+      //   return mess.map(el => {
+      //     if(el.id === editMessage.messageId){
+      //       return {...el,message:message}
+      //     }else{
+      //       return el;
+      //     }
+      //   }) 
+      //  })
+      //  inputRef?.current?.focus();
+      //     setEditMessage({ isEditing: false, messageId: null, text: "" });
+        
+      //   try {
+      //     const res = await axios.patch(
+      //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/updateMessage/${editMessage.messageId}`,
+      //       {message},
+      //       {
+      //         headers: {
+      //           Authorization: `jwt=${jwt}`,
+      //         },
+      //       }
+      //     );
+      //     console.log(res);
+      //   } catch (err) {
+      //     console.log(err);
+      //   }
+              }}
+              className="lg:py-3 py-2 px-3 hover:bg-green-600 hover:cursor-pointer lg:px-4 rounded-md bg-green-500"
+            >
+              <IoMdCheckmark className="lg:text-xl" />
+            </button>
+          </div>
         )}
       </div>
       {/* {isDown && (
