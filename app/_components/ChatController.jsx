@@ -321,7 +321,7 @@ function ChatController() {
 
       {mediaUrl && (
         <ModelWindow close={closeModelWindow}>
-          <form className="bg-[var(--background)] relative flex flex-col p-10 w-[95%] rounded-2xl lg:w-fit min-h-fit max-h-[95%] lg:min-h-3/4 lg:max-h-[90%] border-[var(--border)] border-1  overflow-auto">
+          <form className="bg-[var(--background)] relative flex flex-col p-10 w-[95%] rounded-2xl lg:w-fit min-h-fit max-h-[95%] lg:min-h-3/4 lg:max-h-[90%] border-[var(--border)] border-1  ">
             <div className="w-full">
               <img
                 src={mediaUrl}
