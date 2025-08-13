@@ -312,8 +312,8 @@ function Message({ message, setScroll, setMessages }) {
           <Separator />
           <Item
             id="copy"
-            onClick={() => {
-              window.navigator.clipboard.writeText(message);
+            onClick={({props}) => {
+              window.navigator.clipboard.writeText(props?.text);
             }}
             // onClick={handleItemClick}
             className="w-full"
