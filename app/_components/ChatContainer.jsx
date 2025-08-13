@@ -252,7 +252,8 @@ function Message({ message, setScroll, setMessages }) {
           onContextMenu={(e) => {
             if (currentUserId !== message?.senderId) return;
             const messageDim = e.target.closest("p").getBoundingClientRect();
-            console.log(message);
+            window.navigator.vibrate(300);
+            window.getSelection().removeAllRanges();
             show({
               props:{messId:message.id,text:message.message},
               event: e,
