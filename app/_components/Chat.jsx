@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { BsFillChatLeftTextFill } from "react-icons/bs";
 import "react-h5-audio-player/lib/styles.css";
 import { jwtDecode } from "jwt-decode";
+import { useGlobalState } from "./GlobalStateProvider";
 
 const p = Poppins({
     subsets:['latin'],
@@ -20,6 +21,7 @@ function Chat({ startVideoCall, startCall, chats, params }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const {editMessage} = useGlobalState();
   useEffect(() => {
     if (!chats || chats?.chats?.length < 1) return;
     const isChat = chats?.chats?.some(
@@ -67,7 +69,7 @@ function Chat({ startVideoCall, startCall, chats, params }) {
         </div>
       )}
 
-      <div className="lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0 border-white">
+      <div className={`${editMessage?.isEditing ? 'z-0' : 'z-[999]'} lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0 border-white `}>
         <ChatContainer
           chats={chats?.chats}
           params={params}
@@ -76,7 +78,7 @@ function Chat({ startVideoCall, startCall, chats, params }) {
       </div>
 
       {chats?.chats?.length > 0 && (
-        <div className="lg:h-[10%] h-[8%] w-full lg:relative fixed bottom-0 left-0 z-0">
+        <div className={`lg:h-[10%]  h-[8%] w-full lg:relative fixed bottom-0 left-0 z-50`}>
           <ChatController />
         </div>
       )}

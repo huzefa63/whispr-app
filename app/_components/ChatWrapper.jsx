@@ -100,6 +100,65 @@ function ChatWrapper() {
         socket.connect();
       }
 
+      socket.on('messageUpdated',(data) => {
+        const userId = jwtDecode(localStorage.getItem('jwt'))?.id;
+        if(data?.chatId){
+          let updatedChats;
+          queryClient.setQueryData(['chats'],(previousChats) => {
+            updatedChats = previousChats?.chats?.map(el => {
+              if(el.id === Number(data?.chatId) ){
+                return {...el, recentMessage:data?.recentMessage,isRecentMessageRead:data?.isRecentMessageRead}
+              }else{
+                return el;
+              }
+            })
+            return {...previousChats,chats:updatedChats}
+          })
+        }
+        console.log(Number(data.message.senderId) !== userId);
+       if(Number(data?.message?.senderId) !== Number(userId)){
+        console.log('currrent user also');
+         setMessages(mess => {
+          return mess?.map(el => {
+            if(el?.id === Number(data?.messageId)){
+              return {...el,message:data?.message.message,isEdited:true}
+            }
+            else{
+              return el;
+            }
+          })
+        })
+       }
+      })
+
+      socket.on('messageDeleted',(data) => {
+        if(data?.deletedMessageId){
+           setMessages((mess) => {
+             return mess?.filter(
+               (el) => el?.id !== Number(data?.deletedMessageId)
+             );
+           });
+        }
+         if(data?.chat?.id){
+          console.log(data?.chat);
+          queryClient.setQueryData(['chats'],(previousChats) => {
+            const updatedChats = previousChats?.chats?.map(el => {
+              if(el?.id === Number(data?.chat?.id)){
+                console.log({
+                  ...el,
+                  recentMessage: data?.chat?.recentMessage,
+                });
+                return {...el,recentMessage:data?.chat?.recentMessage,isRecentMessageRead:data?.chat?.isRecentMessageRead,recentMessageSenderId:data?.chat?.recentMessageSenderId}
+              }
+              else{
+                return el;
+              }
+            })
+            return {...previousChats,chats:updatedChats}
+          })
+         }
+      })
+
       socket.on("messageRecieved", (data) => {
         const token = localStorage.getItem("jwt");
         const currentUserId = jwtDecode(token)?.id;

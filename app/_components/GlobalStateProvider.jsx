@@ -14,6 +14,7 @@ function GlobalStateProvider({ children }) {
   const [friendId, setFriendId] = useState(null);
   const [scroll, setScroll] = useState(false);
   const peerConnection = useRef(null);
+  const [isHideController,setIsHideController] = useState(false);
 
   // Call states
   const videoRef = useRef(null);
@@ -37,7 +38,9 @@ function GlobalStateProvider({ children }) {
         // Message
         editMessage,
         setEditMessage,
-
+        isHideController,
+        setIsHideController,
+        
         // Chat
         peerConnection,
         userTypingId,

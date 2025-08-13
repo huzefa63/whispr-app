@@ -12,8 +12,9 @@ import { useGlobalState } from "./GlobalStateProvider";
 import { MdModeEditOutline } from "react-icons/md";
 import { Item, Menu, Separator, useContextMenu, hideall, contextMenu } from "react-contexify";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { useSearchParams } from "next/navigation";
 function ChatContainer({ chats, containerRef, params }) {
-  const { messages, setMessages, scroll, setScroll, friendId, setFriendId } =
+  const { messages, setMessages, scroll, setScroll, friendId, setFriendId, editMessage } =
     useGlobalState();
   // const [scroll, setScroll] = useState(true);
   const queryClient = useQueryClient();
@@ -152,7 +153,12 @@ function ChatContainer({ chats, containerRef, params }) {
                   new Date(arr[i - 1]?.time).getFullYear()) && (
                 <ShowDate dateString={el?.time} />
               )}
-            <Message key={i} message={el} setScroll={setScroll} setMessages={setMessages}/>
+            <Message
+              key={i}
+              message={el}
+              setScroll={setScroll}
+              setMessages={setMessages}
+            />
           </div>
         ))}
       {!isFetching && messages?.length < 1 && (
@@ -209,6 +215,9 @@ function Message({ message, setScroll, setMessages }) {
   const {show} = useContextMenu({
     id:MENU_ID
   })
+  const {setIsHideController} = useGlobalState();
+  const params = useSearchParams();
+  const queryClient = useQueryClient();
   const {setEditMessage} = useGlobalState();
   if (typeof window === "undefined") return;
   const token = localStorage.getItem("jwt");
@@ -222,7 +231,7 @@ function Message({ message, setScroll, setMessages }) {
     contextMenu.hideAll();
     const jwt = localStorage.getItem('jwt');
     try{
-      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/message/deleteMessage/${props.messId}`,{
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/message/deleteMessage?messageId=${props?.messId}&otherUser=${params.get('friendId')}`,{
        headers:{
         Authorization:`jwt=${jwt}`
        }
@@ -238,11 +247,12 @@ function Message({ message, setScroll, setMessages }) {
   }
   if (message.Type === "text")
     return (
-      <div className="w-full rounded-sm">
+      <div className="w-full rounded-sm ">
         <p
           onContextMenu={(e) => {
             if (currentUserId !== message?.senderId) return;
             const messageDim = e.target.closest("p").getBoundingClientRect();
+            console.log(message);
             show({
               props:{messId:message.id,text:message.message},
               event: e,
@@ -278,7 +288,7 @@ function Message({ message, setScroll, setMessages }) {
             )}
           </span>
         </p>
-        <Menu id={MENU_ID} theme="dark" animation="slide" className="z-[999]">
+        <Menu id={MENU_ID} theme="dark" animation="slide" >
           <Item
             id="edit"
             onClick={handleUpdate}

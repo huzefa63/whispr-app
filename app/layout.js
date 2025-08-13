@@ -29,6 +29,7 @@ export default function RootLayout({ children }) {
             }}
           />
           <div id="root"></div>
+          <div id="root-portal" className="z-[9999]"></div>
           <SocketProvider>
             <GlobalStateProvider>{children}</GlobalStateProvider>
           </SocketProvider>

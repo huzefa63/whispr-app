@@ -17,6 +17,7 @@ import { FaTrash } from "react-icons/fa";
 import AudioPlayer from "react-h5-audio-player";
 import { useGlobalState } from "./GlobalStateProvider";
 import toast from "react-hot-toast";
+import { createPortal } from "react-dom";
 
 // import connectSocket from "@/lib/socket";
 // import { UseSocketContext } from "./SocketProvider";
@@ -29,7 +30,7 @@ const poppins = Poppins({
 
 
 function ChatController() {
-    const {setMessages,userTypingId,setEditMessage,editMessage} = useGlobalState();
+    const {setMessages,userTypingId,setEditMessage,editMessage,isHideController} = useGlobalState();
     const inputRef = useRef(null);
     const [message,setMessage] = useState('');
     const searchParams = useSearchParams();
@@ -161,13 +162,14 @@ function ChatController() {
               }
             });
           });
-          inputRef?.current?.focus();
-          setEditMessage({ isEditing: false, messageId: null, text: "" });
+          setEditMessage({ isEditing: false, messageId:null ,text: "" });
 
+          inputRef?.current?.focus();
+          
           try {
             const res = await axios.patch(
               `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/updateMessage/${editMessage.messageId}`,
-              { message },
+              { message,otherUser:params.get('friendId') },
               {
                 headers: {
                   Authorization: `jwt=${jwt}`,
@@ -178,6 +180,7 @@ function ChatController() {
           } catch (err) {
             console.log(err);
           }
+
       }
     }
 
@@ -286,7 +289,7 @@ function ChatController() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="h-full min-w-full max-w-full w-full gap-1  bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3"
+      className={`h-full min-w-full max-w-full w-full gap-1  bg-[var(--surface)] grid grid-cols-8  lg:flex items-center px-2 lg:px-3 `}
     >
       {/* <div className=""> */}
       <div className="relative">
@@ -321,7 +324,7 @@ function ChatController() {
 
       {mediaUrl && (
         <ModelWindow close={closeModelWindow}>
-          <form className="bg-[var(--background)] relative flex flex-col p-10 w-[95%] rounded-2xl lg:w-fit min-h-fit max-h-[95%] lg:min-h-3/4 lg:max-h-[90%] border-[var(--border)] border-1  ">
+          <form className="bg-[var(--background)] relative flex flex-col p-10 w-[95%] rounded-2xl lg:w-fit min-h-fit max-h-[95%] lg:min-h-3/4 lg:max-h-[90%] border-[var(--border)] border-1  overflow-auto">
             <div className="w-full">
               <img
                 src={mediaUrl}
@@ -374,14 +377,16 @@ function ChatController() {
             editMessage.isEditing ? "col-span-5" : "col-span-6"
           } lg:flex-1 h-3/4 relative`}
         >
+          
           {editMessage.isEditing && (
-            <div className="min-h-12 flex items-center px-4 justify-between text-white absolute -top-1 -translate-y-full rounded-md w-full py-1 break-words bg-gray-600">
+            <div className="min-h-12 z-[1000] flex items-center px-4 justify-between text-white absolute -top-1 -translate-y-full rounded-md w-full py-1 break-words bg-gray-600">
               <div className="w-full">
                 <p className="text-sm opacity-80">editing message</p>
                 <p className="">{editMessage.text}</p>
               </div>
             </div>
           )}
+         
           <input
             disabled={mediaUrl}
             onChange={(e) => setMessage(e.target.value)}
@@ -462,7 +467,7 @@ function ChatController() {
         {editMessage.isEditing && (
           <div className="flex items-center gap-1 min-w-fit lg:w-32 flex-1">
             <button
-            type="button"
+              type="button"
               onClick={() =>
                 setEditMessage({
                   isEditing: false,
@@ -475,35 +480,35 @@ function ChatController() {
               <RxCross2 />
             </button>
             <button
-              onClick={async () =>{
-                const jwt = localStorage.getItem('jwt');
-      //            setMessage("");
-      //  setMessages(mess => {
-      //   return mess.map(el => {
-      //     if(el.id === editMessage.messageId){
-      //       return {...el,message:message}
-      //     }else{
-      //       return el;
-      //     }
-      //   }) 
-      //  })
-      //  inputRef?.current?.focus();
-      //     setEditMessage({ isEditing: false, messageId: null, text: "" });
-        
-      //   try {
-      //     const res = await axios.patch(
-      //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/updateMessage/${editMessage.messageId}`,
-      //       {message},
-      //       {
-      //         headers: {
-      //           Authorization: `jwt=${jwt}`,
-      //         },
-      //       }
-      //     );
-      //     console.log(res);
-      //   } catch (err) {
-      //     console.log(err);
-      //   }
+              onClick={async () => {
+                const jwt = localStorage.getItem("jwt");
+                //            setMessage("");
+                //  setMessages(mess => {
+                //   return mess.map(el => {
+                //     if(el.id === editMessage.messageId){
+                //       return {...el,message:message}
+                //     }else{
+                //       return el;
+                //     }
+                //   })
+                //  })
+                //  inputRef?.current?.focus();
+                //     setEditMessage({ isEditing: false, messageId: null, text: "" });
+
+                //   try {
+                //     const res = await axios.patch(
+                //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/updateMessage/${editMessage.messageId}`,
+                //       {message},
+                //       {
+                //         headers: {
+                //           Authorization: `jwt=${jwt}`,
+                //         },
+                //       }
+                //     );
+                //     console.log(res);
+                //   } catch (err) {
+                //     console.log(err);
+                //   }
               }}
               className="lg:py-3 py-2 px-3 hover:bg-green-600 hover:cursor-pointer lg:px-4 rounded-md bg-green-500"
             >
