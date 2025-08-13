@@ -9,7 +9,7 @@ import { BiCheckDouble, BiCheck } from "react-icons/bi";
 import "react-contexify/dist/ReactContexify.css";
 import AudioPlayer from "react-h5-audio-player";
 import { useGlobalState } from "./GlobalStateProvider";
-import { MdModeEditOutline } from "react-icons/md";
+import { MdCopyAll, MdModeEditOutline } from "react-icons/md";
 import { Item, Menu, Separator, useContextMenu, hideall, contextMenu } from "react-contexify";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
@@ -252,10 +252,11 @@ function Message({ message, setScroll, setMessages }) {
           onContextMenu={(e) => {
             if (currentUserId !== message?.senderId) return;
             const messageDim = e.target.closest("p").getBoundingClientRect();
-            window.navigator.vibrate(300);
+            window.navigator.vibrate(100);
             window.getSelection().removeAllRanges();
+            window.navigator.clipboard.writeText;
             show({
-              props:{messId:message.id,text:message.message},
+              props: { messId: message.id, text: message.message },
               event: e,
               position: {
                 x: messageDim.left,
@@ -269,7 +270,9 @@ function Message({ message, setScroll, setMessages }) {
               : "bg-[var(--muted)]"
           }`}
         >
-          {message?.isEdited && <span className="text-xs opacity-90 mb-1">edited</span>}
+          {message?.isEdited && (
+            <span className="text-xs opacity-90 mb-1">edited</span>
+          )}
           {message?.message}
           <span className="text-xs right-2 bottom-1 absolute flex gap-1 items-center">
             {time}
@@ -289,12 +292,8 @@ function Message({ message, setScroll, setMessages }) {
             )}
           </span>
         </p>
-        <Menu id={MENU_ID} theme="dark" animation="slide" >
-          <Item
-            id="edit"
-            onClick={handleUpdate}
-            className="w-full"
-          >
+        <Menu id={MENU_ID} theme="dark" animation="slide">
+          <Item id="edit" onClick={handleUpdate} className="w-full">
             <span className="w-full flex items-center gap-2">
               <FaEdit className="text-blue-400 " /> Edit
             </span>
@@ -308,6 +307,19 @@ function Message({ message, setScroll, setMessages }) {
           >
             <span className="flex items-center gap-2 w-full">
               <FaTrash className="text-red-400" /> Delete
+            </span>
+          </Item>
+          <Separator />
+          <Item
+            id="copy"
+            onClick={() => {
+              window.navigator.clipboard.writeText(message);
+            }}
+            // onClick={handleItemClick}
+            className="w-full"
+          >
+            <span className="flex items-center gap-2 w-full">
+              <MdCopyAll /> Delete
             </span>
           </Item>
         </Menu>
