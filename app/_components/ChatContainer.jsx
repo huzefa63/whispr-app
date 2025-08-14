@@ -133,12 +133,14 @@ function ChatContainer({ chats, containerRef, params }) {
     }
   }, [scroll, messages?.length]);
   const {setEditMessage} = useGlobalState();
+  
   const {show} = useContextMenu({
     id:MENU_ID
   });
   const currentUserId = jwtDecode(localStorage.getItem('jwt')).id;
   // pb-[calc(130px+env(safe-area-inset-bottom))]
   async function handleDelete({ props }) {
+    console.log('deleting')
     setMessages((mess) => {
       return mess.filter((el) => el.id !== Number(props.messId));
     });
@@ -150,7 +152,7 @@ function ChatContainer({ chats, containerRef, params }) {
           process.env.NEXT_PUBLIC_BACKEND_URL
         }/message/deleteMessage?messageId=${
           props?.messId
-        }&otherUser=${params.get("friendId")}`,
+        }&otherUser=${params}`,
         {
           headers: {
             Authorization: `jwt=${jwt}`,
