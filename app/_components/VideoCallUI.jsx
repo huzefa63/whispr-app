@@ -52,7 +52,7 @@ function VideoCallUI({
     };
   }, [localRef]);
   return (
-    <div className="fixed inset-0 z-[999] bg-[var(--muted)] bg-opacity-70 flex flex-col items-center justify-center text-white font-sans">
+    <div className="fixed inset-0 z-[9999] bg-[var(--muted)] bg-opacity-70 flex flex-col items-center justify-center text-white font-sans">
       <div className="w-full h-full lg:h-full relative ">
         <Draggable nodeRef={nodeRef} disabled={!isInCall && !callRecieved}>
           <div

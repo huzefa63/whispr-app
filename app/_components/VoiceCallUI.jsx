@@ -19,7 +19,7 @@ function VoiceCallUI({
 }) {
     const { isIncoming, isInCall, remoteOffer, mediaRef } = useGlobalState();
   return (
-    <div className="fixed top-1/2 left-1/2 -translate-1/2 h-[400px] lg:w-[400px] w-[90%] bg-opacity-70 flex items-center justify-center z-50 text-white font-sans">
+    <div className="fixed top-1/2  left-1/2 -translate-1/2 h-[400px] lg:w-[400px] w-[90%] bg-opacity-70 flex items-center justify-center z-[9999] text-white font-sans">
       <div className="bg-gray-900 p-6 rounded-2xl shadow-lg w-full text-center">
         {isIncoming && (
           <p className="text-xl font-semibold">
