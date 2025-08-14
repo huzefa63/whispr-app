@@ -13,6 +13,7 @@ import { MdCopyAll, MdModeEditOutline } from "react-icons/md";
 import { Item, Menu, Separator, useContextMenu, hideall, contextMenu } from "react-contexify";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
+const MENU_ID = 'my-menu'
 function ChatContainer({ chats, containerRef, params }) {
   const { messages, setMessages, scroll, setScroll, friendId, setFriendId, editMessage } =
     useGlobalState();
@@ -131,9 +132,88 @@ function ChatContainer({ chats, containerRef, params }) {
       // setScroll(false);
     }
   }, [scroll, messages?.length]);
+  const {setEditMessage} = useGlobalState();
+  const {show} = useContextMenu({
+    id:MENU_ID
+  });
+  const currentUserId = jwtDecode(localStorage.getItem('jwt')).id;
   // pb-[calc(130px+env(safe-area-inset-bottom))]
+  async function handleDelete({ props }) {
+    setMessages((mess) => {
+      return mess.filter((el) => el.id !== Number(props.messId));
+    });
+    contextMenu.hideAll();
+    const jwt = localStorage.getItem("jwt");
+    try {
+      await axios.delete(
+        `${
+          process.env.NEXT_PUBLIC_BACKEND_URL
+        }/message/deleteMessage?messageId=${
+          props?.messId
+        }&otherUser=${params.get("friendId")}`,
+        {
+          headers: {
+            Authorization: `jwt=${jwt}`,
+          },
+        }
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function handleUpdate({ props }) {
+    contextMenu.hideAll();
+    setEditMessage({
+      isEditing: true,
+      messageId: Number(props.messId),
+      text: props.text,
+    });
+  }
   return (
     <div
+    onContextMenu={(e) => {
+      e.preventDefault();
+      const isMessageDiv = e.target.classList.contains("message-div");
+      const isMessage =
+        e.target.classList.contains("message") ||
+        e.target.classList.contains("messageChild");
+      if(isMessageDiv){
+        const messagePos = e.target.firstElementChild;
+        const rect = messagePos.getBoundingClientRect();
+        const div = e.target.closest('.message-div');
+        const {id, message, senderid:senderId} = div.dataset; 
+          if (currentUserId !== Number(senderId)) return;
+          window.getSelection().removeAllRanges();
+          show({
+            props: { messId: id, text: message },
+            event: e,
+            // position: {
+            //   x: rect.left - (rect.width * 0.5),
+            //   y: rect.bottom + 5,
+            // },
+          });
+          return;
+      }
+      if(isMessage){
+        const messageEl = e.target.closest('.message');
+        const messageDiv = e.target.closest('.message-div');
+        const rect = messageEl.getBoundingClientRect();
+        const {id, message, senderid:senderId} = messageDiv.dataset; 
+          if (currentUserId !== Number(senderId)) return;
+          window.getSelection().removeAllRanges();
+          show({
+            props: { messId: id, text: message },
+            event: e,
+            // position: {
+            //   x: rect.left - (rect.width * 0.5),
+            //   y: rect.bottom + 5,
+            // },
+          });
+          return;
+      }
+      
+    }}
       ref={containerRef}
       className="chat-container bg-[var(--surface)] py-7  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
       // className="bg-[var(--surface)] pt-[20%] pb-[calc(130px+env(safe-area-inset-bottom))]  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
@@ -161,6 +241,37 @@ function ChatContainer({ chats, containerRef, params }) {
             />
           </div>
         ))}
+        {!isFetching &&chats?.length > 0 && <Menu id={MENU_ID} theme="dark" animation="slide">
+          <Item id="edit" onClick={handleUpdate} className="w-full">
+            <span className="w-full flex items-center gap-2">
+              <FaEdit className="text-blue-400 " /> Edit
+            </span>
+          </Item>
+          <Separator />
+          <Item
+            id="delete"
+            onClick={handleDelete}
+            // onClick={handleItemClick}
+            className="w-full"
+          >
+            <span className="flex items-center gap-2 w-full">
+              <FaTrash className="text-red-400" /> Delete
+            </span>
+          </Item>
+          <Separator />
+          <Item
+            id="copy"
+            onClick={({props}) => {
+              window.navigator.clipboard.writeText(props?.text);
+            }}
+            // onClick={handleItemClick}
+            className="w-full"
+          >
+            <span className="flex items-center gap-2 w-full">
+              <MdCopyAll /> Copy
+            </span>
+          </Item>
+        </Menu>}
       {!isFetching && messages?.length < 1 && (
         <div className="text-center flex items-center text-lg lg:text-xl flex-col justify-center text-gray-400 mt-5  h-full">
           <p className="">
@@ -210,12 +321,10 @@ function ShowDate({ dateString }) {
 }
 
 export default ChatContainer;
-const MENU_ID = 'my-menu'
 function Message({ message, setScroll, setMessages }) {
   const {show} = useContextMenu({
     id:MENU_ID
   })
-  const {setIsHideController} = useGlobalState();
   const params = useSearchParams();
   const queryClient = useQueryClient();
   const {setEditMessage} = useGlobalState();
@@ -224,67 +333,46 @@ function Message({ message, setScroll, setMessages }) {
   if (!token) return;
   const currentUserId = jwtDecode(token)?.id;
   const time = format(new Date(message?.time), "HH:mm");
-  async function handleDelete({props}){
-    setMessages((mess) => {
-      return mess.filter((el) => el.id !== Number(props.messId));
-    }); 
-    contextMenu.hideAll();
-    const jwt = localStorage.getItem('jwt');
-    try{
-      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/message/deleteMessage?messageId=${props?.messId}&otherUser=${params.get('friendId')}`,{
-       headers:{
-        Authorization:`jwt=${jwt}`
-       }
-      });
-    }catch(err){
-      console.log(err);
-    }
-  }
-
-  async function handleUpdate({props}){
-    contextMenu.hideAll();
-    setEditMessage({isEditing:true,messageId:Number(props.messId),text:props.text})
-  }
   if (message.Type === "text")
     return (
-      <div className="w-full rounded-sm ">
+      <div className={`w-full rounded-sm message-div`} data-message={message?.message} data-id={message?.id} data-senderid={message?.senderId}>
         <p
-          onContextMenu={(e) => {
-            if (currentUserId !== message?.senderId) return;
-            const messageDim = e.target.closest("p").getBoundingClientRect();
-            window.navigator.vibrate(100);
-            window.getSelection().removeAllRanges();
-            window.navigator.clipboard.writeText;
-            show({
-              props: { messId: message.id, text: message.message },
-              event: e,
-              position: {
-                x: messageDim.left,
-                y: messageDim.bottom + 5,
-              },
-            });
-          }}
-          className={`relative flex flex-col message rounded-sm pl-3 pr-20 p-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
+          // onContextMenu={(e) => {
+          //   if (currentUserId !== message?.senderId) return;
+          //   const messageDim = e.target.closest("p").getBoundingClientRect();
+          //   window.navigator.vibrate(100);
+          //   window.getSelection().removeAllRanges();
+          //   window.navigator.clipboard.writeText;
+          //   show({
+          //     props: { messId: message.id, text: message.message },
+          //     event: e,
+          //     position: {
+          //       x: messageDim.left,
+          //       y: messageDim.bottom + 5,
+          //     },
+          //   });
+          // }}
+          className={`message relative flex flex-col message rounded-sm pl-3 pr-20 p-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
             currentUserId === Number(message?.senderId)
               ? "ml-auto bg-green-900"
               : "bg-[var(--muted)]"
           }`}
         >
           {message?.isEdited && (
-            <span className="text-xs opacity-90 mb-1">edited</span>
+            <span className="messageChild text-xs opacity-90 mb-1">edited</span>
           )}
           {message?.message}
-          <span className="text-xs right-2 bottom-1 absolute flex gap-1 items-center">
+          <span className="messageChild text-xs right-2 bottom-1 absolute flex gap-1 items-center">
             {time}
             {message?.senderId === currentUserId && (
               <>
                 <BiCheckDouble
-                  className={`text-lg ${
+                  className={`text-lg messageChild ${
                     message?.placeholder ? "hidden" : "block"
                   } ${message?.isRead && "text-blue-400"}`}
                 />
                 <BiCheck
-                  className={`text-lg ${
+                  className={`text-lg messageChild ${
                     message?.placeholder ? "block" : "hidden"
                   }`}
                 />
@@ -292,37 +380,6 @@ function Message({ message, setScroll, setMessages }) {
             )}
           </span>
         </p>
-        <Menu id={MENU_ID} theme="dark" animation="slide">
-          <Item id="edit" onClick={handleUpdate} className="w-full">
-            <span className="w-full flex items-center gap-2">
-              <FaEdit className="text-blue-400 " /> Edit
-            </span>
-          </Item>
-          <Separator />
-          <Item
-            id="delete"
-            onClick={handleDelete}
-            // onClick={handleItemClick}
-            className="w-full"
-          >
-            <span className="flex items-center gap-2 w-full">
-              <FaTrash className="text-red-400" /> Delete
-            </span>
-          </Item>
-          <Separator />
-          <Item
-            id="copy"
-            onClick={({props}) => {
-              window.navigator.clipboard.writeText(props?.text);
-            }}
-            // onClick={handleItemClick}
-            className="w-full"
-          >
-            <span className="flex items-center gap-2 w-full">
-              <MdCopyAll /> Delete
-            </span>
-          </Item>
-        </Menu>
       </div>
     );
   if (message.Type === "image")
