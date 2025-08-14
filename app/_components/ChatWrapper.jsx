@@ -583,7 +583,7 @@ function ChatWrapper() {
             userTypingId={userTypingId}
           />
         </Suspense>
-        <div className="h-screen w-full bg-[var(--surface)]">
+        <div className="h-screen w-full bg-[var(--surface)] z-[9999]">
           <Suspense fallback={<div>loading chat...</div>}>
            
               {isCall && remoteOffer && (
