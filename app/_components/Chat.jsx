@@ -60,7 +60,7 @@ function Chat({ startVideoCall, startCall, chats, params }) {
       className={`w-full h-full flex flex-col ${!params && "hidden lg:flex"}`}
     >
       {chats?.chats?.length > 0 && (
-        <div className="lg:h-[10%] h-[9%] w-full lg:relative fixed top-0 left-0 z-50">
+        <div className="lg:h-[10%] h-[9%] w-full lg:relative fixed top-0 left-0 z-[1000]">
           <ChatProfile
             startVideoCall={startVideoCall}
             startCall={startCall}
