@@ -42,7 +42,7 @@ function SideChat({isPending,isLoading,userTypingId,setChats,chats}) {
      >
        <div className="relative">
          <div className="text-blue-500 my-3 px-5 lg:px-0 flex lg:flex-col gap-5 items-center  tracking-wide">
-           <div className="flex items-center gap-2 text-3xl">
+           <div className="flex items-center gap-2 lg:text-3xl text-lg">
              <BsFillChatLeftTextFill />
              <p className="font-bold ">WHISPR</p>
            </div>
