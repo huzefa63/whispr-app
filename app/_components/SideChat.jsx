@@ -134,7 +134,7 @@ function SideChat({isPending,isLoading,userTypingId,setChats,chats}) {
              {addFriend && (
                <ModelWindow close={() => setAddFriend(false)}>
                  <div className="absolute lg:w-1/4 w-3/4 left-1/2 top-1/2 -translate-1/2 flex items-center justify-center z-50">
-                   <form onSubmit={handleSubmit} className="bg-gray-800 rounded-xl w-full p-6 shadow-lg">
+                   <form onSubmit={handleSubmit} className="bg-[var(--surface)] rounded-xl w-full p-6 shadow-lg border-[var(--muted)] border-1">
                      {/* Title */}
                      <h2 className="text-lg font-bold text-white mb-4">
                        Add a Friend

@@ -137,7 +137,7 @@ function ChatContainer({ chats, containerRef, params }) {
   const {show} = useContextMenu({
     id:MENU_ID
   });
-  const currentUserId = jwtDecode(localStorage.getItem('jwt')).id;
+  // const currentUserId = jwtDecode(localStorage.getItem('jwt')).id;
   // pb-[calc(130px+env(safe-area-inset-bottom))]
   async function handleDelete({ props }) {
     console.log('deleting')
@@ -176,6 +176,7 @@ function ChatContainer({ chats, containerRef, params }) {
     <div
     onContextMenu={(e) => {
       e.preventDefault();
+      const currentUserId = jwtDecode(localStorage.getItem("jwt")).id;
       const isMessageDiv = e.target.classList.contains("message-div");
       const isMessage =
         e.target.classList.contains("message") ||
