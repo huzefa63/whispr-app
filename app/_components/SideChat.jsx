@@ -19,7 +19,7 @@ function SideChat({isPending,isLoading,userTypingId,setChats,chats}) {
   const inputRef = useRef(null);
   const [filteredChats,setFilteredChats] = useState(null);
   function preventTextSelection(){
-    // window.getSelection().removeAllRanges();
+    window.getSelection().removeAllRanges();
   }
   
   function handleFilter(e){
@@ -34,8 +34,6 @@ function SideChat({isPending,isLoading,userTypingId,setChats,chats}) {
   
    return (
      <div
-       onClick={preventTextSelection}
-       onContextMenu={preventTextSelection}
        className={`h-full ${
          searchParams.get("friendId") && "hidden lg:flex"
        } min-w-full lg:max-w-[25%] lg:min-w-[25%] relative bg-[var(--background)] shadow-sm flex flex-col border-r-1 border-[var(--border)]`}
@@ -73,8 +71,12 @@ function SideChat({isPending,isLoading,userTypingId,setChats,chats}) {
          </div>
        )}
        {!isLoading ? (
-         <div className="flex  flex-col gap-2 items-center border-[var(--border)] w-full flex-1 overflow-auto mt-3 py-3">
-           {(!filteredChats || filteredChats?.chats.length < 1)
+         <div
+           onClick={preventTextSelection}
+           onContextMenu={preventTextSelection}
+           className="flex  flex-col gap-2 items-center border-[var(--border)] w-full flex-1 overflow-auto mt-3 py-3"
+         >
+           {!filteredChats || filteredChats?.chats.length < 1
              ? chats?.chats?.map((el, i) => (
                  <SideChatProfile
                    userTypingId={userTypingId}
