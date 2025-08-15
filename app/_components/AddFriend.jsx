@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { MdPersonAddAlt1 } from "react-icons/md";
 
 function AddFriend() {
+  const router = useRouter();
     const [number,setNumber] = useState('');
     const queryClient = useQueryClient();
     const {mutateAsync} = useMutation({
@@ -15,7 +16,6 @@ function AddFriend() {
         onSuccess:() => queryClient.invalidateQueries(['chats'])
     });
    const [disableSubmit,setDisableSubmit] = useState();
-   const router = useRouter();
     async function addFriend(number){
         try {
           const jwt = localStorage.getItem("jwt");

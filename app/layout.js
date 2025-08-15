@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
               position: "top-right",
             }}
           />
-          <div id="root"></div>
+          <div id="root" className="z-[9999]"></div>
           <div id="root-portal" className="z-[9999]"></div>
           <SocketProvider>
             <GlobalStateProvider>{children}</GlobalStateProvider>
