@@ -374,7 +374,7 @@ function Message({ message, setScroll, setMessages, currentUserId }) {
         data-sendername={message?.sender?.name}
       >
         <p
-          className={`message relative flex flex-col message rounded-sm px-3 py-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
+          className={`message relative flex flex-col message rounded-sm px-2 py-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
             currentUserId === Number(message?.senderId)
               ? "ml-auto bg-green-900"
               : "bg-[var(--muted)]"
@@ -404,7 +404,7 @@ function Message({ message, setScroll, setMessages, currentUserId }) {
               <span className="messageChild messageChild text-xs right-2 bottom-1 absolute flex gap-1 items-center"></span>
             </>
           )}
-          <span className="messageChild mr-20 pl-2">{message?.message}</span>
+          <span className="messageChild mr-17 pl-2">{message?.message}</span>
           {/* {message?.message} */}
           <span className="messageChild text-xs right-2 bottom-1 absolute flex gap-1 items-center">
             {time}
