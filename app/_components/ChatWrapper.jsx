@@ -41,7 +41,7 @@ function ChatWrapper() {
       peerConnection
     } = useGlobalState();
     
-
+    const [lineBusy,setLineBusy] = useState(false);
     const { data: chats, isLoading, isPending } = useQuery({
       queryKey: ["chats"],
       queryFn: getChats,
@@ -477,7 +477,40 @@ function ChatWrapper() {
         }
       };
 
+      socket.on('line-busy',() => {
+        mediaRef?.current?.getTracks()?.forEach((track) => track.stop());
+        if (peerConnection?.current) {
+          peerConnection.current.close();
+          peerConnection.current = null;
+        }
+        if (callRingRef?.current) {
+          callRingRef.current.pause();
+          callRingRef.current.currentTime = 0;
+        }
+        if (callIncomingRingRef?.current) {
+          callIncomingRingRef.current.pause();
+          callIncomingRingRef.current.currentTime = 0;
+        }
+        setLineBusy(true);
+
+        setTimeout(() => {
+          setIsCall(false);
+          setIsIncoming(false);
+          setIncomingUser(null);
+          setRemoteOffer({ from: "", remoteOffer: null });
+          setIsInCall(false);
+          setIsVideoCall(false);
+        }, 3000);
+
+        if (navigator.vibrate) navigator.vibrate(400);
+      })
+
       socket.on("call-incoming", async ({ from, remoteOffer, type }) => {
+        if(isCall || setIsVideoCall){
+          socket.emit('line-busy',{to:from});
+          return;
+        }
+        setLineBusy(false);
         if (callIncomingRingRef?.current) {
           callIncomingRingRef.current.loop = true;
           callIncomingRingRef.current.play();
@@ -587,7 +620,7 @@ function ChatWrapper() {
           <Suspense fallback={<div>loading chat...</div>}>
            
               {isCall && remoteOffer && (
-                <CallUI answerVideoCall={answerVideoCall} answerCall={answerCall} ref={ref} />
+                <CallUI lineBusy={lineBusy} answerVideoCall={answerVideoCall} answerCall={answerCall} ref={ref} />
               )}
             
 

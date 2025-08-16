@@ -20,6 +20,7 @@ function VideoCallUI({
   localRef,
   localMedia,
   answerVideoCall,
+  lineBusy,
 }) {
   const nodeRef = useRef(null);
   const { isIncoming, isInCall, mediaRef, videoRef } = useGlobalState();
@@ -101,7 +102,7 @@ function VideoCallUI({
                 (isInCall || callRecieved) && "hidden"
               }`}
             >
-              calling {user?.name || "..."}
+              {!lineBusy && 'calling'} {user?.name || "..."} {lineBusy && 'is on another call'}
             </h1>
             <p className={` ${(isInCall || callRecieved) && "hidden"}`}>
               +91 {user?.contactNumber || "..."}

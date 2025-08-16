@@ -16,6 +16,7 @@ function VoiceCallUI({
   stopwatch,
   rejectCall,
   answerCall,
+  lineBusy
 }) {
     const { isIncoming, isInCall, remoteOffer, mediaRef } = useGlobalState();
   return (
@@ -26,8 +27,11 @@ function VoiceCallUI({
             📞 Incoming Call from {user?.name || "..."}
           </p>
         )}
-        {!isIncoming && !remoteOffer?.from && !isInCall && (
+        {!isIncoming && !remoteOffer?.from && !isInCall && !lineBusy &&(
           <p className="text-xl font-semibold">📤 Calling {user?.name}</p>
+        )}
+        {!isIncoming && !remoteOffer?.from && !isInCall && lineBusy &&(
+          <p className="text-xl font-semibold">{user?.name} is on another call</p>
         )}
         {!isIncoming && !remoteOffer?.from && isInCall && (
           <p className="text-xl font-semibold">📤 in call with {user?.name}</p>

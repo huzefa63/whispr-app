@@ -7,7 +7,7 @@ import { useGlobalState } from "./GlobalStateProvider";
 import VideoCallUI from "./VideoCallUI";
 import VoiceCallUI from "./VoiceCallUI";
 
-export default function CallUI({ref,answerVideoCall,answerCall}) {
+export default function CallUI({ ref, answerVideoCall, answerCall, lineBusy }) {
   const { socket } = UseSocketContext();
   const {
     callRingRef,
@@ -25,9 +25,9 @@ export default function CallUI({ref,answerVideoCall,answerCall}) {
     setIsVideoCall,
     callTimeout,
     callIncomingRingRef,
-    peerConnection
+    peerConnection,
   } = useGlobalState();
-  
+
   const [user, setUser] = useState(null);
   const searchParams = useSearchParams();
   const [seconds, setSeconds] = useState(0);
@@ -122,7 +122,7 @@ export default function CallUI({ref,answerVideoCall,answerCall}) {
     }
   }, [seconds]);
 
-  function rejectCall(id){
+  function rejectCall(id) {
     socket.emit("reject-call", { caller: Number(id) });
     if (peerConnection.current) {
       peerConnection.current.close();
@@ -153,6 +153,7 @@ export default function CallUI({ref,answerVideoCall,answerCall}) {
   if (!isVideoCall)
     return (
       <VoiceCallUI
+      lineBusy={lineBusy}
         user={user}
         callRecieved={callRecieved}
         setCallRecieved={setCallRecieved}
@@ -167,7 +168,8 @@ export default function CallUI({ref,answerVideoCall,answerCall}) {
   if (isVideoCall) {
     return (
       <VideoCallUI
-      answerVideoCall={answerVideoCall}
+      lineBusy={lineBusy}
+        answerVideoCall={answerVideoCall}
         user={user}
         remoteOffer={remoteOffer}
         rejectCall={rejectCall}
