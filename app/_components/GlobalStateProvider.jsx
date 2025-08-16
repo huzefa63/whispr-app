@@ -7,6 +7,7 @@ const GlobalStateContext = createContext();
 function GlobalStateProvider({ children }) {
   // message state
   const [editMessage,setEditMessage] = useState({isEditing:false,messageId:null,text:''});
+  const [replyMessage,setReplyMessage] = useState({isReplying:false,messageId:null,text:'',senderId:null, senderName:''});
 
   // Chat states
   const [userTypingId, setUserTypingId] = useState(null);
@@ -40,7 +41,8 @@ function GlobalStateProvider({ children }) {
         setEditMessage,
         isHideController,
         setIsHideController,
-        
+        replyMessage,
+        setReplyMessage,
         // Chat
         peerConnection,
         userTypingId,

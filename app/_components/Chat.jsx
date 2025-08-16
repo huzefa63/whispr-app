@@ -21,7 +21,7 @@ function Chat({ startVideoCall, startCall, chats, params }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const {editMessage} = useGlobalState();
+  const {editMessage,replyMessage} = useGlobalState();
   useEffect(() => {
     if (!chats || chats?.chats?.length < 1) return;
     const isChat = chats?.chats?.some(
@@ -64,7 +64,7 @@ function Chat({ startVideoCall, startCall, chats, params }) {
         </div>
       )}
 
-      <div className={`${editMessage?.isEditing ? 'z-0' : 'z-[999]'} lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0 border-white `}>
+      <div className={`${editMessage?.isEditing || replyMessage?.isReplying ? 'z-0' : 'z-[999]'} lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0 border-white `}>
         <ChatContainer
           chats={chats?.chats}
           params={params}

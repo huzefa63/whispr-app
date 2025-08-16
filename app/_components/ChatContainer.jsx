@@ -12,7 +12,7 @@ import { useGlobalState } from "./GlobalStateProvider";
 import { MdCopyAll, MdModeEditOutline } from "react-icons/md";
 import { Item, Menu, Separator, useContextMenu, hideall, contextMenu } from "react-contexify";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { useSearchParams } from "next/navigation";
+import { GoReply } from "react-icons/go";
 const MENU_ID = 'my-menu'
 function ChatContainer({ chats, containerRef, params }) {
   const { messages, setMessages, scroll, setScroll, friendId, setFriendId, editMessage } =
@@ -132,8 +132,8 @@ function ChatContainer({ chats, containerRef, params }) {
       // setScroll(false);
     }
   }, [scroll, messages?.length]);
-  const {setEditMessage} = useGlobalState();
-  
+  const {setEditMessage,setReplyMessage} = useGlobalState();
+  const [showEditItem,setShowEditItem] = useState();
   const {show} = useContextMenu({
     id:MENU_ID
   });
@@ -164,7 +164,7 @@ function ChatContainer({ chats, containerRef, params }) {
     }
   }
 
-  async function handleUpdate({ props }) {
+  function handleUpdate({ props }) {
     contextMenu.hideAll();
     setEditMessage({
       isEditing: true,
@@ -172,24 +172,41 @@ function ChatContainer({ chats, containerRef, params }) {
       text: props.text,
     });
   }
+  function handleReply({ props }) {
+    contextMenu.hideAll();
+    console.log('from handle reply: ',props);
+    setReplyMessage({
+      isReplying: true,
+      messageId: Number(props.messId),
+      text: props.text,
+      senderId:props.senderId,
+      senderName:props.senderName,
+
+    });
+  }
+  const [currentUserId,setCurrentUserId] = useState(null);
+  useEffect(()=>{
+    setCurrentUserId(jwtDecode(localStorage.getItem('jwt')).id);
+  },[])
   return (
     <div
-    onContextMenu={(e) => {
-      e.preventDefault();
-      const currentUserId = jwtDecode(localStorage.getItem("jwt")).id;
-      const isMessageDiv = e.target.classList.contains("message-div");
-      const isMessage =
-        e.target.classList.contains("message") ||
-        e.target.classList.contains("messageChild");
-      if(isMessageDiv){
-        const messagePos = e.target.firstElementChild;
-        const rect = messagePos.getBoundingClientRect();
-        const div = e.target.closest('.message-div');
-        const {id, message, senderid:senderId} = div.dataset; 
-          if (currentUserId !== Number(senderId)) return;
+      onContextMenu={(e) => {
+        e.preventDefault();
+        const currentUserId = jwtDecode(localStorage.getItem("jwt")).id;
+        const isMessageDiv = e.target.classList.contains("message-div");
+        const isMessage =
+          e.target.classList.contains("message") ||
+          e.target.classList.contains("messageChild");
+        if (isMessageDiv) {
+          const messagePos = e.target.firstElementChild;
+          const rect = messagePos.getBoundingClientRect();
+          const div = e.target.closest(".message-div");
+          const { id, message, senderid: senderId, sendername:senderName } = div.dataset;
+          if (currentUserId !== Number(senderId)) setShowEditItem(false);
+          else setShowEditItem(true);
           window.getSelection().removeAllRanges();
           show({
-            props: { messId: id, text: message },
+            props: { messId: id, text: message,senderId, senderName },
             event: e,
             // position: {
             //   x: rect.left - (rect.width * 0.5),
@@ -197,16 +214,22 @@ function ChatContainer({ chats, containerRef, params }) {
             // },
           });
           return;
-      }
-      if(isMessage){
-        const messageEl = e.target.closest('.message');
-        const messageDiv = e.target.closest('.message-div');
-        const rect = messageEl.getBoundingClientRect();
-        const {id, message, senderid:senderId} = messageDiv.dataset; 
-          if (currentUserId !== Number(senderId)) return;
+        }
+        if (isMessage) {
+          const messageEl = e.target.closest(".message");
+          const messageDiv = e.target.closest(".message-div");
+          const rect = messageEl.getBoundingClientRect();
+          const {
+            id,
+            message,
+            senderid: senderId,
+            sendername: senderName,
+          } = messageDiv.dataset;
+          if (currentUserId !== Number(senderId)) setShowEditItem(false);
+          else setShowEditItem(true);
           window.getSelection().removeAllRanges();
           show({
-            props: { messId: id, text: message },
+            props: { messId: id, text: message,senderId, senderName },
             event: e,
             // position: {
             //   x: rect.left - (rect.width * 0.5),
@@ -214,9 +237,8 @@ function ChatContainer({ chats, containerRef, params }) {
             // },
           });
           return;
-      }
-      
-    }}
+        }
+      }}
       ref={containerRef}
       className="chat-container bg-[var(--surface)] py-7  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
       // className="bg-[var(--surface)] pt-[20%] pb-[calc(130px+env(safe-area-inset-bottom))]  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
@@ -237,6 +259,7 @@ function ChatContainer({ chats, containerRef, params }) {
                 <ShowDate dateString={el?.time} />
               )}
             <Message
+              currentUserId={currentUserId}
               key={i}
               message={el}
               setScroll={setScroll}
@@ -244,13 +267,16 @@ function ChatContainer({ chats, containerRef, params }) {
             />
           </div>
         ))}
-        {!isFetching &&chats?.length > 0 && <Menu id={MENU_ID} theme="dark" animation="slide">
-          <Item id="edit" onClick={handleUpdate} className="w-full">
-            <span className="w-full flex items-center gap-2">
-              <FaEdit className="text-blue-400 " /> Edit
-            </span>
-          </Item>
-          <Separator />
+      {!isFetching && chats?.length > 0 && (
+        <Menu id={MENU_ID} theme="dark" animation="slide">
+          {showEditItem && (
+              <Item id="edit" onClick={handleUpdate} className="w-full">
+                <span className="w-full flex items-center gap-2">
+                  <FaEdit className="text-blue-400 " /> Edit
+                </span>
+              </Item>
+          )}
+          {showEditItem && <Separator />}
           <Item
             id="delete"
             onClick={handleDelete}
@@ -264,7 +290,7 @@ function ChatContainer({ chats, containerRef, params }) {
           <Separator />
           <Item
             id="copy"
-            onClick={({props}) => {
+            onClick={({ props }) => {
               window.navigator.clipboard.writeText(props?.text);
             }}
             // onClick={handleItemClick}
@@ -274,7 +300,19 @@ function ChatContainer({ chats, containerRef, params }) {
               <MdCopyAll /> Copy
             </span>
           </Item>
-        </Menu>}
+          <Separator />
+          <Item
+            id="copy"
+            onClick={handleReply}
+            // onClick={handleItemClick}
+            className="w-full"
+          >
+            <span className="flex items-center gap-2 w-full">
+              <GoReply /> Reply
+            </span>
+          </Item>
+        </Menu>
+      )}
       {!isFetching && messages?.length < 1 && (
         <div className="text-center flex items-center text-lg lg:text-xl flex-col justify-center text-gray-400 mt-5  h-full">
           <p className="">
@@ -324,47 +362,50 @@ function ShowDate({ dateString }) {
 }
 
 export default ChatContainer;
-function Message({ message, setScroll, setMessages }) {
-  const {show} = useContextMenu({
-    id:MENU_ID
-  })
-  const params = useSearchParams();
-  const queryClient = useQueryClient();
-  const {setEditMessage} = useGlobalState();
-  if (typeof window === "undefined") return;
-  const token = localStorage.getItem("jwt");
-  if (!token) return;
-  const currentUserId = jwtDecode(token)?.id;
+function Message({ message, setScroll, setMessages, currentUserId }) {
   const time = format(new Date(message?.time), "HH:mm");
-  if (message.Type === "text")
+  if (message.Type === "text" || message.Type === "text-reply")
     return (
-      <div className={`w-full rounded-sm message-div`} data-message={message?.message} data-id={message?.id} data-senderid={message?.senderId}>
+      <div
+        className={`w-full rounded-sm message-div`}
+        data-message={message?.message}
+        data-id={message?.id}
+        data-senderid={message?.senderId}
+        data-sendername={message?.sender?.name}
+      >
         <p
-          // onContextMenu={(e) => {
-          //   if (currentUserId !== message?.senderId) return;
-          //   const messageDim = e.target.closest("p").getBoundingClientRect();
-          //   window.navigator.vibrate(100);
-          //   window.getSelection().removeAllRanges();
-          //   window.navigator.clipboard.writeText;
-          //   show({
-          //     props: { messId: message.id, text: message.message },
-          //     event: e,
-          //     position: {
-          //       x: messageDim.left,
-          //       y: messageDim.bottom + 5,
-          //     },
-          //   });
-          // }}
-          className={`message relative flex flex-col message rounded-sm pl-3 pr-20 p-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
+          className={`message relative flex flex-col message rounded-sm px-1 py-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
             currentUserId === Number(message?.senderId)
               ? "ml-auto bg-green-900"
               : "bg-[var(--muted)]"
           }`}
         >
           {message?.isEdited && (
-            <span className="messageChild text-xs opacity-90 mb-1">edited</span>
+            <span className="messageChild pl-2 tracking-wider text-xs opacity-90 mb-1">
+              edited
+            </span>
           )}
-          {message?.message}
+          {message.Type === "text-reply" && (
+            <>
+              <span
+                className={`messageChild ${
+                  currentUserId === message?.senderId
+                    ? "bg-green-400/10 border-l-green-400"
+                    : "bg-gray-500/10 border-l-green-800"
+                }  border-l-5  text-sm flex flex-col px-2 py-1 gap-1 mb-2 w-[100%] rounded-sm`}
+              >
+                <span className="messageChild text-green-500 font-bold">
+                  {Number(message?.replyTextSenderId) === currentUserId
+                    ? "You"
+                    : message?.replyTextSender?.name}
+                </span>
+                <span className="messageChild">{message?.replyText}</span>
+              </span>
+              <span className="messageChild messageChild text-xs right-2 bottom-1 absolute flex gap-1 items-center"></span>
+            </>
+          )}
+          <span className="messageChild mr-20 pl-2">{message?.message}</span>
+          {/* {message?.message} */}
           <span className="messageChild text-xs right-2 bottom-1 absolute flex gap-1 items-center">
             {time}
             {message?.senderId === currentUserId && (

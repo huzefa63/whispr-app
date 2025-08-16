@@ -30,7 +30,7 @@ const poppins = Poppins({
 
 
 function ChatController() {
-    const {setMessages,userTypingId,setEditMessage,editMessage,isHideController} = useGlobalState();
+    const {setMessages,userTypingId,setEditMessage,editMessage,setReplyMessage,replyMessage} = useGlobalState();
     const inputRef = useRef(null);
     const [message,setMessage] = useState('');
     const searchParams = useSearchParams();
@@ -123,15 +123,54 @@ function ChatController() {
       }
       if(jwt && !media && message && !editMessage.isEditing) {
         const uniqueId = `${Date.now()}-${Math.round(Math.random() * 10000000)}`
-        const data = {
+        let data = {
           message,
           recieverId,
           uniqueId,
         };
+        if(replyMessage.isReplying) {
+          data.type = "text-reply";
+          data.replyText = replyMessage.text;
+          data.replyTextId = replyMessage.messageId;
+          data.replyTextSenderId = replyMessage.senderId;
+          data.senderName = replyMessage.senderName;
+          console.log('chat container: ',replyMessage.messageId);
+        }
         setMessage("");
-        setMessages(el => [...el,{isRead:false,uniqueId,placeholder:true,message,recieverId:Number(recieverId),senderId:payload.id,Type:'text',time:new Date().toISOString()}])
+        console.log('isReplying: ',replyMessage.isReplying);
+        if(!replyMessage.isReplying) setMessages(el => [...el,{isRead:false,uniqueId,placeholder:true,message,recieverId:Number(recieverId),senderId:payload.id,Type:'text',time:new Date().toISOString()}])
+        else setMessages((el) => [
+          ...el,
+          {
+            isRead: false,
+            uniqueId,
+            placeholder: true,
+            message,
+            recieverId: Number(recieverId),
+            senderId: payload.id,
+            Type: "text-reply",
+            replyTextSenderId:replyMessage.senderId,
+            replyTextSender:{name:replyMessage.senderName},
+            time: new Date().toISOString(),
+            replyText:replyMessage.text,
+          },
+        ]);
+        console.log("what is remaining : ", {
+          isRead: false,
+          uniqueId,
+          placeholder: true,
+          message,
+          recieverId: Number(recieverId),
+          senderId: payload.id,
+          Type: "text-reply",
+          replyTextSenderId: replyMessage.senderId,
+          replyTextSender: { name: replyMessage.senderName },
+          time: new Date().toISOString(),
+          replyText: replyMessage.text,
+        });
        inputRef?.current?.focus();
         console.log('scroll to true from controller');
+        setReplyMessage({isReplying:false,messageId:null,senderId:null,senderName:'',text:''})
         try {
           const res = await axios.post(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/sendMessage`,
@@ -374,18 +413,26 @@ function ChatController() {
       {!audioSrc && (
         <div
           className={`${
-            editMessage.isEditing ? "col-span-5" : "col-span-6"
+            editMessage.isEditing || replyMessage.isReplying ? "col-span-5" : "col-span-6"
           } lg:flex-1 h-3/4 relative`}
         >
           
-          {editMessage.isEditing && (
-            <div className="min-h-12 z-[1000] flex items-center px-4 justify-between text-white absolute -top-1 -translate-y-full rounded-md w-full py-1 break-words bg-gray-600">
-              <div className="w-full">
-                <p className="text-sm opacity-80">editing message</p>
-                <p className="">{editMessage.text}</p>
+          {replyMessage.isReplying && (
+            <div className="min-h-12 z-[1000] flex items-center px-1 justify-between text-white absolute -top-1 -translate-y-full rounded-md w-full py-2 break-words bg-gray-700">
+              <div className="w-full border-l-5 border-green-500 bg-gray-600/50 pl-3 py-2 rounded-sm">
+                <p className="text-sm opacity-80">You</p>
+                <p className="">{replyMessage.text}</p>
               </div>
             </div>
           )}
+          
+            {editMessage.isEditing && <div className="min-h-12 z-[1000] flex items-center px-4 justify-between text-white absolute -top-1 -translate-y-full rounded-md w-full py-1 break-words bg-gray-600">
+              <div className="w-full">
+                <p className="text-sm opacity-80">Editing message</p>
+                <p className="">hello</p>
+              </div>
+            </div>}
+         
          
           <input
             disabled={mediaUrl}
@@ -424,7 +471,7 @@ function ChatController() {
         </div>
       )}
       <div className="relative">
-        {((!isRecording && message.length > 0 && !editMessage.isEditing) ||
+        {((!isRecording && message.length > 0 && !editMessage.isEditing && !replyMessage.isReplying) ||
           audioSrc) && (
           <button
             disabled={mediaUrl || isRecording}
@@ -443,7 +490,7 @@ function ChatController() {
             </div>
           </button>
         )}
-        {message.length < 1 && !audioSrc && !editMessage.isEditing && (
+        {message.length < 1 && !audioSrc && !editMessage.isEditing && !replyMessage.isReplying && (
           <button
             onClick={!isRecording ? startRecording : stopRecording}
             disabled={mediaUrl}
@@ -464,52 +511,23 @@ function ChatController() {
             </div>
           </button>
         )}
-        {editMessage.isEditing && (
+        {(editMessage.isEditing || replyMessage.isReplying) && (
           <div className="flex items-center gap-1 min-w-fit lg:w-32 flex-1">
             <button
               type="button"
-              onClick={() =>
-                setEditMessage({
+              onClick={() =>{
+                if(editMessage.isEditing) setEditMessage({
                   isEditing: false,
                   messageId: null,
                   text: "",
-                })
-              }
+                });
+                else setReplyMessage({isReplying:false,messageId:null,text:''}) && !replyMessage.isReplying
+              }}
               className="lg:py-3 py-2 px-3 hover:bg-red-600 hover:cursor-pointer lg:px-4 rounded-md bg-red-500 lg:text-xl"
             >
               <RxCross2 />
             </button>
             <button
-              onClick={async () => {
-                const jwt = localStorage.getItem("jwt");
-                //            setMessage("");
-                //  setMessages(mess => {
-                //   return mess.map(el => {
-                //     if(el.id === editMessage.messageId){
-                //       return {...el,message:message}
-                //     }else{
-                //       return el;
-                //     }
-                //   })
-                //  })
-                //  inputRef?.current?.focus();
-                //     setEditMessage({ isEditing: false, messageId: null, text: "" });
-
-                //   try {
-                //     const res = await axios.patch(
-                //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/updateMessage/${editMessage.messageId}`,
-                //       {message},
-                //       {
-                //         headers: {
-                //           Authorization: `jwt=${jwt}`,
-                //         },
-                //       }
-                //     );
-                //     console.log(res);
-                //   } catch (err) {
-                //     console.log(err);
-                //   }
-              }}
               className="lg:py-3 py-2 px-3 hover:bg-green-600 hover:cursor-pointer lg:px-4 rounded-md bg-green-500"
             >
               <IoMdCheckmark className="lg:text-xl" />
@@ -530,3 +548,71 @@ export default ChatController;
 
 
 
+//  <p
+//    className={`message relative flex flex-col message rounded-sm pl-3 pr-20 p-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
+//      currentUserId === Number(message?.senderId)
+//        ? "ml-auto bg-green-900"
+//        : "bg-[var(--muted)]"
+//    }`}
+//  >
+//    {message?.isEdited && (
+//      <span className="messageChild text-xs opacity-90 mb-1">edited</span>
+//    )}
+//    {message?.message}
+//    <span className="messageChild text-xs right-2 bottom-1 absolute flex gap-1 items-center">
+//      {time}
+//      {message?.senderId === currentUserId && (
+//        <>
+//          <BiCheckDouble
+//            className={`text-lg messageChild ${
+//              message?.placeholder ? "hidden" : "block"
+//            } ${message?.isRead && "text-blue-400"}`}
+//          />
+//          <BiCheck
+//            className={`text-lg messageChild ${
+//              message?.placeholder ? "block" : "hidden"
+//            }`}
+//          />
+//        </>
+//      )}
+//    </span>
+//  </p>;
+
+//  <p
+//            className={`message relative flex flex-col message pr-1 rounded-sm pl-1 py-2  max-w-3/4 lg:max-w-[45%] w-fit break-words ${
+//              currentUserId === Number(message?.senderId)
+//                ? "ml-auto bg-green-900"
+//                : "bg-[var(--muted)]"
+//            }`}
+//          >
+//            {message?.isEdited && (
+//              <span className="messageChild pl-2 text-xs opacity-90 mb-1">edited</span>
+//            )}
+//            { message.Type === 'text-reply' &&
+//              <>
+//              <span className={`messageChild ${currentUserId === message?.senderId ? 'bg-green-400/10 border-l-green-400':'bg-gray-500/10 border-l-green-800'}  border-l-5  text-sm flex flex-col px-2 py-1 gap-1 mb-2 w-[100%] rounded-sm`}>
+//                <span className="messageChild text-green-500 font-bold">{message?.replyTextSenderId === currentUserId ? 'You' : message?.replyTextSender?.name}</span>
+//                <span className="messageChild">{message?.replyText}</span>
+//              </span>
+//              <span className="messageChild mr-20 pl-2">{message?.message}</span>
+//              <span className="messageChild messageChild text-xs right-2 bottom-1 absolute flex gap-1 items-center"></span>
+//              </>
+//            }
+//            <span>{message?.message}</span>
+           
+//              {time}
+//              {message?.senderId === currentUserId && (
+//                <>
+//                  <BiCheckDouble
+//                    className={`text-lg messageChild ${
+//                      message?.placeholder ? "hidden" : "block"
+//                    } ${message?.isRead && "text-blue-400"}`}
+//                  />
+//                  <BiCheck
+//                    className={`text-lg messageChild ${
+//                      message?.placeholder ? "block" : "hidden"
+//                    }`}
+//                  />
+//                </>
+//              )}
+//          </p>

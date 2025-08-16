@@ -162,7 +162,7 @@ function ChatWrapper() {
       socket.on("messageRecieved", (data) => {
         const token = localStorage.getItem("jwt");
         const currentUserId = jwtDecode(token)?.id;
-
+        console.log(data);
         queryClient.setQueryData(["chats"], (previousChats) => {
           if (previousChats === undefined) return;
           if (previousChats?.chats?.length < 1)
