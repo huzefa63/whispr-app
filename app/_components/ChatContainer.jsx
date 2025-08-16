@@ -277,7 +277,7 @@ function ChatContainer({ chats, containerRef, params }) {
               </Item>
           )}
           {showEditItem && <Separator />}
-          <Item
+         {showEditItem && <Item
             id="delete"
             onClick={handleDelete}
             // onClick={handleItemClick}
@@ -286,8 +286,8 @@ function ChatContainer({ chats, containerRef, params }) {
             <span className="flex items-center gap-2 w-full">
               <FaTrash className="text-red-400" /> Delete
             </span>
-          </Item>
-          <Separator />
+          </Item>}
+          {showEditItem && <Separator />}
           <Item
             id="copy"
             onClick={({ props }) => {
@@ -374,7 +374,7 @@ function Message({ message, setScroll, setMessages, currentUserId }) {
         data-sendername={message?.sender?.name}
       >
         <p
-          className={`message relative flex flex-col message rounded-sm px-1 py-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
+          className={`message relative flex flex-col message rounded-sm px-3 py-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
             currentUserId === Number(message?.senderId)
               ? "ml-auto bg-green-900"
               : "bg-[var(--muted)]"
