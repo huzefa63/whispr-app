@@ -8,7 +8,7 @@ import { BiDotsVertical } from "react-icons/bi";
 import { useEffect, useRef, useState } from "react";
 import { MdCall } from "react-icons/md";
 import toast from "react-hot-toast";
-import { format } from "date-fns";
+import { differenceInCalendarDays, differenceInDays, format, getDay } from "date-fns";
 import { FaVideo } from "react-icons/fa";
 import { useGlobalState } from "./GlobalStateProvider";
 function ChatProfile({startVideoCall,startCall, params }) {
@@ -80,8 +80,30 @@ function ChatProfile({startVideoCall,startCall, params }) {
     }
   }
   let lastSeen;
+  let day;
   if (friend?.lastSeen) {
-    lastSeen = format(new Date(friend?.lastSeen), "HH:mm");
+    day = Math.abs(differenceInCalendarDays(new Date(),friend?.lastSeen));
+    if(day > 365){
+       const date = format(new Date(friend?.lastSeen), "dd MMMM, yyyy");
+      lastSeen = `last seen on ${date} at ${format(new Date(friend?.lastSeen), "HH:mm")}`;
+    }
+    if(day > 7 && day < 366){
+       const date = format(new Date(friend?.lastSeen), "dd MMMM");
+      lastSeen = `last seen on ${date} at ${format(new Date(friend?.lastSeen), "HH:mm")}`;
+    }
+    if(day < 8){
+      const day = format(new Date(friend?.lastSeen),'EEEE')
+      lastSeen = `last seen on ${day} at ${format(new Date(friend?.lastSeen), "HH:mm")}`;
+    }
+    if(day == 0){
+      lastSeen = `last seen today at ${format(new Date(friend?.lastSeen), "HH:mm")}`;
+    }
+    if(day == 1){
+      lastSeen = `last seen yesterday at ${format(new Date(friend?.lastSeen), "HH:mm")}`;
+    }
+  }
+  if(friend?.name === 'Abbas Chuna'){
+    console.log(friend);
   }
   return (
     <div className="h-full bg-[var(--muted)] lg:px-5 pr-3 flex justify-between items-center  w-full">
@@ -111,8 +133,7 @@ function ChatProfile({startVideoCall,startCall, params }) {
           </p>
           <p className="text-xs ">
             {friend?.status === "offline" &&
-              lastSeen &&
-              `last seen at ${lastSeen}`}
+              lastSeen && lastSeen }
             {friend?.status === "online" && (
               <span className="text-green-500">online</span>
             )}
