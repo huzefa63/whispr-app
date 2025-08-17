@@ -1,5 +1,5 @@
 "use client";
-import { format } from "date-fns";
+import { differenceInCalendarDays, format } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -331,35 +331,37 @@ function ChatContainer({ chats, containerRef, params }) {
 }
 
 function ShowDate({ dateString }) {
-  // console.log(dateString);
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const date = ` ${new Date(dateString).getDate()} ${
-    months[new Date(dateString).getMonth()]
-  }, ${new Date(dateString).getFullYear()} `;
-  const day = new Date(dateString).getDate();
-  const month = new Date(dateString).getMonth();
-  const year = new Date(dateString).getFullYear();
-  const toadyDate = new Date();
-  const isToday = (toadyDate.getDate() === day) && (toadyDate.getMonth() === month) && (toadyDate.getFullYear() === year); 
+  const dateObj = new Date(dateString);
+
+  const day = dateObj.getDate();
+  const month = dateObj.getMonth();
+  const year = dateObj.getFullYear();
+
+  const today = new Date();
+  const isToday =
+    today.getDate() === day &&
+    today.getMonth() === month &&
+    today.getFullYear() === year;
+
+  let date = `${day} ${dateObj.toLocaleString("default", {
+    month: "long",
+  })}, ${year}`;
+
+  const differenceInDays = Math.abs(differenceInCalendarDays(dateObj, today));
+
+  if (differenceInDays < 7) {
+    date = format(dateObj, "EEEE");
+  }
+
   return (
     <div className="w-full my-3 text-sm lg:text-md flex justify-center items-center">
-      <p className="bg-[var(--muted)] py-2 px-4 rounded-md shadow-sm">{isToday ? 'Today' : date}</p>
+      <p className="bg-[var(--muted)] py-2 px-4 rounded-md shadow-sm">
+        {isToday ? "Today" : date}
+      </p>
     </div>
   );
 }
+
 
 export default ChatContainer;
 function Message({ message, setScroll, setMessages, currentUserId }) {

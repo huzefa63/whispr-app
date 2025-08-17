@@ -353,12 +353,11 @@ function ChatController() {
             <FaTrash className="text-[var(--text)] text-xl" />
           </button>
         )}
-        {userTypingId == searchParams.get("friendId") && (
+        {/* {userTypingId == searchParams.get("friendId") && (
           <div className="absolute  w-fit   rounded-3xl lg:-top-7 lg:-left-1 -top-8 left-3 flex items-center gap-3">
             <BsChatDotsFill className=" text-xl text-green-500" />
-            {/* <p className="text-green-500">typing...</p> */}
           </div>
-        )}
+        )} */}
       </div>
 
       {mediaUrl && (

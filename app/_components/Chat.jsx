@@ -5,7 +5,7 @@ import ChatController from "./ChatController"
 import ChatProfile from "./ChatProfile"
 import { Poppins } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
-import { BsFillChatLeftTextFill } from "react-icons/bs";
+import { BsChatDotsFill, BsFillChatLeftTextFill } from "react-icons/bs";
 import "react-h5-audio-player/lib/styles.css";
 import { jwtDecode } from "jwt-decode";
 import { useGlobalState } from "./GlobalStateProvider";
@@ -21,7 +21,7 @@ function Chat({ startVideoCall, startCall, chats, params }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const {editMessage,replyMessage} = useGlobalState();
+  const {editMessage,replyMessage,userTypingId} = useGlobalState();
   useEffect(() => {
     if (!chats || chats?.chats?.length < 1) return;
     const isChat = chats?.chats?.some(
@@ -64,16 +64,27 @@ function Chat({ startVideoCall, startCall, chats, params }) {
         </div>
       )}
 
-      <div className={`${editMessage?.isEditing || replyMessage?.isReplying ? 'z-0' : 'z-[999]'} lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0 border-white `}>
+      <div
+        className={`${
+          editMessage?.isEditing || replyMessage?.isReplying ? "z-0" : "z-[999]"
+        } lg:h-[80%] h-[83%] w-full lg:relative fixed top-[9%] bottom-[8%] lg:top-0 lg:bottom-0 border-white `}
+      >
         <ChatContainer
           chats={chats?.chats}
           params={params}
           containerRef={containerRef}
         />
+        {userTypingId == searchParams.get("friendId") && (
+          <div className="absolute bottom-5 left-5  w-fit   rounded-3xl flex items-center gap-3">
+            <BsChatDotsFill className=" text-xl text-green-500" />
+          </div>
+        )}
       </div>
 
       {chats?.chats?.length > 0 && (
-        <div className={`lg:h-[10%]  h-[8%] w-full lg:relative fixed bottom-0 left-0 z-50`}>
+        <div
+          className={`lg:h-[10%]  h-[8%] w-full lg:relative fixed bottom-0 left-0 z-50`}
+        >
           <ChatController />
         </div>
       )}
