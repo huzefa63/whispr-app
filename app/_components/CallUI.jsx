@@ -7,7 +7,7 @@ import { useGlobalState } from "./GlobalStateProvider";
 import VideoCallUI from "./VideoCallUI";
 import VoiceCallUI from "./VoiceCallUI";
 
-export default function CallUI({ ref, answerVideoCall, answerCall, lineBusy }) {
+export default function CallUI({ answerVideoCall, answerCall, lineBusy }) {
   const { socket } = UseSocketContext();
   const {
     callRingRef,

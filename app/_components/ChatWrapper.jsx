@@ -27,6 +27,7 @@ function ChatWrapper() {
       setScroll,
       videoRef,
       setIsVideoCall,
+      isVideoCall,
       setIsIncoming,
       inComingUser,
       setIncomingUser,
@@ -506,7 +507,7 @@ function ChatWrapper() {
       })
 
       socket.on("call-incoming", async ({ from, remoteOffer, type }) => {
-        if(isCall || setIsVideoCall){
+        if(isCall || isVideoCall){
           socket.emit('line-busy',{to:from});
           return;
         }
@@ -600,6 +601,7 @@ function ChatWrapper() {
         socket.off("call-incoming");
         socket.off("ice-candidate");
         socket.off("call-rejected");
+        socket.off("line-busy");
         if (peerConnection?.current) {
           peerConnection.current = null;
         }

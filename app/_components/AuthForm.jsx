@@ -1,12 +1,13 @@
 'use client';
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import {createUserAction} from '@/actions/authActions';
+
 import axios from "axios";
 import Spinner from "./Spinner";
 import toast from "react-hot-toast";
+import { signIn, signUp } from "../_services/authService";
 function AuthForm() {
   const {
     handleSubmit,
@@ -15,7 +16,6 @@ function AuthForm() {
     formState: { errors },
   } = useForm({ mode: "onSubmit" });
   const pathname = usePathname();
-  const router = useRouter();
   const [isSubmitting,setIsSubmitting] = useState(false);
   const fields = useMemo(
     () => [
@@ -82,58 +82,13 @@ function AuthForm() {
     ],
     [pathname]
   ); // Prevent excessive recalculations
-  async function signUp(data){
-    console.log(data);
-    const formData = new FormData();
-    formData.append('email',data.email);
-    formData.append('name',data.name);
-    formData.append('contactNumber',data.contactNumber);
-    formData.append('password',data.password);
-    formData.append('passwordConfirm',data.passwordConfirm);
-    formData.append('profileImage',data.profileImage[0]);
-    try {
-      setIsSubmitting(true);
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/createUser`,
-        formData
-      );
-      
-      localStorage.setItem("jwt", res.data?.jwt);
-      location.href = '/chat-app';
-    } catch (err) {
-      toast.error('failed to signup, email or contact number may already exist!')
-      console.trace();
-      console.error("Error creating user:", err);
-    }finally{
-      setIsSubmitting(false);
-    }
-  }
-  async function signIn(data){
-    try {
-      setIsSubmitting(true);
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signIn`,
-        data,
-      );
-      
-      localStorage.setItem("jwt", res.data?.jwt);
-      location.href = "/chat-app";
-    } catch (err) {
-      toast.error('failed to signin, email or password is incorrect!')
-      console.trace();
-      console.error("Error creating user:", err);
-    }finally{
-      setIsSubmitting(false);
-    }
-  }
 
   async function onsubmit(data) {
-    if(pathname === '/auth/signup') await signUp(data);
-    else await signIn(data);
+    if(pathname === '/auth/signup') await signUp(data,setIsSubmitting);
+    else await signIn(data,setIsSubmitting);
   }
 
   return (
-    
       <form
         className=" rounded-md border text-white border-stone-700 w-full p-5"
         onSubmit={handleSubmit(onsubmit)}
@@ -181,7 +136,6 @@ function AuthForm() {
       </form>
   );
 }
-
 export default AuthForm;
 
 

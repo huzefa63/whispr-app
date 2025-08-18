@@ -322,9 +322,18 @@ function ChatController() {
     },[message,socket])
 
     useEffect(() => {
-      setMessage(editMessage.text);
-       inputRef?.current?.focus();
+      if(editMessage?.text){
+        setMessage(editMessage.text);
+        inputRef?.current?.focus();
+      }
+      // setMessage(editMessage.text);
+      //  inputRef?.current?.focus();
     },[editMessage.text])
+    useEffect(() => {
+       if(replyMessage?.text){
+        inputRef?.current?.focus();
+       }
+    },[replyMessage.text])
   return (
     <form
       onSubmit={handleSubmit}

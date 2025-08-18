@@ -198,8 +198,6 @@ function ChatContainer({ chats, containerRef, params }) {
           e.target.classList.contains("message") ||
           e.target.classList.contains("messageChild");
         if (isMessageDiv) {
-          const messagePos = e.target.firstElementChild;
-          const rect = messagePos.getBoundingClientRect();
           const div = e.target.closest(".message-div");
           const { id, message, senderid: senderId, sendername:senderName } = div.dataset;
           if (currentUserId !== Number(senderId)) setShowEditItem(false);
@@ -208,17 +206,11 @@ function ChatContainer({ chats, containerRef, params }) {
           show({
             props: { messId: id, text: message,senderId, senderName },
             event: e,
-            // position: {
-            //   x: rect.left - (rect.width * 0.5),
-            //   y: rect.bottom + 5,
-            // },
           });
           return;
         }
         if (isMessage) {
-          const messageEl = e.target.closest(".message");
           const messageDiv = e.target.closest(".message-div");
-          const rect = messageEl.getBoundingClientRect();
           const {
             id,
             message,
@@ -231,17 +223,12 @@ function ChatContainer({ chats, containerRef, params }) {
           show({
             props: { messId: id, text: message,senderId, senderName },
             event: e,
-            // position: {
-            //   x: rect.left - (rect.width * 0.5),
-            //   y: rect.bottom + 5,
-            // },
           });
           return;
         }
       }}
       ref={containerRef}
       className="chat-container bg-[var(--surface)] py-7  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
-      // className="bg-[var(--surface)] pt-[20%] pb-[calc(130px+env(safe-area-inset-bottom))]  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
     >
       {isFetching && <Spinner />}
       {!isFetching &&
