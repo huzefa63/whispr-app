@@ -6,7 +6,6 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import Spinner from "./Spinner";
 import { BiCheckDouble, BiCheck } from "react-icons/bi";
-import "react-contexify/dist/ReactContexify.css";
 import AudioPlayer from "react-h5-audio-player";
 import { useGlobalState } from "./GlobalStateProvider";
 import { MdCopyAll, MdModeEditOutline } from "react-icons/md";
@@ -286,7 +285,7 @@ function ChatContainer({ chats, containerRef, params }) {
           </div>
         ))}
       {!isFetching && chats?.length > 0 && (
-        <Menu id={MENU_ID} theme="dark" animation="slide">
+        <Menu id={MENU_ID} className="custom-context-menu" theme="dark" animation="slide">
           {showEditItem && (
             <Item id="edit" onClick={handleUpdate} className="w-full">
               <span className="w-full flex items-center gap-2">
@@ -299,20 +298,20 @@ function ChatContainer({ chats, containerRef, params }) {
             <Submenu
               id="submenu"
               label={
-                <span className="flex items-center gap-2 w-full">
+                <span className="flex items-center gap-2 w-full text-sm">
                   <FaTrash className="text-red-400" /> Delete
                 </span>
               }
             >
               <Item id="delete" onClick={({props}) => handleDelete(props,'me')} className="w-full">
-                <span className="flex items-center gap-2 w-full">
-                  <TbUser className="text-green-300"/> Delete for me
+                <span className="flex items-center gap-2 w-full text-sm">
+                  <TbUser className="text-green-300"/> For me
                 </span>
               </Item>
-
+              <Separator />
               <Item id="delete" onClick={ ({props}) => handleDelete(props,'everyone')} className="w-full">
                 <span className="flex items-center gap-2 w-full">
-                  <TbUsers className="text-green-300"/> Delete for everyone
+                  <TbUsers className="text-green-300"/> For everyone
                 </span>
               </Item>
             </Submenu>

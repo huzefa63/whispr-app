@@ -1,4 +1,5 @@
 import { Poppins } from "next/font/google";
+import "react-contexify/dist/ReactContexify.css";
 import "./globals.css";
 import QueryProvider from "./_components/QueryProvider";
 import SocketProvider from "./_components/SocketProvider";
