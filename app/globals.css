@@ -74,13 +74,13 @@
 
 @media (max-width: 640px) {
   :root {
-    --contexify-menu-minWidth: 150px; /* mobile */
+    --contexify-menu-minWidth: 170px; /* mobile */
   }
 }
 
 @media (max-width: 640px) {
   .contexify {
-    width: 150px;
+    width: 170px;
   }
 }
 
