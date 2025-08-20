@@ -138,7 +138,7 @@ function ChatController() {
         }
         setMessage("");
         console.log('isReplying: ',replyMessage.isReplying);
-        if(!replyMessage.isReplying) setMessages(el => [...el,{isRead:false,uniqueId,placeholder:true,message,recieverId:Number(recieverId),senderId:payload.id,Type:'text',time:new Date().toISOString()}])
+        if(!replyMessage.isReplying) setMessages(el => [...el,{isRead:false,uniqueId,placeholder:true,message,recieverId:Number(recieverId),senderId:payload.id,Type:'text',time:new Date().toISOString(), deletedBy:[]}])
         else setMessages((el) => [
           ...el,
           {
@@ -153,6 +153,7 @@ function ChatController() {
             replyTextSender:{name:replyMessage.senderName},
             time: new Date().toISOString(),
             replyText:replyMessage.text,
+            deletedBy:[],
           },
         ]);
         console.log("what is remaining : ", {
@@ -167,6 +168,7 @@ function ChatController() {
           replyTextSender: { name: replyMessage.senderName },
           time: new Date().toISOString(),
           replyText: replyMessage.text,
+
         });
        inputRef?.current?.focus();
         console.log('scroll to true from controller');
