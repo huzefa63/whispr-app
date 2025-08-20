@@ -10,9 +10,10 @@ import "react-contexify/dist/ReactContexify.css";
 import AudioPlayer from "react-h5-audio-player";
 import { useGlobalState } from "./GlobalStateProvider";
 import { MdCopyAll, MdModeEditOutline } from "react-icons/md";
-import { Item, Menu, Separator, useContextMenu, hideall, contextMenu } from "react-contexify";
+import { Item, Menu, Separator, useContextMenu, hideall, contextMenu, Submenu } from "react-contexify";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { GoReply } from "react-icons/go";
+import { TbUser, TbUsers } from "react-icons/tb";
 const MENU_ID = 'my-menu'
 function ChatContainer({ chats, containerRef, params }) {
   const { messages, setMessages, scroll, setScroll, friendId, setFriendId, editMessage } =
@@ -116,6 +117,7 @@ function ChatContainer({ chats, containerRef, params }) {
     }
     markRead();
   }, [messages?.length, params]);
+
   useEffect(() => {
     const jwt = localStorage.getItem("jwt");
     if (!jwt) return;
@@ -139,7 +141,7 @@ function ChatContainer({ chats, containerRef, params }) {
   });
   // const currentUserId = jwtDecode(localStorage.getItem('jwt')).id;
   // pb-[calc(130px+env(safe-area-inset-bottom))]
-  async function handleDelete({ props }) {
+  async function handleDelete(props,deleteFor) {
     console.log('deleting')
     setMessages((mess) => {
       return mess.filter((el) => el.id !== Number(props.messId));
@@ -152,7 +154,7 @@ function ChatContainer({ chats, containerRef, params }) {
           process.env.NEXT_PUBLIC_BACKEND_URL
         }/message/deleteMessage?messageId=${
           props?.messId
-        }&otherUser=${params}`,
+        }&otherUser=${params}&deleteFor=${deleteFor}`,
         {
           headers: {
             Authorization: `jwt=${jwt}`,
@@ -185,9 +187,32 @@ function ChatContainer({ chats, containerRef, params }) {
     });
   }
   const [currentUserId,setCurrentUserId] = useState(null);
+  const intersectorRef = useRef(null);
   useEffect(()=>{
     setCurrentUserId(jwtDecode(localStorage.getItem('jwt')).id);
   },[])
+
+  // useEffect(()=>{
+  //   if(!intersectorRef.current) return;
+  //   if(!containerRef.current) return;
+  //   const observer = new IntersectionObserver((entries,observer) => {
+  //     entries.forEach(entry => {
+  //       if(entry.isIntersecting){
+  //         observer.unobserve(entry.target);
+  //         console.log('load messages now');
+  //         observer.observe(entry.target);
+  //       }
+  //     })
+  //   },{
+  //     root:containerRef.current || null,
+  //     rootMargin:'300px',
+  //     threshold:0
+  //   });
+  //   observer.observe(intersectorRef.current)
+  //   return () => {
+  //     if(intersectorRef.current) observer.disconnect();
+  //     }
+  // },[])
   return (
     <div
       onContextMenu={(e) => {
@@ -199,12 +224,17 @@ function ChatContainer({ chats, containerRef, params }) {
           e.target.classList.contains("messageChild");
         if (isMessageDiv) {
           const div = e.target.closest(".message-div");
-          const { id, message, senderid: senderId, sendername:senderName } = div.dataset;
+          const {
+            id,
+            message,
+            senderid: senderId,
+            sendername: senderName,
+          } = div.dataset;
           if (currentUserId !== Number(senderId)) setShowEditItem(false);
           else setShowEditItem(true);
           window.getSelection().removeAllRanges();
           show({
-            props: { messId: id, text: message,senderId, senderName },
+            props: { messId: id, text: message, senderId, senderName },
             event: e,
           });
           return;
@@ -221,7 +251,7 @@ function ChatContainer({ chats, containerRef, params }) {
           else setShowEditItem(true);
           window.getSelection().removeAllRanges();
           show({
-            props: { messId: id, text: message,senderId, senderName },
+            props: { messId: id, text: message, senderId, senderName },
             event: e,
           });
           return;
@@ -231,9 +261,10 @@ function ChatContainer({ chats, containerRef, params }) {
       className="chat-container bg-[var(--surface)] py-7  lg:pb-7 lg:pt-5 relative h-full overflow-auto text-[var(--text)] px-5 flex flex-col gap-3"
     >
       {isFetching && <Spinner />}
+      <div className="intersector" ref={intersectorRef}></div>
       {!isFetching &&
         chats?.length > 0 &&
-        messages?.map((el, i, arr) => (
+        messages?.filter(el => !el.deletedBy.includes(currentUserId)).map((el, i, arr) => (
           <div key={i}>
             {i === 0 && <ShowDate dateString={el?.time} />}
             {i !== 0 &&
@@ -243,11 +274,11 @@ function ChatContainer({ chats, containerRef, params }) {
                   new Date(arr[i - 1]?.time).getMonth() ||
                 new Date(el?.time).getFullYear() !==
                   new Date(arr[i - 1]?.time).getFullYear()) && (
-                <ShowDate dateString={el?.time} />
+                <ShowDate dateString={el?.time} key={el?.time}/>
               )}
             <Message
               currentUserId={currentUserId}
-              key={i}
+              key={el.id}
               message={el}
               setScroll={setScroll}
               setMessages={setMessages}
@@ -257,23 +288,35 @@ function ChatContainer({ chats, containerRef, params }) {
       {!isFetching && chats?.length > 0 && (
         <Menu id={MENU_ID} theme="dark" animation="slide">
           {showEditItem && (
-              <Item id="edit" onClick={handleUpdate} className="w-full">
-                <span className="w-full flex items-center gap-2">
-                  <FaEdit className="text-blue-400 " /> Edit
-                </span>
-              </Item>
+            <Item id="edit" onClick={handleUpdate} className="w-full">
+              <span className="w-full flex items-center gap-2">
+                <FaEdit className="text-blue-400 " /> Edit
+              </span>
+            </Item>
           )}
           {showEditItem && <Separator />}
-         {showEditItem && <Item
-            id="delete"
-            onClick={handleDelete}
-            // onClick={handleItemClick}
-            className="w-full"
-          >
-            <span className="flex items-center gap-2 w-full">
-              <FaTrash className="text-red-400" /> Delete
-            </span>
-          </Item>}
+          {showEditItem && (
+            <Submenu
+              id="submenu"
+              label={
+                <span className="flex items-center gap-2 w-full">
+                  <FaTrash className="text-red-400" /> Delete
+                </span>
+              }
+            >
+              <Item id="delete" onClick={({props}) => handleDelete(props,'me')} className="w-full">
+                <span className="flex items-center gap-2 w-full">
+                  <TbUser className="text-green-300"/> Delete for me
+                </span>
+              </Item>
+
+              <Item id="delete" onClick={ ({props}) => handleDelete(props,'everyone')} className="w-full">
+                <span className="flex items-center gap-2 w-full">
+                  <TbUsers className="text-green-300"/> Delete for everyone
+                </span>
+              </Item>
+            </Submenu>
+          )}
           {showEditItem && <Separator />}
           <Item
             id="copy"
@@ -362,6 +405,7 @@ function Message({ message, setScroll, setMessages, currentUserId }) {
         data-senderid={message?.senderId}
         data-sendername={message?.sender?.name}
       >
+      
         <p
           className={`message relative flex flex-col message rounded-sm px-2 py-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
             currentUserId === Number(message?.senderId)
