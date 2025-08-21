@@ -7,7 +7,6 @@ import { Poppins } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
 import { BsChatDotsFill, BsFillChatLeftTextFill } from "react-icons/bs";
 import "react-h5-audio-player/lib/styles.css";
-import { jwtDecode } from "jwt-decode";
 import { useGlobalState } from "./GlobalStateProvider";
 
 const p = Poppins({
@@ -15,8 +14,8 @@ const p = Poppins({
     variable:'p',
     weight:'400'
 })
+
 function Chat({ startVideoCall, startCall, chats, params }) {
-  // const params = useSearchParams();
   const containerRef = useRef(null);
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -91,5 +90,4 @@ function Chat({ startVideoCall, startCall, chats, params }) {
     </div>
   );
 }
-
 export default Chat

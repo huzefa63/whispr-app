@@ -4,33 +4,25 @@ import { RxCross2 } from "react-icons/rx";
 import { IoIosSend, IoMdCheckmark } from "react-icons/io";
 import { Poppins } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
-// import sendMessage from '@/actions/messageActions'
 import { useSearchParams } from "next/navigation";
-import axios from "axios";
 import Spinner from "./Spinner";
 import { jwtDecode } from "jwt-decode";
 import ModelWindow from "./ModelWindow";
 import { IoMdMic,IoMdMicOff } from "react-icons/io";
 import { UseSocketContext } from "./SocketProvider";
-import { BsChatDotsFill } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
 import AudioPlayer from "react-h5-audio-player";
 import { useGlobalState } from "./GlobalStateProvider";
 import toast from "react-hot-toast";
-import { createPortal } from "react-dom";
+import { editAndSendMessage, handleAudioSubmit, handleMediaSubmit, sendMessage } from "../_services/message";
 
-// import connectSocket from "@/lib/socket";
-// import { UseSocketContext } from "./SocketProvider";
 const poppins = Poppins({
     subsets:['latin'],
     variable:'poppins',
     weight:'500'
 })
-    
-
-
 function ChatController() {
-    const {setMessages,userTypingId,setEditMessage,editMessage,setReplyMessage,replyMessage} = useGlobalState();
+    const {setMessages,setEditMessage,editMessage,setReplyMessage,replyMessage} = useGlobalState();
     const inputRef = useRef(null);
     const [message,setMessage] = useState('');
     const searchParams = useSearchParams();
@@ -52,73 +44,32 @@ function ChatController() {
     useEffect(() => {
       setEditMessage({isEditing:false,messageId:null,text:''});
     },[params])
-    async function handleMediaSubmit(media, caption, jwt, recieverId) {
-      const formData = new FormData();
-      formData.append("media", media);
-      formData.append("caption", caption || "");
-      formData.append("recieverId", recieverId);
-      try {
-        setLoading(true);
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/sendMessage`,
-          formData,
-          {
-            headers: {
-              Authorization: `jwt=${jwt}`,
-            },
-          }
-        );
-        console.log(res);
-        setMessage("");
-      } catch (err) {
-        console.log(err);
-      }finally{
-        fileRef.current.value = "";
-        setLoading(false);
-        setMediaUrl("");
-        setCaption('');
-        setMedia(null);
-      }
-    }
 
-    async function handleAudioSubmit(audioBlob,jwt,recieverId){
-      const formData = new FormData();
-      formData.append("media", audioBlob);
-      formData.append("recieverId", recieverId);
-      try {
-        setIsSendingAudio(true);
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/sendMessage`,
-          formData,
-          {
-            headers: {
-              Authorization: `jwt=${jwt}`,
-            },
-          }
-        );
-        console.log(res);
-        setMessage("");
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setIsSendingAudio(false);
-        setLoading(false);
-        setAudioBlob(null);
-        setAudioSrc('');
-
-      }
-    }
     async function handleSubmit(e){
       e.preventDefault();
       const jwt = localStorage.getItem("jwt");
       const payload = jwtDecode(jwt);
       const recieverId = searchParams.get("friendId");
+      // send audio
       if(jwt && audioBlob) {
-        await handleAudioSubmit(audioBlob, jwt, recieverId);
+        await handleAudioSubmit(audioBlob, jwt, recieverId,{
+          setAudioBlob,
+          setAudioSrc,
+          setIsSendingAudio,
+          setMessage,
+          setLoading
+        });
         return;
       }
+      // send image
       if(jwt && media) {
-        await handleMediaSubmit(media, caption, jwt, recieverId);
+        await handleMediaSubmit(media, caption, jwt, recieverId,fileRef, {
+          setMessage,
+          setLoading,
+          setMediaUrl,
+          setCaption,
+          setMedia
+        });
         return;
       }
       if(jwt && !media && message && !editMessage.isEditing) {
@@ -134,7 +85,6 @@ function ChatController() {
           data.replyTextId = replyMessage.messageId;
           data.replyTextSenderId = replyMessage.senderId;
           data.senderName = replyMessage.senderName;
-          console.log('chat container: ',replyMessage.messageId);
         }
         setMessage("");
         console.log('isReplying: ',replyMessage.isReplying);
@@ -156,88 +106,20 @@ function ChatController() {
             deletedBy:[],
           },
         ]);
-        console.log("what is remaining : ", {
-          isRead: false,
-          uniqueId,
-          placeholder: true,
-          message,
-          recieverId: Number(recieverId),
-          senderId: payload.id,
-          Type: "text-reply",
-          replyTextSenderId: replyMessage.senderId,
-          replyTextSender: { name: replyMessage.senderName },
-          time: new Date().toISOString(),
-          replyText: replyMessage.text,
-
-        });
        inputRef?.current?.focus();
-        console.log('scroll to true from controller');
         setReplyMessage({isReplying:false,messageId:null,senderId:null,senderName:'',text:''})
-        try {
-          const res = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/sendMessage`,
-            data,
-            {
-              headers: {
-                Authorization: `jwt=${jwt}`,
-              },
-            }
-          );
-          console.log(res);
-        } catch (err) {
-          console.log(err);
-        }
+        sendMessage(jwt);
       }
       if(editMessage.isEditing){
         if(message.length < 1){
           toast.error('type something to update it');
           return;
         }
-          setMessage("");
-          setMessages((mess) => {
-            return mess.map((el) => {
-              if (el.id === editMessage.messageId) {
-                return { ...el, message: message, isEdited:true };
-              } else {
-                return el;
-              }
-            });
-          });
-          setEditMessage({ isEditing: false, messageId:null ,text: "" });
-
-          inputRef?.current?.focus();
-          
-          try {
-            const res = await axios.patch(
-              `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/updateMessage/${editMessage.messageId}`,
-              { message,otherUser:params.get('friendId') },
-              {
-                headers: {
-                  Authorization: `jwt=${jwt}`,
-                },
-              }
-            );
-            console.log(res);
-          } catch (err) {
-            console.log(err);
-          }
-
+         await editAndSendMessage(setMessage,setMessages,setEditMessage,inputRef,jwt,editMessage)
       }
     }
 
-    function closeModelWindow(){
-        setMediaUrl(null);
-        setMedia(null);
-        fileRef.current.value = "";
-    }
-    function handleSelectMedia(e){
-      setMedia(e.target.files[0]);
-      const reader = new FileReader();
-      reader.onload = () => {
-        setMediaUrl(reader.result);
-      }
-      reader.readAsDataURL(e.target.files[0])
-    }
+
 
     useEffect(()=>{
       const audioChunks = [];
@@ -336,6 +218,20 @@ function ChatController() {
         inputRef?.current?.focus();
        }
     },[replyMessage.text])
+    function closeModelWindow() {
+      setMediaUrl(null);
+      setMedia(null);
+      fileRef.current.value = "";
+    }
+
+    function handleSelectMedia(e) {
+      setMedia(e.target.files[0]);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setMediaUrl(reader.result);
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
   return (
     <form
       onSubmit={handleSubmit}
@@ -364,11 +260,6 @@ function ChatController() {
             <FaTrash className="text-[var(--text)] text-xl" />
           </button>
         )}
-        {/* {userTypingId == searchParams.get("friendId") && (
-          <div className="absolute  w-fit   rounded-3xl lg:-top-7 lg:-left-1 -top-8 left-3 flex items-center gap-3">
-            <BsChatDotsFill className=" text-xl text-green-500" />
-          </div>
-        )} */}
       </div>
 
       {mediaUrl && (
@@ -455,14 +346,6 @@ function ChatController() {
           />
         </div>
       )}
-      {/* {audioSrc && (
-        <audio
-          controlsList="nodownload"
-          src={audioSrc}
-          controls
-          className={`${poppins.className} opacity-70 rounded-full col-span-6 disabled:cursor-not-allowed lg:flex-1 h-3/4 focus:outline-none  text-[var(--text)] px-5  tracking-wider`}
-        />
-      )} */}
       {audioSrc && (
         <div className="w-full col-span-6 ">
           <AudioPlayer
@@ -555,74 +438,3 @@ function ChatController() {
 } 
 
 export default ChatController;
-
-
-
-//  <p
-//    className={`message relative flex flex-col message rounded-sm pl-3 pr-20 p-2 w-fit max-w-3/4 lg:max-w-[45%]  break-words ${
-//      currentUserId === Number(message?.senderId)
-//        ? "ml-auto bg-green-900"
-//        : "bg-[var(--muted)]"
-//    }`}
-//  >
-//    {message?.isEdited && (
-//      <span className="messageChild text-xs opacity-90 mb-1">edited</span>
-//    )}
-//    {message?.message}
-//    <span className="messageChild text-xs right-2 bottom-1 absolute flex gap-1 items-center">
-//      {time}
-//      {message?.senderId === currentUserId && (
-//        <>
-//          <BiCheckDouble
-//            className={`text-lg messageChild ${
-//              message?.placeholder ? "hidden" : "block"
-//            } ${message?.isRead && "text-blue-400"}`}
-//          />
-//          <BiCheck
-//            className={`text-lg messageChild ${
-//              message?.placeholder ? "block" : "hidden"
-//            }`}
-//          />
-//        </>
-//      )}
-//    </span>
-//  </p>;
-
-//  <p
-//            className={`message relative flex flex-col message pr-1 rounded-sm pl-1 py-2  max-w-3/4 lg:max-w-[45%] w-fit break-words ${
-//              currentUserId === Number(message?.senderId)
-//                ? "ml-auto bg-green-900"
-//                : "bg-[var(--muted)]"
-//            }`}
-//          >
-//            {message?.isEdited && (
-//              <span className="messageChild pl-2 text-xs opacity-90 mb-1">edited</span>
-//            )}
-//            { message.Type === 'text-reply' &&
-//              <>
-//              <span className={`messageChild ${currentUserId === message?.senderId ? 'bg-green-400/10 border-l-green-400':'bg-gray-500/10 border-l-green-800'}  border-l-5  text-sm flex flex-col px-2 py-1 gap-1 mb-2 w-[100%] rounded-sm`}>
-//                <span className="messageChild text-green-500 font-bold">{message?.replyTextSenderId === currentUserId ? 'You' : message?.replyTextSender?.name}</span>
-//                <span className="messageChild">{message?.replyText}</span>
-//              </span>
-//              <span className="messageChild mr-20 pl-2">{message?.message}</span>
-//              <span className="messageChild messageChild text-xs right-2 bottom-1 absolute flex gap-1 items-center"></span>
-//              </>
-//            }
-//            <span>{message?.message}</span>
-           
-//              {time}
-//              {message?.senderId === currentUserId && (
-//                <>
-//                  <BiCheckDouble
-//                    className={`text-lg messageChild ${
-//                      message?.placeholder ? "hidden" : "block"
-//                    } ${message?.isRead && "text-blue-400"}`}
-//                  />
-//                  <BiCheck
-//                    className={`text-lg messageChild ${
-//                      message?.placeholder ? "block" : "hidden"
-//                    }`}
-//                  />
-//                </>
-//              )}
-//          </p>

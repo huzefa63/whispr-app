@@ -3,11 +3,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-
-import axios from "axios";
 import Spinner from "./Spinner";
-import toast from "react-hot-toast";
 import { signIn, signUp } from "../_services/authService";
+import { Field } from "./Field";
 function AuthForm() {
   const {
     handleSubmit,
@@ -89,75 +87,55 @@ function AuthForm() {
   }
 
   return (
-      <form
-        className=" rounded-md border text-white border-stone-700 w-full p-5"
-        onSubmit={handleSubmit(onsubmit)}
+    <form
+      className=" rounded-md border text-white border-stone-700 w-full p-5"
+      onSubmit={handleSubmit(onsubmit)}
+    >
+      <h1 className="text-center text-3xl text-[var(--text)] mb-5">
+        {pathname === "/auth/signup" ? "Signup Form" : "Signin Form"}
+      </h1>
+      <div className="relative z-0 w-full mb-5 group">
+        {fields.map((el, i) => (
+          <Field key={i} field={el} errors={errors} />
+        ))}
+        {pathname === "/auth/signup" && (
+          <input
+            {...register("profileImage")}
+            type="file"
+            className="file:bg-blue-500 file:px-3 file:py-2 file:rounded-md file:hover:bg-blue-600"
+          />
+        )}
+      </div>
+      <div className="flex items-center gap-2 mb-3">
+        <input type="checkbox" name="" id="remember" />
+        <label htmlFor="remember" className="text-[var(--text)]">
+          remember me for 30 days
+        </label>
+      </div>
+      <div>
+        <p className="text-[var(--text)]">
+          {pathname === '/auth/signup' ? 'already have an account ?' : "don't have an account ?"}
+          <Link className="text-blue-500" href={pathname === '/auth/signin' ? '/auth/signup': "/auth/signin"}>
+            {pathname === '/auth/signin' ? 'signup' : 'signin'}
+          </Link>{" "}
+        </p>
+      </div>
+      <button
+        type="submit"
+        className="mt-3 relative text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
-        <h1 className="text-center text-3xl text-[var(--text)] mb-5">
-          {pathname === "/auth/signup" ? "Signup Form" : "Signin Form"}
-        </h1>
-        <div className="relative z-0 w-full mb-5 group">
-          {fields.map((el, i) => (
-            <Field key={i} field={el} errors={errors} />
-          ))}
-          {pathname === '/auth/signup' && <input {...register('profileImage')} type="file" className="file:bg-blue-500 file:px-3 file:py-2 file:rounded-md file:hover:bg-blue-600"  />}
-        </div>
-        <div className="flex items-center gap-2 mb-3">
-          <input type="checkbox" name="" id="remember" />
-          <label htmlFor="remember" className="text-[var(--text)]">
-            remember me for 30 days
-          </label>
-        </div>
-        <div>
-          {pathname === "/auth/signup" && (
-            <p className="text-[var(--text)]">
-              already have an account ?{" "}
-              <Link className="text-blue-500" href="/auth/signin">
-                signin
-              </Link>{" "}
-            </p>
-          )}
-          {pathname === "/auth/signin" && (
-            <p className="text-[var(--text)]">
-              don't have an account ?{" "}
-              <Link className="text-blue-500" href="/auth/signup">
-                signup
-              </Link>{" "}
-            </p>
-          )}
-        </div>
-        <button
-          type="submit"
-          className="mt-3 relative text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        <span className={`${isSubmitting && "opacity-0"}`}>submit</span>
+        <span
+          className={`${
+            isSubmitting
+              ? "block absolute top-1/2 left-1/2 -translate-1/2 p-1"
+              : "hidden"
+          }`}
         >
-          <span className={`${isSubmitting && 'opacity-0'}`}>submit</span>
-          <span className={`${isSubmitting ? 'block absolute top-1/2 left-1/2 -translate-1/2 p-1':'hidden'}`}><Spinner /></span>
-        </button>
-      </form>
+          <Spinner />
+        </span>
+      </button>
+    </form>
   );
 }
 export default AuthForm;
-
-
-function Field({field,errors}){
-  return (
-    <div className="relative z-0 w-full mb-5 group">
-      <input
-        {...field?.register?.(field?.name, field?.validation)}
-        type={field?.type}
-        id={field?.name}
-        className="block py-2.5 px-0 w-full text-sm text-[var(--text)] bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-        placeholder=" "
-      />
-      <label
-        htmlFor={field?.name}
-        className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-      >
-        {field?.name === "passwordConfirm" && "confirm password"}
-        {field?.name === "contactNumber" && "contact number"}
-        {field?.name !== "passwordConfirm" && field?.name !== 'contactNumber' && field?.name}
-      </label>
-      {errors[field?.name] && <p className="text-red-500">{errors[field?.name]?.message}</p>}
-    </div>
-  );
-}
