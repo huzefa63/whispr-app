@@ -22,7 +22,8 @@ export async function getMessages(params, setScroll, setMessages) {
   }
 }
 
-export async function handleDelete(props, deleteFor, setMessages) {
+export async function handleDelete(props, deleteFor, setMessages,otherUser) {
+  console.log(props);
   const jwt = localStorage.getItem("jwt");
   if (!jwt) return;
   setMessages((mess) => {
@@ -31,7 +32,7 @@ export async function handleDelete(props, deleteFor, setMessages) {
   contextMenu.hideAll();
   try {
     await axios.delete(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/deleteMessage?messageId=${props?.messId}&otherUser=${params}&deleteFor=${deleteFor}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/deleteMessage?messageId=${props?.messId}&otherUser=${otherUser}&deleteFor=${deleteFor}`,
       {
         headers: {
           Authorization: `jwt=${jwt}`,
@@ -44,6 +45,7 @@ export async function handleDelete(props, deleteFor, setMessages) {
 }
 
 export function handleUpdate(props, setEditMessage) {
+  console.log(props.text);
   contextMenu.hideAll();
   setEditMessage({
     isEditing: true,
@@ -142,7 +144,7 @@ export async function handleAudioSubmit(
   }
 }
 
-export async function sendMessage(jwt) {
+export async function sendMessage(jwt,data) {
   try {
     const res = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/sendMessage`,
@@ -165,7 +167,9 @@ export async function editAndSendMessage(
   setEditMessage,
   inputRef,
   jwt,
-  editMessage
+  editMessage,
+  message,
+  friendId
 ) {
   setMessage("");
   setMessages((mess) => {
@@ -184,7 +188,7 @@ export async function editAndSendMessage(
   try {
     const res = await axios.patch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/message/updateMessage/${editMessage.messageId}`,
-      { message, otherUser: params.get("friendId") },
+      { message, otherUser: friendId },
       {
         headers: {
           Authorization: `jwt=${jwt}`,

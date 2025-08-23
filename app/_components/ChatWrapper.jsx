@@ -639,5 +639,4 @@ function ChatWrapper() {
       </div>
     );
 }
-
 export default ChatWrapper

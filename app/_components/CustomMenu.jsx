@@ -4,11 +4,13 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { GoReply } from "react-icons/go";
 import { MdCopyAll } from "react-icons/md";
 import { TbUser, TbUsers } from "react-icons/tb";
-import { handleDelete, handleUpdate } from "../_services/message";
+import { handleDelete, handleReply, handleUpdate } from "../_services/message";
 import { useGlobalState } from "./GlobalStateProvider";
+import { useSearchParams } from "next/navigation";
 
 function CustomMenu({MENU_ID,showEditItem}) {
-    const {setMessages,setReplyMessage} = useGlobalState();
+    const {setEditMessage,setMessages,setReplyMessage} = useGlobalState();
+    const searchParams = useSearchParams();
   return (
     <Menu
       id={MENU_ID}
@@ -17,7 +19,7 @@ function CustomMenu({MENU_ID,showEditItem}) {
       animation="slide"
     >
       {showEditItem && (
-        <Item id="edit" onClick={({props}) => handleUpdate(props,setMessages)} className="w-full">
+        <Item id="edit" onClick={({props}) => handleUpdate(props,setEditMessage)} className="w-full">
           <span className="w-full flex items-center gap-2">
             <FaEdit className="text-blue-400 " /> Edit
           </span>
@@ -35,7 +37,7 @@ function CustomMenu({MENU_ID,showEditItem}) {
         >
           <Item
             id="delete"
-            onClick={({ props }) => handleDelete(props, "me",setMessages)}
+            onClick={({ props }) => handleDelete(props, "me",setMessages, searchParams.get('friendId'))}
             className="w-full"
           >
             <span className="flex items-center gap-2 w-full text-sm">
@@ -45,7 +47,7 @@ function CustomMenu({MENU_ID,showEditItem}) {
           <Separator />
           <Item
             id="delete"
-            onClick={({ props }) => handleDelete(props, "everyone",setMessages)}
+            onClick={({ props }) => handleDelete(props, "everyone",setMessages, searchParams.get('friendId'))}
             className="w-full"
           >
             <span className="flex items-center gap-2 w-full">

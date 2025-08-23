@@ -108,14 +108,14 @@ function ChatController() {
         ]);
        inputRef?.current?.focus();
         setReplyMessage({isReplying:false,messageId:null,senderId:null,senderName:'',text:''})
-        sendMessage(jwt);
+        sendMessage(jwt,data);
       }
       if(editMessage.isEditing){
         if(message.length < 1){
           toast.error('type something to update it');
           return;
         }
-         await editAndSendMessage(setMessage,setMessages,setEditMessage,inputRef,jwt,editMessage)
+         await editAndSendMessage(setMessage,setMessages,setEditMessage,inputRef,jwt,editMessage,message,params.get('friendId'))
       }
     }
 
@@ -330,7 +330,7 @@ function ChatController() {
             {editMessage.isEditing && <div className="min-h-12 z-[1000] flex items-center px-4 justify-between text-white absolute -top-1 -translate-y-full rounded-md w-full py-1 break-words bg-gray-600">
               <div className="w-full">
                 <p className="text-sm opacity-80">Editing message</p>
-                <p className="">hello</p>
+                <p className="">{editMessage.text}</p>
               </div>
             </div>}
          
