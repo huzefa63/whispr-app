@@ -85,7 +85,7 @@ function SideChat({isPending,isLoading,userTypingId,setChats,chats}) {
     console.log(filteredChats)
     setFilteredChats({chats:filteredChats});
   }
-  function handleShowMenu(e){
+  function handleShowMenu(e,width){
     if(isMenu) {
       return contextMenu.hideAll();
     }
@@ -93,7 +93,7 @@ function SideChat({isPending,isLoading,userTypingId,setChats,chats}) {
     show({
       event:e,
       position:{
-        x:rect.x - 200,
+        x:rect.x - width,
         y:rect.y + rect.height + 5
       }
     })
@@ -128,8 +128,11 @@ function SideChat({isPending,isLoading,userTypingId,setChats,chats}) {
                type="text"
                className="bg-[var(--surface)] lg:w-[95%] w-full text-sm placeholder:text-sm h-fit focus:outline-none focus:border-[var(--border)] border-2 border-[var(--muted)] rounded-full px-5 py-2 lg:py-3 text-[var(--text)]"
              />
-             <button onClick={handleShowMenu}>
-               <BiDotsVertical className="hover:bg-gray-600 text-3xl hover:cursor-pointer w-6 h-6 text-white" />
+             <button onClick={e => handleShowMenu(e,200)}>
+               <BiDotsVertical className="hover:bg-gray-600 text-3xl hidden lg:flex hover:cursor-pointer w-6 h-6 text-white" />
+             </button>
+             <button onClick={e => handleShowMenu(e,170)}>
+               <BiDotsVertical className="hover:bg-gray-600 text-3xl lg:hidden hover:cursor-pointer w-6 h-6 text-white" />
              </button>
              {addFriend && (
                <ModelWindow close={() => setAddFriend(false)}>
