@@ -501,6 +501,7 @@ function ChatWrapper() {
           setRemoteOffer({ from: "", remoteOffer: null });
           setIsInCall(false);
           setIsVideoCall(false);
+          setLineBusy(false)
         }, 3000);
 
         if (navigator.vibrate) navigator.vibrate(400);
