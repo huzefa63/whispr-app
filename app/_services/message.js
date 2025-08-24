@@ -215,3 +215,166 @@ export function handleSelectMedia(e,setMedia,setMediaUrl) {
   };
   reader.readAsDataURL(e.target.files[0]);
 }
+
+export function updateMessagesBySetMessages(
+  setMessages,
+  replyMessage,
+  uniqueId,
+  message,
+  recieverId,
+  payload
+) {
+  if (!replyMessage.isReplying) {
+    setMessages((el) => [
+      ...el,
+      {
+        isRead: false,
+        uniqueId,
+        placeholder: true,
+        message,
+        recieverId: Number(recieverId),
+        senderId: payload.id,
+        Type: "text",
+        time: new Date().toISOString(),
+        deletedBy: [],
+      },
+    ]);
+  } else {
+    setMessages((el) => [
+      ...el,
+      {
+        isRead: false,
+        uniqueId,
+        placeholder: true,
+        message,
+        recieverId: Number(recieverId),
+        senderId: payload.id,
+        Type: "text-reply",
+        replyTextSenderId: replyMessage.senderId,
+        replyTextSender: { name: replyMessage.senderName },
+        time: new Date().toISOString(),
+        replyText: replyMessage.text,
+        deletedBy: [],
+      },
+    ]);
+  }
+}
+
+export async function handleSubmit(
+  e,
+  {
+    jwtDecode,
+    searchParams,
+    params,
+    audioBlob,
+    media,
+    caption,
+    fileRef,
+    replyMessage,
+    editMessage,
+    inputRef,
+    setAudioBlob,
+    setAudioSrc,
+    setIsSendingAudio,
+    setMessage,
+    setLoading,
+    setMediaUrl,
+    setCaption,
+    setMedia,
+    setMessages,
+    setReplyMessage,
+    setEditMessage,
+    handleAudioSubmit,
+    handleMediaSubmit,
+    updateMessagesBySetMessages,
+    sendMessage,
+    editAndSendMessage,
+    toast,
+    message
+  }
+) {
+  e.preventDefault();
+
+  const jwt = localStorage.getItem("jwt");
+  const payload = jwtDecode(jwt);
+  const recieverId = searchParams.get("friendId");
+
+  // Send audio
+  if (jwt && audioBlob) {
+    await handleAudioSubmit(audioBlob, jwt, recieverId, {
+      setAudioBlob,
+      setAudioSrc,
+      setIsSendingAudio,
+      setMessage,
+      setLoading,
+    });
+    return;
+  }
+
+  // Send image
+  if (jwt && media) {
+    await handleMediaSubmit(media, caption, jwt, recieverId, fileRef, {
+      setMessage,
+      setLoading,
+      setMediaUrl,
+      setCaption,
+      setMedia,
+    });
+    return;
+  }
+
+  // Send text message
+  if (jwt && !media && message && !editMessage.isEditing) {
+    const uniqueId = `${Date.now()}-${Math.round(Math.random() * 10000000)}`;
+    let data = {
+      message,
+      recieverId,
+      uniqueId,
+    };
+
+    if (replyMessage.isReplying) {
+      data.type = "text-reply";
+      data.replyText = replyMessage.text;
+      data.replyTextId = replyMessage.messageId;
+      data.replyTextSenderId = replyMessage.senderId;
+      data.senderName = replyMessage.senderName;
+    }
+
+    setMessage("");
+    updateMessagesBySetMessages(
+      setMessages,
+      replyMessage,
+      uniqueId,
+      message,
+      recieverId,
+      payload
+    );
+    inputRef?.current?.focus();
+    setReplyMessage({
+      isReplying: false,
+      messageId: null,
+      senderId: null,
+      senderName: "",
+      text: "",
+    });
+    sendMessage(jwt, data);
+  }
+
+  // Edit message
+  if (editMessage.isEditing) {
+    if (message.length < 1) {
+      toast.error("Type something to update it");
+      return;
+    }
+    await editAndSendMessage(
+      setMessage,
+      setMessages,
+      setEditMessage,
+      inputRef,
+      jwt,
+      editMessage,
+      message,
+      params.get("friendId")
+    );
+  }
+}
