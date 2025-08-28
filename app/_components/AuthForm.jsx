@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import Spinner from "./Spinner";
 import { signIn, signUp } from "../_services/authService";
 import { Field } from "./Field";
+
 function AuthForm() {
   const {
     handleSubmit,
@@ -14,15 +15,17 @@ function AuthForm() {
     formState: { errors },
   } = useForm({ mode: "onSubmit" });
   const pathname = usePathname();
-  const [isSubmitting,setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const fields = useMemo(
     () => [
       {
         name: "email",
         type: "email",
+        placeholder: "Enter your email",
         register,
         validation: {
-          required: "please enter valid email",
+          required: "Please enter a valid email",
         },
       },
       ...(pathname === "/auth/signup"
@@ -30,9 +33,10 @@ function AuthForm() {
             {
               name: "name",
               type: "text",
+              placeholder: "Enter your name",
               register,
               validation: {
-                required: "please enter username",
+                required: "Please enter username",
               },
             },
           ]
@@ -42,9 +46,10 @@ function AuthForm() {
             {
               name: "contactNumber",
               type: "number",
+              placeholder: "Enter your contact number",
               register,
               validation: {
-                required: "please enter contact number",
+                required: "Please enter contact number",
                 minLength: 10,
               },
             },
@@ -53,12 +58,13 @@ function AuthForm() {
       {
         name: "password",
         type: "password",
+        placeholder: "Enter your password",
         register,
         validation: {
-          required: "password is required",
+          required: "Password is required",
           minLength: {
             value: 6,
-            message: "password should be at least 6 characters long",
+            message: "Password should be at least 6 characters long",
           },
         },
       },
@@ -67,11 +73,12 @@ function AuthForm() {
             {
               name: "passwordConfirm",
               type: "password",
+              placeholder: "Confirm your password",
               register,
               validation: {
                 validate: (val) =>
                   getValues("password") !== val
-                    ? "password did not match"
+                    ? "Password did not match"
                     : true,
               },
             },
@@ -79,63 +86,64 @@ function AuthForm() {
         : []),
     ],
     [pathname]
-  ); // Prevent excessive recalculations
+  );
 
   async function onsubmit(data) {
-    if(pathname === '/auth/signup') await signUp(data,setIsSubmitting);
-    else await signIn(data,setIsSubmitting);
+    if (pathname === "/auth/signup") await signUp(data, setIsSubmitting);
+    else await signIn(data, setIsSubmitting);
   }
 
   return (
-    <form
-      className=" rounded-md border text-white border-stone-700 w-full p-5"
-      onSubmit={handleSubmit(onsubmit)}
-    >
-      <h1 className="text-center text-3xl text-[var(--text)] mb-5">
-        {pathname === "/auth/signup" ? "Signup Form" : "Signin Form"}
-      </h1>
-      <div className="relative z-0 w-full mb-5 group">
-        {fields.map((el, i) => (
-          <Field key={i} field={el} errors={errors} />
-        ))}
-        {pathname === "/auth/signup" && (
-          <input
-            {...register("profileImage")}
-            type="file"
-            className="file:bg-blue-500 file:px-3 file:py-2 file:rounded-md file:hover:bg-blue-600"
-          />
-        )}
-      </div>
-      <div className="flex items-center gap-2 mb-3">
-        <input type="checkbox" name="" id="remember" />
-        <label htmlFor="remember" className="text-[var(--text)]">
-          remember me for 30 days
+    <form className="space-y-6" onSubmit={handleSubmit(onsubmit)}>
+      {fields.map((el, i) => (
+        <Field
+          key={i}
+          field={el}
+          register={register}
+          errors={errors} // ✅ Pass errors as prop
+        />
+      ))}
+
+      {pathname === "/auth/signup" && (
+        <input
+          {...register("profileImage")}
+          type="file"
+          className="file:bg-indigo-600 file:text-white file:px-3 file:py-2 file:rounded-md mt-4 text-gray-400"
+        />
+      )}
+
+      <div className="flex items-center gap-2 mt-4">
+        <input type="checkbox" id="remember" />
+        <label htmlFor="remember" className="text-gray-400">
+          Remember me for 30 days
         </label>
       </div>
-      <div>
-        <p className="text-[var(--text)]">
-          {pathname === '/auth/signup' ? 'already have an account ?' : "don't have an account ?"}
-          <Link className="text-blue-500" href={pathname === '/auth/signin' ? '/auth/signup': "/auth/signin"}>
-            {pathname === '/auth/signin' ? 'signup' : 'signin'}
-          </Link>{" "}
-        </p>
+
+      <div className="text-gray-400">
+        {pathname === "/auth/signup"
+          ? "Already have an account?"
+          : "Don't have an account?"}{" "}
+        <Link
+          className="text-indigo-400 hover:underline"
+          href={pathname === "/auth/signin" ? "/auth/signup" : "/auth/signin"}
+        >
+          {pathname === "/auth/signin" ? "Sign Up" : "Sign In"}
+        </Link>
       </div>
+
       <button
         type="submit"
-        className="mt-3 relative text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        className="w-full py-3 mt-6 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-semibold text-lg shadow-lg transition-all relative"
       >
-        <span className={`${isSubmitting && "opacity-0"}`}>submit</span>
-        <span
-          className={`${
-            isSubmitting
-              ? "block absolute top-1/2 left-1/2 -translate-1/2 p-1"
-              : "hidden"
-          }`}
-        >
-          <Spinner />
-        </span>
+        <span className={`${isSubmitting && "opacity-0"}`}>Submit</span>
+        {isSubmitting && (
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Spinner />
+          </span>
+        )}
       </button>
     </form>
   );
 }
+
 export default AuthForm;

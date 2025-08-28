@@ -621,14 +621,10 @@ function ChatWrapper() {
         </Suspense>
         <div className="h-screen w-full bg-[var(--surface)] z-[9999]">
           <Suspense fallback={<div>loading chat...</div>}>
-           
               {isCall && remoteOffer && (
                 <CallUI lineBusy={lineBusy} answerVideoCall={answerVideoCall} answerCall={answerCall} ref={ref} />
               )}
-            
-
             <audio ref={ref} hidden autoPlay />
-
             <Chat
               startVideoCall={startVideoCall}
               startCall={startCall}

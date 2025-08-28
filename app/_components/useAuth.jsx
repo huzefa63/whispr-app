@@ -6,7 +6,7 @@ function useAuth() {
    useEffect(()=>{
     const token = localStorage.getItem('jwt');
     if(!token){
-        router.replace('/auth/signin')
+        router.replace('/home')
     }else{
         console.log('logged in');
     }
