@@ -33,7 +33,7 @@ export async function signIn(data,setIsSubmitting) {
     setIsSubmitting(true);
     const res = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signIn`,
-      data
+      data,{withCredentials:true}
     );
 
     localStorage.setItem("jwt", res.data?.jwt);
