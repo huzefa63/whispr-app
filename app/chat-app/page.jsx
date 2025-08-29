@@ -5,6 +5,7 @@ import ChatWrapper from "../_components/ChatWrapper";
 import SideChat from "../_components/SideChat"
 import { Suspense } from "react";
 import Spinner from "../_components/Spinner";
+import { cookies } from "next/headers";
 async function verfiyUser(){
   // try{
   //   const jwt = (await cookies()).get('jwt');
@@ -18,10 +19,11 @@ async function verfiyUser(){
   // }
 }
 
-function Page({searchParams}) {
+async function Page({searchParams}) {
     // const paramObj = await searchParams;
     // const userId = await verfiyUser();
-    
+    const cookie = await cookies();
+    console.log(cookie.get('auth_token'));
      return (
        <div className="w-full h-screen overflow-hidden">
         <AuthRedirect />
